@@ -174,6 +174,26 @@ set ::INST {
     {XGDX ____ ____ ____ ____ ____ 18   ____ ____}
 }
 
+################################################################################
+#
+# Fixup collection
+#
+
+set ::FIXUP_TEXT ""
+
+proc add_fixup {a} {
+    if { $::PASS == 2 } {
+	set d_a [value_to_dec $a]
+	set f_a [format "%04X" $d_a]
+	append ::FIXUP_TEXT "$f_a\n"    
+    }
+}
+
+################################################################################
+#
+# List file collection
+#
+
 proc addlst {txt} {
     append ::LIST_TEXT "$txt\n"
 }
@@ -252,8 +272,12 @@ proc proc_idx {len p1 p2} {
     emit $p1
 }
 
+# Extended addressing needs fixup for relocatable code
 proc proc_ext {len p1 p2} {
     emitword $p1
+
+    # Fixup address is address of instruction to be fixed
+    add_fixup $::ADDR
 }
 
 proc proc_imp {len p1 p2} {
@@ -618,7 +642,10 @@ proc write_lst_file {filename} {
 	set f_name [format "%20s" $label]
 	puts $f "$f_name: $label_value"
     }
-    
+
+    # Fixup information
+    puts $f "\nFixup Information\n"
+    puts $f "$::FIXUP_TEXT\n"
     close $f
 }
 
