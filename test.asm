@@ -1,4 +1,7 @@
-                .ORG    0
+	RTT_BF          .EQU    $2811
+	UTW_S0          .EQU    $3876
+	
+        .ORG    0
                 .WORD   CEND-CBASE              ; SIZE OF CODE
                 .ORG    $1000
                 CBASE:
