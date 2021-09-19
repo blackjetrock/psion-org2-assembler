@@ -20,8 +20,8 @@ ADDD #$1234
 ADDD $67    
 ADDD 5,X   
 ADDD $9876    
-  ;7  AIM #$78,$67   
-     ;61  AIM	 #$78,5,X 
+AIM #$78,$67   
+AIM	 #$78,5,X 
 ANDA #$78     
 ANDA $67    
 ANDA 5,X   
@@ -95,8 +95,8 @@ DECA
 DECB       
 DES        
 DEX        
-	;EIM #$78,$67   
-	   ;EIM	 #$78,5,X 
+EIM #$78,$67   
+EIM #$78,5,X 
 EORA #$78     
 EORA $67    
 EORA 5,X   
@@ -147,8 +147,8 @@ NEG	 $9876
 NEGA       
 NEGB       
 NOP        
-  ;OIM #$78,$67   
-     ;OIM	 #$78,5,X 
+OIM #$78,$67   	
+OIM #$78,5,X 
 ORAA #$78     
 ORAA $67    
 ORAA 5,X   
@@ -220,12 +220,14 @@ TBA
 TPA	       
 TSX        
 TXS        
-  ; TIM #$78,$67			
-      ;TIM #$78,5,X  
-TRAP
+	TIM #$78,$67
+	TIM #$78,5,X
+	TRAP
 TST 5,X    
 TST	 $9876    
 TSTA       
 TSTB       
 WAI        
 XGDX       
+
+	
