@@ -1,4 +1,4 @@
-	RTT_BF          .EQU    $2811
+	RTT_BF          .EQU    $2188
 	UTW_S0          .EQU    $3876
 	
         .ORG    0
@@ -18,7 +18,7 @@
                         RTS                     ; EXIT ROUTINE
                 CEND:
                         .WORD   $4E9            ; CHECKSUM OF CODE BLOCK
-                        .WORD   <FIXEN-FIXST>/2 ; NUMBER OF FIXUPS
+                        .WORD   (FIXEN-FIXST)/2 ; NUMBER OF FIXUPS
                 FIXST:
                         .WORD   FIX1+1          ; ADDRESS IN CODE BLOCK
                 FIXEN:
@@ -37,3 +37,8 @@ LOOP2:
         CPX     #CEND           ; ALL DONE
         BNE     LOOP2            ; NO - SO DO MORE
         ; UTW_S0 NOW HAS THE CHECKSUM
+
+
+
+
+	

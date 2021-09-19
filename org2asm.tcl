@@ -13,13 +13,14 @@
 
 set ::PASS 0
 
+set ::LIST_TEXT ""
 set ::LABELLIST ""
 
 set ::DIRNAMES ".ORG .WORD .EQU"
 set ::DIRPROCS "dir_org dir_word dir_equ"
 
 set ::ADDMODE {
-    {"REL" 2 "^%s\[ \]+(\[A-Z0-9a-z_\]+)"                       chk_nul  proc_rel }
+    {"REL" 2 "^%s\[ \]+(\[A-Z0-9a-z_$\]+)"                      chk_nul  proc_rel }
     {"IMM" 2 "^%s\[ \]+#\[ \]*(\[A-Za-z0-9_$\]+)"               chk_nul  proc_imm }
     {"DIR" 2 "^%s\[ \]+(\[A-Za-z0-9_$\]+)"                      chk_dir  proc_dir }
     {"IDX" 2 "^%s\[ \]+(\[0-9A-Fa-f$\]+)\[ \]*,\[ \]*(\[XY\])"  chk_nul  proc_idx }
@@ -171,10 +172,23 @@ set ::INST {
     {XGDX ____ ____ ____ ____ ____ 18  }
 }
 
+proc addlst {txt} {
+    append ::LIST_TEXT "$txt\n"
+}
+
+proc addlstline {addr type object line} {
+    set f_line [format "%-5s %-4s %-12s %-40s\n" $addr $type $object  $line]
+    append ::LIST_TEXT $f_line
+}
+    
 proc error {line msg} {
     puts "**ERROR***"
     puts $line
     puts $msg
+
+    addlst "**ERROR***"
+    addlst $line
+    addlst $msg
 }
 
 ################################################################################
@@ -202,6 +216,10 @@ proc chk_dir {p1 p2} {
 # One argument byte
 proc proc_rel {len p1 p2} {
     set r [expr $p1 - $::ADDR]
+
+    # Convert to byte
+    set r [expr $r & 0xff]
+    
     emit $r
 }
 
@@ -211,12 +229,9 @@ proc proc_imm {len p1 p2} {
 	    emit $p1
 	}
 	3 {
-	    emit [expr $p1 % 256]
-	    emit [expr $p1 / 256]
+	    emitword $p1
 	}
     }
-    
-
 }
 
 proc proc_dir {len p1 p2} {
@@ -228,8 +243,7 @@ proc proc_idx {len p1 p2} {
 }
 
 proc proc_ext {len p1 p2} {
-    emit [expr $p1 % 256]
-    emit [expr $p1 / 256] 
+    emitword $p1
 }
 
 proc proc_imp {len p1 p2} {
@@ -241,7 +255,7 @@ proc proc_imp {len p1 p2} {
 
 proc value_to_dec {str} {
 
-#    puts "str='$str'"
+    #    puts "str='$str'"
     if { [string first "$" $str] != -1 } {
 	set hex [string trim $str "$"]
 	set res [expr 0x$hex]
@@ -255,13 +269,31 @@ proc value_to_dec {str} {
 #
 # Emits a byte of object code
 
+# Text variable
 set ::EMITTED ""
+set ::HEX_EMITTED ""
 
 proc emit {b} {
     set fb [format "%02X" [value_to_dec $b]]
+
+    set ::EMITTED_ADDR $::ADDR
+    append ::EMITTED     " $fb"
+    append ::HEX_EMITTED "$fb"
+}
+
+proc emitword {w} {
+    if { $::PASS == 1 } {
+	append ::EMITTED " 00 00"
+	append ::HEX_EMITTED "0000"
+	return
+    }
     
+    set fb [format "%02X" [value_to_dec [expr $w / 256]]]
+    append ::EMITTED " $fb"
+    set fb [format "%02X" [value_to_dec [expr $w % 256]]]
     append ::EMITTED " $fb"
 }
+
 
 ################################################################################
 #
@@ -280,25 +312,87 @@ proc create_label {name value} {
 #
 # Directives
 #
+# Directives can have expressions as arguments
 
-proc dir_org {line} {
+proc evaluate_expression {exp} {
+    # if this is pass 1 then just return zero
+    if { $::PASS == 1 } {
+	return 0
+    }
+    
+    # Turn the expression into Tcl and evaluate it
+    #puts "EVALEXP:'$exp'"
+    
+    # Turn label names into references to the label variables
+    foreach label $::LABELLIST {
+	set exp [string map "$label [set ::LABEL($label)]" $exp]
+    }
+    #puts "EVALEXP:'$exp'"
+    
+    # Force hex values to correct format
+    set exp [string map "\$ 0x" $exp]
+
+    #puts "EVALEXP:'$exp'"
+    #puts "EVALEXP ='[expr $exp]'"
+    # Evaluate
+    return [expr $exp]
+}
+
+proc dir_org {line original_line} {
     # We set up ::ADDR as specified
-    if { [regexp -- ".ORG\[ \]+(\[A-Fa-f0-9$\]+)" $line all addr] } {
-	set ::ADDR [value_to_dec $addr]
+    if { [regexp -- ".ORG\[ \]+(\[A-Za-z0-9$+*/<>\-]+)" $line all addr] } {
+	set ::ADDR [evaluate_expression $addr]
+
+	set f_addr    [format "%04X" $::ADDR]
+	set f_emitted [format "%-12s" ""]
+	set line [string trim $original_line]
+	addlstline $f_addr "(O)" $f_emitted  $original_line
+
+	return 1
     } else {
 	error $line "Bad .ORG"
+	return 0
     }
 }
 
-proc dir_word {line} {
+proc dir_word {line original_line} {
+    # We create a word
+    #puts "dir_word:'$line'"
+    
+    if { [regexp -- ".WORD\[ \]+(.+)" $line all word] } {
+	set word [evaluate_expression $word]
+
+	# Emit it
+	set ::EMITTED ""
+	emitword $word
+	
+	set f_addr    [format "%04X" $::ADDR]
+	set f_emitted [format "%-12s" $::EMITTED]
+	set line [string trim $original_line]
+	addlstline $f_addr "(W)" $f_emitted  $original_line
+	
+	incr ::ADDR 2
+	return 1
+    } else {
+	error $line "Bad .WORD"
+	return 0
+    }
+    return 0
 }
 
 # Set label value
-proc dir_equ {line} {
+proc dir_equ {line original_line} {
     if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \]+.EQU\[ \]+(\[A-Fa-f0-9$\]+)" $line all name value] } {
 	create_label $name [value_to_dec $value]
+
+	set f_value [format "%04X        " [value_to_dec $value]]
+	set line [string trim $original_line]
+	addlstline "" "(E)" $f_value  $original_line
+
+	return 1
     } else {
 	error $line "Bad .EQU"
+	return 0
     }
 }
 
@@ -311,6 +405,8 @@ proc assemble_file {filename} {
 
     puts ""
     puts "Assembling $filename  Pass $::PASS"
+
+    addlst "Assembling $filename  Pass $::PASS"
     
     # Read file contents
     set f [open $filename]
@@ -326,6 +422,10 @@ proc assemble_file {filename} {
     
     # Take each line and assemble it
     foreach line [split $ftext "\n"] {
+
+	# Keep a record of the unaltered source line
+	set original_line $line
+
 	set found 0
 
 	#puts "line=$line"
@@ -334,12 +434,15 @@ proc assemble_file {filename} {
 	if { [regexp -- "(\[^;\]*);.*" $line all strippedline] } {
 	    set line $strippedline
 	}
-	
-	# Handle crating labels
+
+	# Handle creating labels
 	if { [regexp -- "(\[A-Za-z0-9_\]+):(.*)" $line all label line] } {
 	    # We have a label
 	    create_label $label $::ADDR
-	    
+
+	    if { [string length [string trim $line]] == 0 } {
+		addlstline $::ADDR "(L)" "" "$label:"
+	    }
 	}
 
 	# Substitute label values for names
@@ -347,13 +450,22 @@ proc assemble_file {filename} {
 	    set hval [format "\$%04X" $::LABEL($label)]
 	    set line [string map "$label $hval" $line]
 	}
-	
+
 	# handle directives
+	set donedir 0
 	foreach dirname $::DIRNAMES dirproc $::DIRPROCS {
 	    if { [string first $dirname $line] != -1 } {
 		# Process directive line
-		$dirproc $line
+		if { [$dirproc $line $original_line] } {
+		    set donedir 1
+		    break
+		}
 	    }
+	}
+
+	# If we processed a directive then we are finished with this line
+	if { $donedir } {
+	    continue
 	}
 	
 	# Run through every instruction trying each valid addressing
@@ -361,6 +473,11 @@ proc assemble_file {filename} {
 
 	# Remove leading spaces
 	set line [string trim $line]
+
+	# If there's no text left then we are done with this line
+	if { [string length $line] == 0 } {
+	    continue
+	}
 	
 	foreach inst_rec $::INST {
 	    set mne      [lindex $inst_rec 0]
@@ -436,7 +553,7 @@ proc assemble_file {filename} {
 			
 			set f_emitted [format "%-12s" $::EMITTED]
 			
-			puts "$f_addr ($addrmode_i) $f_emitted   $line"
+			addlstline $f_addr "($addrmode_i)" $f_emitted   $original_line
 			incr ::ADDR  $inst_length
 
 		    } else {
@@ -458,6 +575,11 @@ proc assemble_file {filename} {
 		break;
 	    }
 	}
+	if { $::PASS == 2 } {
+	    if { !$found } {
+		error $line "Instruction not found"
+	    }
+	}
     }
 }
 
@@ -467,24 +589,30 @@ proc write_lst_file {filename} {
 
     set f [open $filename w]
 
+    puts $f $::LIST_TEXT
+    
     foreach label $::LABELLIST {
 	set label_value [format "$%04X" $::LABEL($label)]
 	set f_name [format "%20s" $label]
-	puts  "$f_name: $label_value"
+	puts $f "$f_name: $label_value"
     }
     
     close $f
 }
 
 
+set asm_filename [lindex $argv 0]
+set lst_filename [string map {.asm .lst} $asm_filename]
+
 # two passes
 set ::PASS 1
-assemble_file test.asm
+assemble_file $asm_filename
+
 set ::PASS 2
-assemble_file test.asm
+set ::HEX_EMITTED ""
 
-puts ""
-puts ""
+		  
+assemble_file $asm_filename
 
-write_lst_file test.lst
+write_lst_file $lst_filename
 

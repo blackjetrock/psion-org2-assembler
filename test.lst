@@ -1,0 +1,87 @@
+Assembling test.asm  Pass 1
+      (E)  2188         	RTT_BF          .EQU    $2188          
+      (E)  3876         	UTW_S0          .EQU    $3876          
+0000  (O)                       .ORG    0                       
+0000  (W)   00 00                       .WORD   CEND-CBASE              ; SIZE OF CODE
+0000  (O)                               .ORG    $1000           
+0     (L)               CBASE:                                  
+0000  (1)   CE 00 00                            LDX     #RTT_BF         ; RUN TIME BUFFER
+0003  (1)   86 00                               LDAA    #$20          ; SPACE CHARACTER
+0005  (1)   C6 00                               LDAB    #10           ; DO 10 TIMES
+7     (L)               LOOP:                                   
+0007  (3)   A7 00                               STAA    0,X           ; STORE SPACE IN BUFFER
+0009  (5)   08                                  INX                     ; GO ON TO NEXT BYTE
+000A  (5)   5A                                  DECB                   ; DECREASE COUNT
+000B  (0)   26 F5                               BNE     LEND            ; FINISHED ?
+000D  (4)   7E 00 00                    FIX1:   JMP     LOOP            ; NO - SO LOOP
+16    (L)               LEND:                                   
+0010  (5)   39                                  RTS                     ; EXIT ROUTINE
+17    (L)               CEND:                                   
+0011  (W)   00 00                               .WORD   $4E9            ; CHECKSUM OF CODE BLOCK
+0013  (W)   00 00                               .WORD   (FIXEN-FIXST)/2 ; NUMBER OF FIXUPS
+21    (L)               FIXST:                                  
+0015  (W)   00 00                               .WORD   FIX1+1          ; ADDRESS IN CODE BLOCK
+23    (L)               FIXEN:                                  
+0017  (W)   00 00                               .WORD   $E              ; CHECKSUM OF FIXUPS
+0019  (1)   CE 00 00    	LDX     #CBASE          ; START ADDRESS
+001C  (5)   4F                  CLRA                            
+001D  (5)   5F                  CLRB                            
+001E  (4)   FD 00 00            STD     UTW_S0         ; START CHECKSUM AS 0
+33    (L)               LOOP2:                                  
+0021  (5)   4F                  CLRA                            
+0022  (3)   E6 00               LDAB    0,X           ; GET BYTE
+0024  (4)   F3 00 00            ADDD    UTW_S0         ; ADD CHECKSUM
+0027  (4)   FD 00 00            STD     UTW_S0         ; SAVE IT
+002A  (5)   08                  INX                             
+002B  (1)   8C 00 00            CPX     #CEND           ; ALL DONE
+002E  (0)   26 D2               BNE     LOOP2            ; NO - SO DO MORE
+Assembling test.asm  Pass 2
+      (E)  2188         	RTT_BF          .EQU    $2188          
+      (E)  3876         	UTW_S0          .EQU    $3876          
+0000  (O)                       .ORG    0                       
+0000  (W)   00 11                       .WORD   CEND-CBASE              ; SIZE OF CODE
+1000  (O)                               .ORG    $1000           
+4096  (L)               CBASE:                                  
+1000  (1)   CE 21 88                            LDX     #RTT_BF         ; RUN TIME BUFFER
+1003  (1)   86 20                               LDAA    #$20          ; SPACE CHARACTER
+1005  (1)   C6 0A                               LDAB    #10           ; DO 10 TIMES
+4103  (L)               LOOP:                                   
+1007  (3)   A7 00                               STAA    0,X           ; STORE SPACE IN BUFFER
+1009  (5)   08                                  INX                     ; GO ON TO NEXT BYTE
+100A  (5)   5A                                  DECB                   ; DECREASE COUNT
+100B  (0)   26 05                               BNE     LEND            ; FINISHED ?
+100D  (4)   7E 10 07                    FIX1:   JMP     LOOP            ; NO - SO LOOP
+4112  (L)               LEND:                                   
+1010  (5)   39                                  RTS                     ; EXIT ROUTINE
+4113  (L)               CEND:                                   
+1011  (W)   04 E9                               .WORD   $4E9            ; CHECKSUM OF CODE BLOCK
+1013  (W)   00 01                               .WORD   (FIXEN-FIXST)/2 ; NUMBER OF FIXUPS
+4117  (L)               FIXST:                                  
+1015  (W)   10 0E                               .WORD   FIX1+1          ; ADDRESS IN CODE BLOCK
+4119  (L)               FIXEN:                                  
+1017  (W)   00 0E                               .WORD   $E              ; CHECKSUM OF FIXUPS
+1019  (1)   CE 10 00    	LDX     #CBASE          ; START ADDRESS
+101C  (5)   4F                  CLRA                            
+101D  (5)   5F                  CLRB                            
+101E  (4)   FD 38 76            STD     UTW_S0         ; START CHECKSUM AS 0
+4129  (L)               LOOP2:                                  
+1021  (5)   4F                  CLRA                            
+1022  (3)   E6 00               LDAB    0,X           ; GET BYTE
+1024  (4)   F3 38 76            ADDD    UTW_S0         ; ADD CHECKSUM
+1027  (4)   FD 38 76            STD     UTW_S0         ; SAVE IT
+102A  (5)   08                  INX                             
+102B  (1)   8C 10 11            CPX     #CEND           ; ALL DONE
+102E  (0)   26 44               BNE     LOOP2            ; NO - SO DO MORE
+
+              RTT_BF: $2188
+              UTW_S0: $3876
+               CBASE: $1000
+                LOOP: $1007
+                FIX1: $100D
+                LEND: $1010
+                CEND: $1011
+               FIXST: $1015
+               FIXEN: $1017
+               LOOP2: $1021
+                2188: $2188
+                3876: $3876

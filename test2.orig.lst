@@ -1,0 +1,231 @@
+1B  ABA        
+3A  ABX        
+89  ADCA #$78     
+99  ADCA $67   
+A9  ADCA 5,X   
+B9  ADCA $9876    
+C9  ADCB #$78     
+D9  ADCB $67    
+E9  ADCB 5,X   
+F9  ADCB $9876    
+8B  ADDA #$78     
+9B  ADDA $67   
+AB  ADDA 5,X   
+BB  ADDA $9876    
+CB  ADDB #$78     
+DB  ADDB $67    
+EB  ADDB 5,X   
+FB  ADDB $9876    
+C3  ADDD #$78$1234    
+D3  ADDD $67    
+E3  ADDD 5,X   
+F3  ADDD $9876    
+71  AIM #$78,$67   
+61  AIM	 #$78,5,X 
+84  ANDA #$78     
+94  ANDA $67    
+A4  ANDA 5,X   
+B4  ANDA $9876    
+C4  ANDB #$78     
+D4  ANDB $67    
+E4  ANDB 5,X   
+F4  ANDB $9876    
+68  ASL 5,X    
+78  ASL $9876     
+48  ASLA      
+58  ASLB       
+05  ASLD       
+67  ASR 5,X    
+77  ASR $9876     
+47  ASRA      
+57  ASRB       
+85  BITA #$78     
+95  BITA $67    
+A5  BITA 5,X  
+B5  BITA $9876    
+C5  BITB #$78     
+D5  BITB $67    
+E5  BITB 5,X   
+F5  BITB $9876    
+20  BRA $45      
+21  BRN	 $45     
+22  BHI $45      
+23  BLS $45      
+24  BCC $45      
+25  BCS $45      
+26  BNE $45      
+27  BEQ	 $45     
+28  BVC $45      
+29  BVS $45      
+2A  BPL $45      
+2B  BMI $45      
+2C  BGE $45      
+2D  BLT $45      
+2E  BGT $45      
+2F  BLE $45      
+8D  BSR $45      
+11  CBA        
+81  CMPA #$78    
+91  CMPA $67    
+A1  CMPA 5,X   
+B1  CMPA $9876    
+C1  CMPB #$78     
+D1  CMPB $67    
+E1  CMPB 5,X   
+F1  CMPB $9876    
+8C  CPX #$78$1234     
+9C  CPX $67     
+AC  CPX 5,X    
+BC  CPX $9876     
+0C  CLC        
+0E  CLI	       
+0A  CLV        
+6F  CLR 5,X    
+7F  CLR $9876     
+4F  CLRA      
+5F  CLRB       
+63  COM 5,X    
+73  COM	 $9876    
+43  COMA       
+53  COMB       
+19  DAA        
+6A  DEC 5,X    
+7A  DEC	 $9876    
+4A  DECA       
+5A  DECB       
+34  DES        
+09  DEX        
+75  EIM #$78,$67   
+65  EIM	 #$78,5,X 
+88  EORA #$78     
+98  EORA $67    
+A8  EORA 5,X   
+B8  EORA $9876    
+C8  EORB #$78     
+D8  EORB $67    
+E8  EORB 5,X   
+F8  EORB $9876    
+6C  INC 5,X    
+7C  INC	 $9876    
+4C  INCA       
+5C  INCB       
+31  INS        
+08  INX        
+6E  JMP 5,X    
+7E  JMP	 $9876    
+9D  JSR $67     
+AD  JSR	 5,X   
+BD  JSR $9876     
+86  LDAA #$78     
+96  LDAA $67   
+A6  LDAA 5,X   
+B6  LDAA $9876    
+C6  LDAB #$78     
+D6  LDAB $67    
+E6  LDAB 5,X   
+F6  LDAB $9876    
+CC  LDD #$78$1234     
+DC  LDD $67     
+EC  LDD 5,X    
+FC  LDD $9876     
+8E  LDS #$78$1234     
+9E  LDS $67     
+AE  LDS 5,X    
+BE  LDS $9876     
+CE  LDX #$78$1234     
+DE  LDX $67     
+EE  LDX 5,X    
+FE  LDX $9876     
+64  LSR 5,X    
+74  LSR	 $9876    
+44  LSRA       
+54  LSRB       
+04  LSRD       
+3D  MUL        
+60  NEG 5,X    
+70  NEG	 $9876    
+40  NEGA       
+50  NEGB       
+01  NOP        
+72  OIM #$78,$67   
+62  OIM	 #$78,5,X 
+8A  ORAA #$78     
+9A  ORAA $67    
+AA  ORAA 5,X   
+BA  ORAA $9876    
+CA  ORAB #$78     
+DA  ORAB $67    
+EA  ORAB 5,X   
+FA  ORAB $9876    
+36  PSHA       
+37  PSHB      
+3C  PSHX       
+32  PULA       
+33  PULB      
+38  PULX       
+69  ROL 5,X    
+79  ROL $9876     
+49  ROLA      
+59  ROLB       
+66  ROR 5,X    
+76  ROR	 $9876    
+46  RORA       
+56  RORB       
+3B  RTI        
+39  RTS	       
+10  SBA        
+82  SBCA #$78     
+92  SBCA $67    
+A2  SBCA 5,X  
+B2  SBCA $9876    
+C2  SBCB #$78     
+D2  SBCB $67    
+E2  SBCB 5,X   
+F2  SBCB $9876    
+0D  SEC        
+0F  SEI	       
+0B  SEV        
+1A  SLP        
+97  STAA $67    
+A7  STAA 5,X  
+B7  STAA $9876    
+D7  STAB $67    
+E7  STAB 5,X   
+F7  STAB $9876    
+DD  STD $67     
+ED  STD 5,X    
+FD  STD $9876     
+9F  STS $67     
+AF  STS 5,X    
+BF  STS $9876     
+DF  STX $67     
+EF  STX 5,X    
+FF  STX $9876     
+80  SUBA #$78     
+90  SUBA $67   
+A0  SUBA 5,X   
+B0  SUBA $9876    
+C0  SUBB #$78     
+D0  SUBB $67    
+E0  SUBB 5,X   
+F0  SUBB $9876    
+83  SUBD #$78$1234    
+93  SUBD $67    
+A3  SUB	D 5,X  
+B3  SUBD $9876    
+3F  SWI        
+16  TAB        
+06  TAP	       
+17  TBA        
+07  TPA	       
+30  TSX        
+35  TXS        
+7B  TIM #$78,$67   
+6B  TIM #$78,5,X  
+00  TRAP
+6D  TST 5,X    
+7D  TST	 $9876    
+4D  TSTA       
+5D  TSTB       
+3E  WAI        
+18  XGDX       
