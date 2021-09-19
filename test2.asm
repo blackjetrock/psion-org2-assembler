@@ -1,4 +1,5 @@
-ABA        
+  org   $2000
+	ABA        
 ABX        
 ADCA #$78     
 ADCA $67   

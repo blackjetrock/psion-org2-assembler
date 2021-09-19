@@ -16,8 +16,8 @@ set ::PASS 0
 set ::LIST_TEXT ""
 set ::LABELLIST ""
 
-set ::DIRNAMES ".ORG .WORD .EQU"
-set ::DIRPROCS "dir_org dir_word dir_equ"
+set ::DIRNAMES ".ORG .WORD .EQU org equ"
+set ::DIRPROCS "dir_org dir_word dir_equ dir_org dir_equ"
 
 set ::ADDMODE {
     {"REL" 2 "^%s\[ \t\]+(\[A-Z0-9a-z_$\]+)"                                                                chk_nul  proc_rel }
@@ -384,7 +384,7 @@ proc evaluate_expression {exp} {
 
 proc dir_org {line original_line} {
     # We set up ::ADDR as specified
-    if { [regexp -- ".ORG\[ \]+(\[A-Za-z0-9$+*/<>\-]+)" $line all addr] } {
+    if { [regexp -- "(.ORG|org)\[ \t\]+(\[A-Za-z0-9$+*/<>\-]+)" $line all dir addr] } {
 	set ::ADDR [evaluate_expression $addr]
 
 	set f_addr    [format "%04X" $::ADDR]
@@ -403,7 +403,7 @@ proc dir_word {line original_line} {
     # We create a word
     #puts "dir_word:'$line'"
     
-    if { [regexp -- ".WORD\[ \]+(.+)" $line all word] } {
+    if { [regexp -- ".WORD\[ \t\]+(.+)" $line all word] } {
 	set word [evaluate_expression $word]
 
 	# Emit it
@@ -426,7 +426,7 @@ proc dir_word {line original_line} {
 
 # Set label value
 proc dir_equ {line original_line} {
-    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \]+.EQU\[ \]+(\[A-Fa-f0-9$\]+)" $line all name value] } {
+    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+(.EQU|equ)\[ \t\]+(\[A-Fa-f0-9$\]+)" $line all name dir value] } {
 	create_label $name [value_to_dec $value]
 
 	set f_value [format "%04X        " [value_to_dec $value]]
@@ -528,6 +528,12 @@ proc assemble_file {filename} {
 	    
 	    set mne      [lindex $inst_rec 0]
 
+	    # If the line doesn't have the mnemonic in it then we don't bother
+	    # processing further for this instruction
+	    if { [string first $mne $line] == -1 } {
+		continue
+	    }
+	    
 	    # Run through all the addressing modes
 	    set addrmode_index 0
 
