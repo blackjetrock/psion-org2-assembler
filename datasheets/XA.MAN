@@ -1,0 +1,806 @@
+
+
+
+
+        USER GUIDE FOR THE
+
+        PSION ORGANISER II
+
+        CROSS ASSEMBLER
+
+        Draft Version
+
+
+
+
+        (C) Psion Ltd 1987
+
+
+
+
+
+
+                                           CONTENTS
+
+                1       GENERAL  . . . . . . . . . . . . . . . . . . . . . . 3
+                2       INTRODUCTION . . . . . . . . . . . . . . . . . . . . 3
+                3       INVOKING THE ASSEMBLER . . . . . . . . . . . . . . . 3
+                4       CODE STRUCTURE . . . . . . . . . . . . . . . . . . . 4
+                5       VALUES . . . . . . . . . . . . . . . . . . . . . . . 4
+                6       COMMANDS . . . . . . . . . . . . . . . . . . . . . . 5
+                6.1       .ADDRESS . . . . . . . . . . . . . . . . . . . . . 5
+                6.2       .ALIGN . . . . . . . . . . . . . . . . . . . . . . 5
+                6.3       .AREA  . . . . . . . . . . . . . . . . . . . . . . 5
+                6.4       .ASCIC . . . . . . . . . . . . . . . . . . . . . . 6
+                6.5       .ASCII . . . . . . . . . . . . . . . . . . . . . . 6
+                6.6       .ASCIZ . . . . . . . . . . . . . . . . . . . . . . 6
+                6.7       .BLKB  . . . . . . . . . . . . . . . . . . . . . . 6
+                6.8       .BLKW  . . . . . . . . . . . . . . . . . . . . . . 6
+                6.9       .BLKL  . . . . . . . . . . . . . . . . . . . . . . 6
+                6.10      .BLKA  . . . . . . . . . . . . . . . . . . . . . . 6
+                6.11      .BLKF  . . . . . . . . . . . . . . . . . . . . . . 7
+                6.12      .BYTE  . . . . . . . . . . . . . . . . . . . . . . 7
+                6.13      .END . . . . . . . . . . . . . . . . . . . . . . . 7
+                6.14      .ENDC  . . . . . . . . . . . . . . . . . . . . . . 7
+                6.15      .ENDM  . . . . . . . . . . . . . . . . . . . . . . 7
+                6.16      .EOVER . . . . . . . . . . . . . . . . . . . . . . 7
+                6.17      .ERROR . . . . . . . . . . . . . . . . . . . . . . 8
+                6.18      .EVEN  . . . . . . . . . . . . . . . . . . . . . . 8
+                6.19      .FLOAT . . . . . . . . . . . . . . . . . . . . . . 8
+                6.20      .IF  . . . . . . . . . . . . . . . . . . . . . . . 8
+                6.21      .IF_FALSE  . . . . . . . . . . . . . . . . . . . . 9
+                6.22      .IF_TRUE . . . . . . . . . . . . . . . . . . . . . 9
+                6.23      .IF_TRUE_FALSE . . . . . . . . . . . . . . . . . . 9
+                6.24      .IFF . . . . . . . . . . . . . . . . . . . . . . . 9
+                6.25      .IFT . . . . . . . . . . . . . . . . . . . . . .  10
+                6.26      .IFTF  . . . . . . . . . . . . . . . . . . . . .  10
+                6.27      .IIF . . . . . . . . . . . . . . . . . . . . . .  10
+                6.28      .LIST  . . . . . . . . . . . . . . . . . . . . .  10
+                6.29      .LONG  . . . . . . . . . . . . . . . . . . . . .  10
+                6.30      .MACRO . . . . . . . . . . . . . . . . . . . . .  11
+                6.31      .MEXIT . . . . . . . . . . . . . . . . . . . . .  12
+                6.32      .NARG  . . . . . . . . . . . . . . . . . . . . .  12
+        ORGANISER II CROSS ASSEMBLER                                    Page 2
+        DRAFT VERSION                                           14 August 1987
+
+
+                6.33      .NCHR  . . . . . . . . . . . . . . . . . . . . .  12
+                6.34      .NLIST . . . . . . . . . . . . . . . . . . . . .  12
+                6.35      .NTYPE . . . . . . . . . . . . . . . . . . . . .  12
+                6.36      .ODD . . . . . . . . . . . . . . . . . . . . . .  12
+                6.37      .ORG . . . . . . . . . . . . . . . . . . . . . .  13
+                6.38      .OVER  . . . . . . . . . . . . . . . . . . . . .  13
+                6.39      .PRINT . . . . . . . . . . . . . . . . . . . . .  13
+                6.40      .RADIX . . . . . . . . . . . . . . . . . . . . .  13
+                6.41      .SIGNED_BYTE . . . . . . . . . . . . . . . . . .  14
+                6.42      .SIGNED_WORD . . . . . . . . . . . . . . . . . .  14
+                6.43      .SIGNED_LONG . . . . . . . . . . . . . . . . . .  14
+                6.44      .WARN  . . . . . . . . . . . . . . . . . . . . .  14
+                6.45      .WORD  . . . . . . . . . . . . . . . . . . . . .  14
+        ORGANISER II CROSS ASSEMBLER                               Page 3
+        GENERAL                                            14 August 1987
+
+
+        1  GENERAL
+
+        This user guide describes the commands and features of the Psion
+        Organiser II Cross Assembler.  It is assumed that the reader has
+        a working knowledge of the Organiser and 6301 machine code.  The
+        Organiser II technical manual contains examples of assembler
+        source code.  The examples given in the manual can be assembled
+	as long as all '$'s (referring to hex numbers) are changed to '^x'.
+
+
+
+        2  INTRODUCTION
+
+        One of the main features of the Psion Organiser II Cross
+        Assembler is that the output produced is relocatable.  This is
+        achieved by the use of a fix up table stored at the end of the
+        code.  Each entry in the table is a two byte offset of an address
+        access within the code.  Each of these is adjusted automatically
+        when the coded is loaded into memory from a pack by the
+        difference between the address at which the code has been
+        assembled and the actual address the code has been loaded at.
+
+        Another feature of the assembler is the ability to handle
+        overlays.  The mechanism for this will be discussed in detail
+        later on in this document.
+
+
+
+        3  INVOKING THE ASSEMBLER
+
+        The assembler is invoked with:
+
+        xa -o<out> -i<inc> -l<list> -m<map> -b -d<sym>=<val> <source>
+
+        where all the flags are optional.  <source> is the name of the
+        source file to be assembled.  In the case of a large program, the
+        source file might include other files using the built in C style
+        preprocessor.  If no extension is present in the source file
+        name, the file is assumed to have an extension of "src".
+
+        The flags have the following meaning:
+
+                 <out> is the name of the output file to be generated.
+                 If no extension is present in the file name, the file
+                 will have an extension of "bin" if the -b flag is
+                 present or "hex" otherwise.  If this flag is not
+                 present, no output file is created.
+
+                 <inc> is the name of the directory which is used for
+                 angle bracket includes by the C style preprocessor which
+                 is built in to the assembler.
+
+                 <list> is the name of the listing file to be generated.
+                 If no extension is present in the file name, the file
+                 will have an extension of "lis".  If this flag is not
+                 present, no list file is created.
+        ORGANISER II CROSS ASSEMBLER                               Page 4
+        INVOKING THE ASSEMBLER                             14 August 1987
+
+
+                 <map> is the name of a file containing symbol names and
+                 their values for use by the debugger.  If no extension
+                 is present in the file name, the file will have an
+                 extension of "map".  If this flag is not present, no map
+                 file is created.
+
+                 the output is in binary form if the -b flag is present
+                 and in S record form if the -b flag is not present.
+
+                 <sym> specifies the name of a symbol to be inserted into
+                 the C style preprocessor.  The equals sign followed by a
+                 value is optional and leaving it out is equivalent to
+                 setting a value of one.  Up to 10 symbols may be defined
+                 in the command line.
+
+
+
+
+        4  CODE STRUCTURE
+
+        The syntax for a line of assembler code is as follows:
+
+        [<label>:|<number>$:] [<mnemonic> [<params>]] [;<comment>]
+
+        If the label is a number followed by a dollar ($) then the label
+        is local.  Local labels are only valid between the nearest non
+        local labels such that only code within this area can access
+        them.
+
+
+
+        5  VALUES
+
+        Values can be numbers or expressions.  Numbers are by default
+        decimal.  This default can be changed, see the .RADIX command.
+        To specify a hexadecimal number use ^X<hex num>, for a decimal
+        number use ^D<dec num> and for an octal number use ^O<oct num>,
+        eg ^x2a, ^d42, ^o52.  Ascii numbers can be specified using
+        ^A<delimiter><chars><delimiter>.  The delimiters can be any ascii
+        character, eg ^a/f/, ^a"f" and ^aqASq are all valid.  If two
+        characters are specified a word is generated, top byte of which
+        is the ascii number of the first character, the bottom byte the
+        ascii number of the second character.
+
+        The pack address of a label can be accessed by preceding the
+        label name with the percent symbol (%).
+
+        Expressions can contain the usual arithmetic qualifiers (+, -, *,
+        /), along with:
+
+                 !  for OR
+
+                 & for AND
+
+                 @ for shift where the left-hand operator is shifted to
+                 the left or right by the right-hand operator depending
+                 on whether the right-hand operator is negative or
+                 positive respectively
+        ORGANISER II CROSS ASSEMBLER                               Page 5
+        VALUES                                             14 August 1987
+
+
+        Expressions are evaluated strictly left to right with no
+        precedence.  For example 1+2*3 will evaluate to 9.  To overcome
+        this, expressions can be bracketed with the triangular bracket
+        characters (<, >) such that, 1+<2*3> will evaluate to 7.
+
+        Values can be assigned to names in three ways.  The syntax of
+        these are as follows:
+
+             1.  <name> = <value>
+
+             2.  <name> equ <value>
+
+             3.  #define <name> <value>
+
+        NB - Care must be taken if a value is to be used as an address as
+        addresses defined this way will not be relocatable.
+
+
+
+        6  COMMANDS
+
+        A number of commands are available from within the assembly file.
+        These are described below.
+
+
+
+        6.1  .ADDRESS
+
+        SYNTAX - .address <address list>
+
+        The address(es) specified in the address list will be included in
+        the output.  Addresses must be separated by commas.  Each address
+        is stored in two bytes.
+
+
+
+        6.2  .ALIGN
+
+        SYNTAX - .align <boundary>[,<fill>]
+
+        Aligns the address at which assembly will continue to the
+        boundary specified.  Boundary can be either a digit or a keyword.
+        If boundary is a digit, then the address is aligned to
+        2^boundary.  Values of keywords are BYTE (1), WORD (2), LONG (4),
+        and PAGE (512).  The bytes in between the old location address
+        and the new are filled with the fill value if specified.  If no
+        fill value specified then the default is zero.
+
+
+
+        6.3  .AREA
+
+        SYNTAX - .area <name>
+
+        Start a new overlay area.  See .OVER for a full description of
+        this command.
+        ORGANISER II CROSS ASSEMBLER                               Page 6
+        COMMANDS                                           14 August 1987
+
+
+        6.4  .ASCIC
+
+        SYNTAX - .ascic "<text>"
+
+        The text specified will be included in the output preceded by a
+        byte sized count of the number of characters.
+
+
+
+        6.5  .ASCII
+
+        SYNTAX - .ascii "<text>"
+
+        The text specified will be included in the output.
+
+
+
+        6.6  .ASCIZ
+
+        SYNTAX - .asciz "<text>"
+
+        The text specified will be included in the output terminated by a
+        zero byte.
+
+
+
+        6.7  .BLKB
+
+        SYNTAX - .blkb <number>
+
+        Leaves space in output for <number> bytes.
+
+
+
+        6.8  .BLKW
+
+        SYNTAX - .blkw <number>
+
+        Leaves space in output for <number> words (2 bytes).
+
+
+
+        6.9  .BLKL
+
+        SYNTAX - .blkl <number>
+
+        Leaves space in output for <number> longs (4 bytes).
+
+
+
+        6.10  .BLKA
+
+        SYNTAX - .blka <number>
+
+        Leaves space in output for <number> addresses (2 bytes).
+        ORGANISER II CROSS ASSEMBLER                               Page 7
+        COMMANDS                                           14 August 1987
+
+
+        6.11  .BLKF
+
+        SYNTAX - .blkf <number>
+
+        Leaves space in output for <number> floating point numbers (8
+        bytes).
+
+
+
+        6.12  .BYTE
+
+        SYNTAX - .byte <expression list>
+
+        The byte(s) specified in <expression list> will be included in
+        the output.  If a value is immediately followed by a number in
+        square brackets ([]), then this number is treated as a range
+        specifier, the range going from 0 to this number.  The value will
+        be repeated for each location in the range.  Eg .byte 42[3] will
+        produce 4 bytes of value 42 in the output.
+
+
+
+        6.13  .END
+
+        SYNTAX - .end
+
+        End of assembly file.  Causes assembly to finish.  The assembler
+        will report an error if the end of file is reached without a .END
+        command being found.
+
+
+
+        6.14  .ENDC
+
+        SYNTAX - .endc
+
+        End a conditional section.  See .IF.
+
+
+
+        6.15  .ENDM
+
+        SYNTAX - .endm
+
+        End macro definition block.  See .MACRO for a full description of
+        this command.
+
+
+
+        6.16  .EOVER
+
+        SYNTAX - .eover
+
+        End an overlay.  See .OVER for a full description of this
+        command.
+        ORGANISER II CROSS ASSEMBLER                               Page 8
+        COMMANDS                                           14 August 1987
+
+
+        6.17  .ERROR
+
+        SYNTAX - .error [<error number>];<message>
+
+        Force an error to be generated.  The error number and message are
+        reported at assembly time.
+
+
+
+        6.18  .EVEN
+
+        SYNTAX - .even
+
+        Force the assembly to continue at the next even address.
+
+
+
+        6.19  .FLOAT
+
+        SYNTAX - .float <float list>
+
+        The floats in the list are included in the output in the format
+        used by the Organiser II operating system.
+
+
+
+        6.20  .IF
+
+        SYNTAX - .if <condition> <arguments>
+
+        Starts a conditional assembly block, which is terminated by the
+        .ENDC command.  Conditions possible are as follows:
+
+             1.  EQUAL, short EQ, true if expression in argument is zero.
+
+             2.  NOT_EQUAL, short NE, true if expression in argument is
+                 not zero.
+
+             3.  GREATER, short GT, true if expression in argument is
+                 greater than zero.
+
+             4.  LESS_EQUAL, short LE, true if expression in argument is
+                 less than or equal to zero.
+
+             5.  LESS_THAN, short LT, true if expression in argument is
+                 less than zero.
+
+             6.  GREATER_EQUAL, short GE, true if expression in argument
+                 is greater than or equal to zero.
+
+             7.  DEFINED, short DF, true if symbol specified is defined.
+
+             8.  NOT_DEFINED, short NDF, true if symbol specified is not
+                 defined.
+        ORGANISER II CROSS ASSEMBLER                               Page 9
+        COMMANDS                                           14 August 1987
+
+
+             9.  BLANK, short B, true if macro argument specified has no
+                 value passed it.
+
+            10.  NOT_BLANK, short NB, true if macro argument specified
+                 has a value passed it.
+
+            11.  IDENTICAL, short IDN, true if the two macro arguments
+                 specified have identical values.
+
+            12.  DIFFERENT, short DIF, true if the two macro arguments
+                 specified have different values.
+
+        At any point during the conditional assembly block the sense of
+        the original condition can be reversed by using .IF_FALSE or its
+        shortened form .IFF.  The condition can be returned to it
+        original sense using .IF_TRUE or .IFT in its shortened form.  It
+        is also possible to have unconditional sections within a
+        condition.  This is achieved using .IF_TRUE_FALSE or .IFTF.
+
+
+
+        6.21  .IF_FALSE
+
+        SYNTAX - .if_false
+
+        Used within a conditional assembly block sets the condition to
+        the reverse of that specified in the original .IF command.  See
+        .IF command for further information.
+
+
+
+        6.22  .IF_TRUE
+
+        SYNTAX - .if_true
+
+        Used within a conditional assembly block sets the condition to
+        that of the original .IF command.  See .IF command for further
+        information.
+
+
+
+        6.23  .IF_TRUE_FALSE
+
+        SYNTAX - .if_true_false
+
+        Used within a conditional assembly block tells the assembler to
+        assemble the following code regardless of the original condition.
+        See .IF command for further information.
+
+
+
+        6.24  .IFF
+
+        SYNTAX - .iff
+        ORGANISER II CROSS ASSEMBLER                              Page 10
+        COMMANDS                                           14 August 1987
+
+
+        Shortened form of .IF_FALSE command.  Used within a conditional
+        assembly block sets the condition to the reverse of that
+        specified in the original .IF command.  See .IF command for
+        further information.
+
+
+
+        6.25  .IFT
+
+        SYNTAX - .ift
+
+        Shortened form of .IF_TRUE command.  Used within a conditional
+        assembly block sets the condition to that of the original .IF
+        command.  See .IF command for further information.
+
+
+
+        6.26  .IFTF
+
+        SYNTAX -
+
+        Shortened form of .IF_TRUE_FALSE command.  Used within a
+        conditional assembly block tells the assembler to assemble the
+        following code regardless of the original condition.  See .IF
+        command for further information.
+
+
+
+        6.27  .IIF
+
+        SYNTAX - .iif <condition> <arguments>,<statement>
+
+        Immediate version of .IF.  If condition is met then the statement
+        is assembled.  See .IF for breakdown on possible conditions and
+        arguments.  No .ENDC is required.
+
+
+
+        6.28  .LIST
+
+        SYNTAX - .list
+
+        Turns output to .LIS file ON.  Output can be turned OFF with
+        .NLIST command.
+
+
+
+        6.29  .LONG
+
+        SYNTAX - .long <expression list>
+
+        The long(s) specified in <expression list> will be included in
+        the output.  If a value is immediately followed by a number in
+        square brackets ([]), then this number is treated as a range
+        specifier, the range going from 0 to this number.  The value will
+        be repeated for each location in the range.  Eg .long 23000[3]
+        will produce 4 longs of value 23000 in the output.
+        ORGANISER II CROSS ASSEMBLER                              Page 11
+        COMMANDS                                           14 August 1987
+
+
+        6.30  .MACRO
+
+        SYNTAX - .macro <name> <param list>
+
+        Defines a macro for later use in the file.  Parameters can be
+        accessed within the macro definition by using there names.  To
+        end a macro definition block the .ENDM command is used.  A macro
+        definition can be terminated early from within the definition
+        block by use of the .MEXIT command.
+
+        When using a macro, it is not necessary to supply values for all
+        the macros parameters.  To use a macro defined with 4 parameters
+        using just the first and third parameters type,
+
+
+        macnam first,,third
+
+        To find out how many parameters have been passed from within the
+        macro, the .NARG command can be used to assign this number to a
+        symbol.  This can then be tested using the .IF command.  The .IF
+        command can also be used to test whether parameters have been
+        left blank or not, or whether or not two parameters are equal.
+        See the .IF command for more information.
+
+        To demonstrate here are four macros which are useful for
+        describing structures.
+        .macro  byte    var
+        var     equ     $org       ; set value of symbol given to value
+        of $org
+        $org    equ     $org+1     ; add one to value of $org
+        .endm byte
+        .macro  bytes   var,nn
+        var     equ     $org       ; set value of first symbol to value
+        of $org
+        $org    equ     nn+$org    ; add value of second symbol to $org
+        .endm bytes
+        .macro  word    var
+        var     equ     $org       ; set value of symbol given to value
+        of $org
+        $org    equ     $org+2     ; add two to value of $org
+        .endm word
+        .macro  words   var,ww
+        var     equ     $org       ; set value of first symbol to value
+        of $org
+        $org    equ     ww+ww+$org ; add value of second symbol to $org
+        twice
+        .endm words
+
+        These can be used as follows,
+        $org = 0
+                byte    count
+                bytes   flags,2
+                word    pointer
+                words   extras,4
+        ORGANISER II CROSS ASSEMBLER                              Page 12
+        COMMANDS                                           14 August 1987
+
+
+        which can be considered to be the same as,
+        count   equ     0
+        flags   equ     1
+        pointer equ     3
+        extras  equ     5
+
+
+
+        6.31  .MEXIT
+
+        SYNTAX - .mexit
+
+        Used to terminate a macro from within the macro definition block.
+        See .MACRO for more information on macros.
+
+
+
+        6.32  .NARG
+
+        SYNTAX - .narg <symbol>
+
+        Used within a macro the symbol specified is assigned the number
+        of arguments with which the macro was called.
+
+
+
+        6.33  .NCHR
+
+        SYNTAX - .nchr <symbol>,<<string>>
+
+        Assigns to the symbol specified the number of characters in the
+        string.
+
+
+
+        6.34  .NLIST
+
+        SYNTAX - .nlist
+
+        Turns output to .LIS file OFF.  Output can be turned ON with
+        .LIST command.
+
+
+
+        6.35  .NTYPE
+
+        SYNTAX - .ntype <symbol>
+
+        Assigns to the symbol specified a value specifying whether
+        assembly address is in zero page or not.  Value is zero if
+        assembling in zero page, one if non-zero page.
+
+
+
+        6.36  .ODD
+
+        SYNTAX - .odd
+        ORGANISER II CROSS ASSEMBLER                              Page 13
+        COMMANDS                                           14 August 1987
+
+
+        Force the assembly to continue at the next odd address.
+
+
+
+        6.37  .ORG
+
+        SYNTAX - .org <value>
+
+        Sets address at which assembly will start or continue.
+
+
+
+        6.38  .OVER
+
+        SYNTAX - .over <name>
+
+        Start an overlay.  Code that follows forms the first overlay
+        section.  Subsequent overlay sections can be defined by use of
+        the .AREA command.  The overlay is terminated with the .EOVER
+        command.  The overlay size in memory is determined by the largest
+        of the overlay sections.
+
+        The structure of an overlay containing three sections is as
+        follows,
+
+                .over   section1
+                      :
+                (code for overlay section 1)
+                      :
+                .area   section2
+                      :
+                (code for overlay section 2)
+                      :
+                .area   section3
+                      :
+                (code for overlay section 3)
+                      :
+                .eover
+
+
+
+        6.39  .PRINT
+
+        SYNTAX - .print [<message number>];<message>
+
+        Causes the message number and message to be reported at assembly
+        time.
+
+
+
+        6.40  .RADIX
+
+        SYNTAX - .radix 8|10|16
+
+        Sets the default base used by the assembler.  Only base 8, 10 and
+        16 are supported.  The default can be overridden for single
+        values by preceding the value by ^X for hexadecimal numbers, ^D
+        for decimal numbers, and ^O for octal numbers.
+        ORGANISER II CROSS ASSEMBLER                              Page 14
+        COMMANDS                                           14 August 1987
+
+
+        6.41  .SIGNED_BYTE
+
+        SYNTAX - .signed_byte <expression list>
+
+        The byte(s) specified in <expression list> will be included in
+        the output.  If a value is immediately followed by a number in
+        square brackets ([]), then this number is treated as a range
+        specifier, the range going from 0 to this number.  The value will
+        be repeated for each location in the range.  Any values falling
+        outside the range +127 to -128 are reported as errors.
+
+
+
+        6.42  .SIGNED_WORD
+
+        SYNTAX - .signed_word <expression list>
+
+        The word(s) specified in <expression list> will be included in
+        the output.  If a value is immediately followed by a number in
+        square brackets ([]), then this number is treated as a range
+        specifier, the range going from 0 to this number.  The value will
+        be repeated for each location in the range.  Any values falling
+        outside the range +32767 to -32768 are reported as errors.
+
+
+
+        6.43  .SIGNED_LONG
+
+        SYNTAX - .signed_long <expression list>
+
+        The long(s) specified in <expression list> will be included in
+        the output.  If a value is immediately followed by a number in
+        square brackets ([]), then this number is treated as a range
+        specifier, the range going from 0 to this number.  The value will
+        be repeated for each location in the range.  Any values falling
+        outside the range +2147483647 to -2147483648 are reported as
+        errors.
+
+
+
+        6.44  .WARN
+
+        SYNTAX - .warn [<message number>];<message>
+
+        Force a warning to be generated.  The message number and message
+        are reported at assembly time.
+
+
+
+        6.45  .WORD
+
+        SYNTAX - .word <value>[{<num>}]         ({ is actually a [, } a
+        ])
+
+        The word(s) specified in <expression list> will be included in
+        the output.  If a value is immediately followed by a number in
+        square brackets ([]), then this number is treated as a range
+        specifier, the range going from 0 to this number.  The value will
+        ORGANISER II CROSS ASSEMBLER                              Page 15
+        COMMANDS                                           14 August 1987
+
+
+        be repeated for each location in the range.  Eg .word 2000[3]
+        will produce 4 words of value 2000 in the output.
+

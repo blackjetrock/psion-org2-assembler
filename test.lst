@@ -1,6 +1,6 @@
 Assembling test.asm  Pass 1
-      (E)  2188         	RTT_BF          .EQU    $2188          
-      (E)  3876         	UTW_S0          .EQU    $3876          
+      (E)  0000         	RTT_BF          .EQU    $2188          
+      (E)  0000         	UTW_S0          .EQU    $3876          
 0000  (O)                       .ORG    0                       
 0000  (W)   00 00                       .WORD   CEND-CBASE              ; SIZE OF CODE
 0000  (O)                               .ORG    $1000           
@@ -71,7 +71,7 @@ Assembling test.asm  Pass 2
 1027  (4)   FD 38 76            STD     UTW_S0         ; SAVE IT
 102A  (5)   08                  INX                             
 102B  (1)   8C 10 11            CPX     #CEND           ; ALL DONE
-102E  (0)   26 44               BNE     LOOP2            ; NO - SO DO MORE
+102E  (0)   26 1A               BNE     LOOP2            ; NO - SO DO MORE
 
               RTT_BF: $2188
               UTW_S0: $3876
@@ -83,5 +83,12 @@ Assembling test.asm  Pass 2
                FIXST: $1015
                FIXEN: $1017
                LOOP2: $1021
-                2188: $2188
-                3876: $3876
+
+Fixup Information
+
+100D
+101E
+1024
+1027
+
+

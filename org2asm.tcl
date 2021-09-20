@@ -16,8 +16,8 @@ set ::PASS 0
 set ::LIST_TEXT ""
 set ::LABELLIST ""
 
-set ::DIRNAMES ".ORG .WORD .EQU org equ"
-set ::DIRPROCS "dir_org dir_word dir_equ dir_org dir_equ"
+set ::DIRNAMES ".ORG .WORD .EQU .BYTE org equ"
+set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ"
 
 set ::ADDMODE {
     {"REL" 2 "^%s\[ \t\]+(\[A-Z0-9a-z_$\]+)"                                                                chk_nul  proc_rel }
@@ -245,6 +245,8 @@ proc chk_dir {p1 p2} {
 # Indexed
 # One argument byte
 proc proc_rel {len p1 p2} {
+    set p1 [evaluate_expression $p1]
+
     set r [expr $p1 - $::ADDR]
 
     # Convert to byte
@@ -254,6 +256,8 @@ proc proc_rel {len p1 p2} {
 }
 
 proc proc_imm {len p1 p2} {
+    set p1 [evaluate_expression $p1]
+    
     switch $len {
 	2 {
 	    emit $p1
@@ -265,15 +269,18 @@ proc proc_imm {len p1 p2} {
 }
 
 proc proc_dir {len p1 p2} {
+    set p1 [evaluate_expression $p1]
     emit $p1
 }
 
 proc proc_idx {len p1 p2} {
+    set p1 [evaluate_expression $p1]
     emit $p1
 }
 
 # Extended addressing needs fixup for relocatable code
 proc proc_ext {len p1 p2} {
+    set p1 [evaluate_expression $p1]
     emitword $p1
 
     # Fixup address is address of instruction to be fixed
@@ -284,11 +291,15 @@ proc proc_imp {len p1 p2} {
 }
 
 proc proc_xim {len p1 p2} {
+    set p1 [evaluate_expression $p1]
+    set p2 [evaluate_expression $p2]
     emit $p1
     emit $p2
 }
 
 proc proc_xxm {len p1 p2} {
+    set p1 [evaluate_expression $p1]
+    set p2 [evaluate_expression $p2]
     emit $p1
     emit $p2
 }
@@ -363,6 +374,11 @@ proc evaluate_expression {exp} {
     if { $::PASS == 1 } {
 	return 0
     }
+
+    # If the expression is blank then just return blank
+    if { [string length $exp] == 0 } {
+	return ""
+    }
     
     # Turn the expression into Tcl and evaluate it
     #puts "EVALEXP:'$exp'"
@@ -378,8 +394,14 @@ proc evaluate_expression {exp} {
 
     #puts "EVALEXP:'$exp'"
     #puts "EVALEXP ='[expr $exp]'"
-    # Evaluate
-    return [expr $exp]
+    # Evaluate, trap errors
+    set result 0
+
+    if { [catch {   set result [expr $exp] } ] } {
+	error $::CURRENT_LINE "Bad expression '$exp'"
+    }
+    
+    return $result
 }
 
 proc dir_org {line original_line} {
@@ -397,6 +419,31 @@ proc dir_org {line original_line} {
 	error $line "Bad .ORG"
 	return 0
     }
+}
+
+proc dir_byte {line original_line} {
+    # We create a byte
+    #puts "dir_byte:'$line'"
+    
+    if { [regexp -- ".BYTE\[ \t\]+(.+)" $line all byte] } {
+	set byte [evaluate_expression $byte]
+
+	# Emit it
+	set ::EMITTED ""
+	emit $byte
+	
+	set f_addr    [format "%04X" $::ADDR]
+	set f_emitted [format "%-12s" $::EMITTED]
+	set line [string trim $original_line]
+	addlstline $f_addr "(B)" $f_emitted  $original_line
+	
+	incr ::ADDR 2
+	return 1
+    } else {
+	error $line "Bad .BYTE"
+	return 0
+    }
+    return 0
 }
 
 proc dir_word {line original_line} {
@@ -426,9 +473,10 @@ proc dir_word {line original_line} {
 
 # Set label value
 proc dir_equ {line original_line} {
-    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+(.EQU|equ)\[ \t\]+(\[A-Fa-f0-9$\]+)" $line all name dir value] } {
-	create_label $name [value_to_dec $value]
-
+    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+(.EQU|equ)\[ \t\]+(\[A-Fa-f0-9$\(\)<>*/+-\]+)" $line all name dir value] } {
+	set value [evaluate_expression $value]
+	create_label $name $value
+	
 	set f_value [format "%04X        " [value_to_dec $value]]
 	set line [string trim $original_line]
 	addlstline "" "(E)" $f_value  $original_line
@@ -470,6 +518,9 @@ proc assemble_file {filename} {
 	# Keep a record of the unaltered source line
 	set original_line $line
 
+	# Keep a global copy of line for errors
+	set ::CURRENT_LINE $line
+	
 	set found 0
 
 	dbg "line=$line"
@@ -489,10 +540,15 @@ proc assemble_file {filename} {
 	    }
 	}
 
-	# Substitute label values for names
-	foreach label $::LABELLIST {
-	    set hval [format "\$%04X" $::LABEL($label)]
-	    set line [string map "$label $hval" $line]
+	if { 0 } {
+	    # Substitute label values for names, but only if there's no 
+	    foreach label $::LABELLIST {
+		puts $::DBF "Subst $label"
+		puts $::DBF " Before:'$line'"
+		set hval [format "\$%04X" $::LABEL($label)]
+		set line [string map "$label $hval" $line]
+		puts $::DBF " After:'$line'"
+	    }
 	}
 
 	# handle directives
@@ -598,6 +654,7 @@ proc assemble_file {filename} {
 			emit "\$$f_opcode"
 			
 			if { $::PASS == 2 } {
+			    # Convert parameters to values
 			    $addrmode_proc_proc $inst_length $p1 $p2
 			} else {
 			    $addrmode_proc_proc $inst_length 0 0
@@ -636,6 +693,20 @@ proc assemble_file {filename} {
 }
 
 ################################################################################
+#
+# Writes a hex file. This is just a file full of ASCII hex bytes
+# Not Intel Hex
+
+proc write_hex_file {filename} {
+
+    set f [open $filename w]
+
+    puts $f $::HEX_EMITTED
+    
+    close $f
+}
+
+################################################################################
 
 proc write_lst_file {filename} {
 
@@ -658,12 +729,16 @@ proc write_lst_file {filename} {
 
 set asm_filename [lindex $argv 0]
 set lst_filename [string map {.asm .lst} $asm_filename]
+set hex_filename [string map {.asm .hex} $asm_filename]
+
 set ::DBG_FILENAME [string map {.asm .dbg} $asm_filename]
 
 set ::DBF [open $::DBG_FILENAME w]
 
-
+################################################################################
+#
 # two passes
+
 set ::PASS 1
 assemble_file $asm_filename
 
@@ -674,5 +749,7 @@ set ::HEX_EMITTED ""
 assemble_file $asm_filename
 
 write_lst_file $lst_filename
+
+write_hex_file $hex_filename
 
 close $::DBF
