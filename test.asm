@@ -1,6 +1,14 @@
 	RTT_BF          .EQU    $2188
 	UTW_S0          .EQU    $3876
+
+		OS      .MACRO  VAL, SECOND
 	
+		  	SWI
+	  .BYTE VAL
+	
+		  		.ENDM
+
+	  OS  $22,324
         .ORG    0
                 .WORD   CEND-CBASE              ; SIZE OF CODE
                 .ORG    $1000

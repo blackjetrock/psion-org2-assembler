@@ -15,6 +15,7 @@ set ::PASS 0
 
 set ::LIST_TEXT ""
 set ::LABELLIST ""
+set ::MACROLIST ""
 
 set ::DIRNAMES ".ORG .WORD .EQU .BYTE org equ"
 set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ"
@@ -490,6 +491,35 @@ proc dir_equ {line original_line} {
 
 ################################################################################
 #
+# Returns the next line to be processed
+#
+
+
+proc next_line {} {
+    
+    # We get lines from a macro first
+    if { [llength $::MACROEXP] != 0 } {
+	set result [lindex $::MACROEXP 0]
+	set ::MACROEXP [lrange $::MACROEXP 1 end]
+	puts $::DBF "NL(M):'$result'"
+	return $result
+    }
+
+    # Get the next line from ::FILETEXT
+    if { [llength $::FILETEXT] != 0 } {
+	set result [lindex $::FILETEXT 0]
+	set ::FILETEXT [lrange $::FILETEXT 1 end]
+	puts $::DBF "NL(F):'$result'"
+	return $result
+    } else {
+	set ::DONE 1
+    }
+    
+    return ""
+}
+
+################################################################################
+#
 # Takes an assembly file and assembles it to object code and any other
 # information needed, such as a symbol table or fixup list
 
@@ -503,17 +533,24 @@ proc assemble_file {filename} {
     # Read file contents
     set f [open $filename]
 
-    set ftext [read $f]
+    set ::FILETEXT [read $f]
     close $f
 
+    set ::FILETEXT [split $::FILETEXT "\n"]
+    
     # Clear object code
     set obj ""
 
     # Address pointer
     set ::ADDR 0
+
+    # Not collecting a macro
+    set collect_macro 0
+    set ::DONE 0
     
     # Take each line and assemble it
-    foreach line [split $ftext "\n"] {
+    while { !$::DONE } {
+	set line [next_line]
 
 	# Keep a record of the unaltered source line
 	set original_line $line
@@ -540,17 +577,95 @@ proc assemble_file {filename} {
 	    }
 	}
 
-	if { 0 } {
-	    # Substitute label values for names, but only if there's no 
-	    foreach label $::LABELLIST {
-		puts $::DBF "Subst $label"
-		puts $::DBF " Before:'$line'"
-		set hval [format "\$%04X" $::LABEL($label)]
-		set line [string map "$label $hval" $line]
-		puts $::DBF " After:'$line'"
+	# Expand macros
+	set expanded 0
+	
+	foreach macro $::MACROLIST {
+	    if { [string first $macro $line] != -1 } {
+		puts $::DBF "Found macro $macro"
+		puts $::DBF "RE=$macro\[ \t\]+($::MACROPAREXP($macro))"
+		
+		# This could be a macro expansion
+		if { [regexp -- "$macro\[ \t\]+($::MACROPAREXP($macro))" $line all parvals] } {
+		    puts $::DBF "Match regexp"
+		    
+		    # We need to expand parameters in the macro bidy
+		    set macrotext $::MACRO($macro)
+
+		    puts $::DBF "Macro text='$macrotext'"
+		    
+		    # Replace every parameter with a value
+		    foreach parname [split $::MACROPARS($macro) ","] parval [split $parvals " ,"] {
+			puts $::DBF "Replace '$parname' with '$parval'"
+			regsub -all $parname $macrotext $parval macrotext
+		    }
+
+		    puts $::DBF "Macro text after replace='$macrotext'"
+		    
+		    # We now replace the input lines with the macro text
+		    set ::MACROEXP [split $macrotext "\n"]
+		    set expanded 1
+		}
 	    }
 	}
 
+	# Don't process expanded macros
+	if { $expanded } {
+	    continue
+	}
+	
+	# Handle macros
+	# We collect macro text here then insert macros into the line stream
+	if { [string first .MACRO $line] != -1 } {
+	    puts $::DBF "Macro def started in '$line'"
+	    
+	    # Get the macro name and parameters
+	    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+.MACRO\[ \t\]+(.+)" $line all macname macpars] } {
+		puts $::DBF "Macro $macname"
+		
+		# Add to macro list
+		if { [lsearch -exact $::MACROLIST $macname] != -1 } {
+		    # This is a redefinition
+		} else {
+		    # Add to list
+		    lappend ::MACROLIST $macname
+		}
+
+		# Process the parameters to remove spaces
+		set macpars [string map {" " ""} $macpars]
+		set ::MACROPARS($macname) $macpars
+
+		# Create a regexp to match the parameters
+		set regexp ""
+		foreach par [split $macpars ","] {
+		    lappend regexp "\[A-Za-z0-9_$\]+"
+		}
+		set regexp [join $regexp "\[ \\t\]*,\[ \\t\]*"]
+		set ::MACROPAREXP($macname) $regexp
+	    }
+	    
+
+	    # Now collect the macro body, it ends with a .ENDM
+	    set collect_macro 1
+	    set collect_macro_name $macname
+	    continue
+	}
+
+	# Macro body collection
+	if { $collect_macro } {
+	    if { [string first .ENDM $line] != -1 } {
+		# End of macro definition
+		set collect_macro 0
+		continue
+	    }
+
+	    # Add this line to the macro body
+	    append ::MACRO($collect_macro_name) "$line\n"
+
+	    # We are done with this line
+	    continue
+	}
+	
 	# handle directives
 	set donedir 0
 	foreach dirname $::DIRNAMES dirproc $::DIRPROCS {
@@ -694,6 +809,45 @@ proc assemble_file {filename} {
 
 ################################################################################
 #
+
+# Wipe out all of the macros
+
+proc clear_macros {} {
+    foreach macro $::MACROLIST {
+	unset ::MACRO($macro)
+	unset ::MACROPARS($macro)
+    }
+
+    set ::MACROLIST ""
+    set ::MACROEXP ""
+}
+
+################################################################################
+#
+# Writes a file that has all of the macros
+
+proc write_macro_file {filename} {
+
+    set f [open $filename w]
+
+    puts $f "Macro List"
+    puts $f ""
+    
+    foreach macro $::MACROLIST {
+	puts $f "$macro   .MACRO   $::MACROPARS($macro)"
+	puts $f "$::MACROPAREXP($macro)"
+	puts $f "$::MACRO($macro)"
+	puts $f ".ENDM"
+	
+	puts $f "\n"
+    }
+    
+    close $f
+}
+
+
+################################################################################
+#
 # Writes a hex file. This is just a file full of ASCII hex bytes
 # Not Intel Hex
 
@@ -730,6 +884,7 @@ proc write_lst_file {filename} {
 set asm_filename [lindex $argv 0]
 set lst_filename [string map {.asm .lst} $asm_filename]
 set hex_filename [string map {.asm .hex} $asm_filename]
+set mac_filename [string map {.asm .mac} $asm_filename]
 
 set ::DBG_FILENAME [string map {.asm .dbg} $asm_filename]
 
@@ -740,16 +895,20 @@ set ::DBF [open $::DBG_FILENAME w]
 # two passes
 
 set ::PASS 1
+
+clear_macros
 assemble_file $asm_filename
 
 set ::PASS 2
 set ::HEX_EMITTED ""
 
-		  
+clear_macros
 assemble_file $asm_filename
 
 write_lst_file $lst_filename
 
 write_hex_file $hex_filename
+
+write_macro_file $mac_filename
 
 close $::DBF
