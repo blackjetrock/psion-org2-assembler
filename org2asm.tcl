@@ -13,9 +13,10 @@
 
 set ::PASS 0
 
-set ::LIST_TEXT ""
-set ::LABELLIST ""
-set ::MACROLIST ""
+set ::LIST_TEXT    ""
+set ::LABELLIST    ""
+set ::MACROLIST    ""
+set ::INCLUDELINES ""
 
 set ::DIRNAMES ".ORG .WORD .EQU .BYTE org equ"
 set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ"
@@ -184,7 +185,8 @@ set ::FIXUP_TEXT ""
 
 proc add_fixup {a} {
     if { $::PASS == 2 } {
-	set d_a [value_to_dec $a]
+	set d_a [evaluate_expression $a]
+#	set d_a [value_to_dec $a]
 	set f_a [format "%04X" $d_a]
 	append ::FIXUP_TEXT "$f_a\n"    
     }
@@ -330,7 +332,8 @@ set ::EMITTED ""
 set ::HEX_EMITTED ""
 
 proc emit {b} {
-    set fb [format "%02X" [value_to_dec $b]]
+    #    set fb [format "%02X" [value_to_dec $b]]
+    set fb [format "%02X" [evaluate_expression $b]]
 
     set ::EMITTED_ADDR $::ADDR
     append ::EMITTED     " $fb"
@@ -369,6 +372,7 @@ proc create_label {name value} {
 # Directives
 #
 # Directives can have expressions as arguments
+#
 
 proc evaluate_expression {exp} {
     # if this is pass 1 then just return zero
@@ -391,7 +395,7 @@ proc evaluate_expression {exp} {
     #puts "EVALEXP:'$exp'"
     
     # Force hex values to correct format
-    set exp [string map "\$ 0x" $exp]
+    set exp [string map "\$ 0x ^x 0x" $exp]
 
     #puts "EVALEXP:'$exp'"
     #puts "EVALEXP ='[expr $exp]'"
@@ -474,11 +478,11 @@ proc dir_word {line original_line} {
 
 # Set label value
 proc dir_equ {line original_line} {
-    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+(.EQU|equ)\[ \t\]+(\[A-Fa-f0-9$\(\)<>*/+-\]+)" $line all name dir value] } {
+    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+(.EQU|equ)\[ \t\]+(\[A-Za-z0-9$\(\)_<>*/+-\]+)" $line all name dir value] } {
 	set value [evaluate_expression $value]
 	create_label $name $value
 	
-	set f_value [format "%04X        " [value_to_dec $value]]
+	set f_value [format "%04X        " [evaluate_expression $value]]
 	set line [string trim $original_line]
 	addlstline "" "(E)" $f_value  $original_line
 
@@ -505,7 +509,15 @@ proc next_line {} {
 	return $result
     }
 
-    # Get the next line from ::FILETEXT
+    # The get lines from included files
+    if { [llength $::INCLUDELINES] != 0 } {
+	set result [lindex $::INCLUDELINES 0]
+	set ::INCLUDELINES [lrange $::INCLUDELINES 1 end]
+	puts $::DBF "NL(I):'$result'"
+	return $result
+    }
+
+    # Get the next line from the file being assembled
     if { [llength $::FILETEXT] != 0 } {
 	set result [lindex $::FILETEXT 0]
 	set ::FILETEXT [lrange $::FILETEXT 1 end]
@@ -577,6 +589,32 @@ proc assemble_file {filename} {
 	    }
 	}
 
+	# Handle included files
+	if { [string first .INCLUDE $line] != -1 } {
+	    puts $::DBF "Include in '$line'"
+	    
+	    # Get the file name
+	    if { [regexp -- ".INCLUDE\[ \t\]+(.+)" $line all filename] } {
+		puts $::DBF "Include $filename"
+
+		# Read file and add to a line stream
+		set g [open $filename]
+		set itxt [read $g]
+		close $g
+
+		# Split into lines
+		set ilines [split $itxt "\n"]
+
+		# Add to line stream
+		foreach lline $ilines {
+		    lappend ::INCLUDELINES $lline
+		}
+		
+		# Do not process the include directive any more
+		continue
+	    }
+	}
+	
 	# Expand macros
 	set expanded 0
 	
@@ -735,9 +773,10 @@ proc assemble_file {filename} {
 		set p2 0
 		
 		if { [regexp -- $def_regexp $line all p1 p2] } {
-
-		    set p1 [value_to_dec $p1]
-		    set p2 [value_to_dec $p2]
+		    # No need to convert parameters to instruction as that is done by the
+		    # addressing mode handlers
+#		    set p1 [value_to_dec $p1]
+#		    set p2 [value_to_dec $p2]
 		    
 		    # The regexp has matched, but does the addressing mode
 		    # check procedure say this is valid?

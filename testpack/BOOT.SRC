@@ -1,0 +1,141 @@
+/******************************************************************************/
+/*									      */
+/*	written on........5/9/86					      */
+/*	written by........Bill,Martin					      */
+/*	version no........1.0						      */
+/*									      */
+/*	Contains General boot code					      */
+/*	on being booted it immediately runs an OPL procedure called BOOT      */
+/*	Only if booted from TOPLEVEL not OPL 				      */
+/*									      */
+/******************************************************************************/
+
+	.nlist
+
+#include "oshead.inc"
+#include "osvars.inc"
+#include "oseror.inc"
+#include "swi.inc"
+
+	.list
+
+#define	DVN_BOOT	<^x90>		/* device number		*/
+#define	DVP_BOOT	<^x90>		/* device priority		*/
+#define	DVV_BOOT	<^x10>		/* device version number 1.0 	*/
+
+	.asect
+
+	org	^X2000
+				; Header for BLDPACK
+	.ascii	"ORG"
+	.word	%prgend-%xx
+	.byte	^xFF
+
+xx:	.byte	^x6A		; DATAPACK
+	.byte	^x02		; 16K PACK
+	.byte	0		; CODE ONLY
+	.byte	DVN_BOOT	; DEVICE NUMBER 
+	.byte	DVV_BOOT	; DEVICE VERSION NUMBER
+	.byte	DVP_BOOT	; PRIORITY NUMBER 
+	.word	%root-%xx-2		; ROOT OVERLAY ADDRESS
+	.byte	^Xff		; N/C
+	.byte	^Xff		; N/C
+	.byte	^X09
+	.byte	^X81
+	.ascii	"MAIN    "
+	.byte	^X90
+	.byte	^x02
+	.byte	^x80
+	.word	%prgend-%root+2; size of code
+
+;==========================================================================
+	.over	root
+
+codelen:
+	.word	0000
+bdevice:
+	.byte	00
+devnum:
+	.byte	DVN_BOOT
+vernum:
+	.byte	DVV_BOOT
+maxvec:
+	.byte	1
+vectable:
+	.word	install		;install
+
+install:
+	ldd	bta_rtop:			;modify code if boot called
+	dec	a
+	xgdx
+	ldd	#^xfd0c			;std, clc
+	sta	a,std1-startcop,x
+	sta	a,std2-startcop,x
+	sta	b,clc1-startcop,x
+	ldd	bta_sbas
+	subd	rta_sp:			;OPL not running if equal
+	beq	1$
+	subd	#8
+	beq	1$			;OPL not running if differ by 8 (STOP)
+	ldd	rta_fp:			;OPL not running if fp=0
+	bne	dont
+1$:	os	kb$brek			; wait for ON/CLEAR to be free
+	ldx	#xboot
+	lda	b,bdevice
+	add	b,#^x41			; add 'A'
+	sta	b,1,x
+    	lda	b,#BLANTYP
+	os	fl$bopn
+	bcs	exit
+	ldx	rtt_ff			; save the 4 byte of the find buffer
+	pshx
+	ldx	rtt_ff+2
+	pshx
+
+ 	ldd	#endcop-startcop
+	std	utw_s0:
+	ldd	bta_rtop:
+	dec	a
+	psh	b
+	psh	a			;address of code
+	ldx	#startcop
+	os	ut$cpyb			;copy code
+	ldx	#xboot
+    	clr	b
+	rts			;jmp to code
+
+;==============================================
+
+;CODE TO BE COPIED TO TOP OF RAM
+startcop:
+	os	rm$runp			; run boot
+	bcc	1$
+	os	er$mess
+1$:	clr	a
+	clr	b
+	pulx
+std1:	stx	rtt_ff+2
+	pulx
+std2:	stx	rtt_ff			;restore rtt_ff
+clc1:	sec
+	rts
+endcop:
+;========================================
+
+exit:
+	os	ut$disp
+	fcb	D_FF
+	fcc	\No OPL program  called BOOT\
+	fcb	D_BL,0
+	os	kb$getk
+dont:	sec
+	rts
+xboot:
+	.byte	6
+	.ascii	"B:BOOT"
+
+	.eover
+	.over	prgend
+	.eover
+	.end
+

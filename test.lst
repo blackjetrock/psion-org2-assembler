@@ -1,23 +1,544 @@
 Assembling test.asm  Pass 1
-      (E)  0000         	RTT_BF          .EQU    $2188          
-      (E)  0000         	UTW_S0          .EQU    $3876          
-0000  (5)   3F          		  	SWI                                
-0001  (B)   00          	  .BYTE $22                            
+      (E)  0000         utb_7e		.EQU	$40                        
+      (E)  0000         utw_s0		.EQU	$41                        
+      (E)  0000         utw_s1		.EQU	$43                        
+      (E)  0000         utw_s2		.EQU	$45                        
+      (E)  0000         utw_s3		.EQU	$47                        
+      (E)  0000         utw_s4		.EQU	$49                        
+      (E)  0000         utw_s5		.EQU	$4B                        
+      (E)  0000         utw_r0		.EQU	$4D                        
+      (E)  0000         utb_h0		.EQU	$4D                        
+      (E)  0000         utb_l0		.EQU	$4E                        
+      (E)  0000         utw_r1		.EQU	$4F                        
+      (E)  0000         utb_h1		.EQU	$4F                        
+      (E)  0000         utb_l1		.EQU	$50                        
+      (E)  0000         utw_r2		.EQU	$51                        
+      (E)  0000         utb_h2		.EQU	$51                        
+      (E)  0000         utb_l2		.EQU	$52                        
+      (E)  0000         utw_r3		.EQU	$53                        
+      (E)  0000         utb_h3		.EQU	$53                        
+      (E)  0000         utb_l3		.EQU	$54                        
+      (E)  0000         utw_r4		.EQU	$55                        
+      (E)  0000         utb_h4		.EQU	$55                        
+      (E)  0000         utb_l4		.EQU	$56                        
+      (E)  0000         utw_r5		.EQU	$57                        
+      (E)  0000         utb_h5		.EQU	$57                        
+      (E)  0000         utb_l5		.EQU	$58                        
+      (E)  0000         utw_r6		.EQU	$59                        
+      (E)  0000         utb_h6		.EQU	$59                        
+      (E)  0000         utb_l6		.EQU	$5A                        
+      (E)  0000         btb_nmfl	.EQU	$5B                       
+      (E)  0000         btw_ccnt	.EQU	$5C                       
+      (E)  0000         bta_rtop	.EQU	$5E                       
+      (E)  0000         rtb_lbat	.EQU	$60                       
+      (E)  0000         xxb_xxxx	.EQU	$61                       
+      (E)  0000         dpb_cpos	.EQU	$62                       
+      (E)  0000         dpb_cust	.EQU	$63                       
+      (E)  0000         dpb_vlin	.EQU	$64                       
+      (E)  0000         dpb_vsiz	.EQU	$65                       
+      (E)  0000         dpb_vdir	.EQU	$66                       
+      (E)  0000         dpb_spos	.EQU	$67                       
+      (E)  0000         dpb_scus	.EQU	$68                       
+      (E)  0000         dpw_sped	.EQU	$69                       
+      (E)  0000         dpw_dely	.EQU	$6B                       
+      (E)  0000         dpw_redy	.EQU	$6D                       
+      (E)  0000         dpa_vadd	.EQU	$6F                       
+      (E)  0000         kbw_tdel	.EQU	$71                       
+      (E)  0000         kbb_back	.EQU	$73                       
+      (E)  0000         kbb_nkys	.EQU	$74                       
+      (E)  0000         kbb_prev	.EQU	$75                       
+      (E)  0000         kbb_wait	.EQU	$76                       
+      (E)  0000         kbb_dlay	.EQU	$77                       
+      (E)  0000         kbb_rept	.EQU	$78                       
+      (E)  0000         kbb_cntr	.EQU	$79                       
+      (E)  0000         kbb_knum	.EQU	$7A                       
+      (E)  0000         kbb_stat	.EQU	$7B                       
+      (E)  0000         tmb_swof	.EQU	$7C                       
+      (E)  0000         tmw_tout	.EQU	$7D                       
+      (E)  0000         edb_mlen	.EQU	$7F                       
+      (E)  0000         edb_plen	.EQU	$80                       
+      (E)  0000         edb_flin	.EQU	$81                       
+      (E)  0000         edb_poff	.EQU	$82                       
+      (E)  0000         edb_clin	.EQU	$83                       
+      (E)  0000         edb_stat	.EQU	$84                       
+      (E)  0000         edw_cpos	.EQU	$85                       
+      (E)  0000         edw_cb		.EQU	$87                        
+      (E)  0000         edw_bl		.EQU	$89                        
+      (E)  0000         pkb_curp	.EQU	$8B                       
+      (E)  0000         pkb_cpak	.EQU	$8C                       
+      (E)  0000         pkw_rasi	.EQU	$8D                       
+      (E)  0000         pkw_cmad	.EQU	$8F                       
+      (E)  0000         pkb_hpad	.EQU	$91                       
+      (E)  0000         pkw_cpad	.EQU	$92                       
+      (E)  0000         pka_pkid	.EQU	$94                       
+      (E)  0000         flb_rect	.EQU	$96                       
+      (E)  0000         flb_cpak	.EQU	$97                       
+      (E)  0000         flb_cont	.EQU	$98                       
+      (E)  0000         flw_drec	.EQU	$99                       
+      (E)  0000         flw_crec	.EQU	$9B                       
+      (E)  0000         flw_fnad	.EQU	$9D                       
+      (E)  0000         flw_nrec	.EQU	$9F                       
+      (E)  0000         xfb_rect	.EQU	$A1                       
+      (E)  0000         tlb_cpak	.EQU	$A2                       
+      (E)  0000         tlb_mode	.EQU	$A3                       
+      (E)  0000         bzb_mute	.EQU	$A4                       
+      (E)  0000         rta_sp		.EQU	$A5                        
+      (E)  0000         rta_fp		.EQU	$A7                        
+      (E)  0000         rta_pc		.EQU	$A9                        
+      (E)  0000         lgw_clin	.EQU	$AB                       
+      (E)  0000         lxa_curr	.EQU	$AD                       
+      (E)  0000         lxb_ptok	.EQU	$AF                       
+      (E)  0000         acw_1x		.EQU	$B0                        
+      (E)  0000         rtb_escf	.EQU	$B0                       
+      (E)  0000         rtb_logn	.EQU	$B1                       
+      (E)  0000         acw_2x		.EQU	$B2                        
+      (E)  0000         rtb_trap	.EQU	$B2                       
+      (E)  0000         rtb_eror	.EQU	$B3                       
+      (E)  0000         acw_prec	.EQU	$B4                       
+      (E)  0000         rtb_crfl	.EQU	$B4                       
+      (E)  0000         rtb_cdrv	.EQU	$B5                       
+      (E)  0000         rtw_s0		.EQU	$B6                        
+      (E)  0000         acw_cons	.EQU	$B6                       
+      (E)  0000         rtw_s1		.EQU	$B8                        
+      (E)  0000         acw_glcd	.EQU	$B8                       
+      (E)  0000         rtw_s2		.EQU	$BA                        
+      (E)  0000         acw_left	.EQU	$BA                       
+      (E)  0000         rtw_s3		.EQU	$BC                        
+      (E)  0000         acw_ocsz	.EQU	$BC                       
+      (E)  0000         rtw_s4		.EQU	$BE                        
+      (E)  0000         acb_nest	.EQU	$BE                       
+      (E)  0000         acw_labl	.EQU	$BF                       
+      (E)  0000         rtw_s5		.EQU	$C0                        
+      (E)  0000         acw_r0		.EQU	$C1                        
+      (E)  0000         rtw_s6		.EQU	$C2                        
+      (E)  0000         acw_r1		.EQU	$C3                        
+      (E)  0000         rtb_top		.EQU	$C4                       
+      (E)  0000         dib_year	.EQU	$C5                       
+      (E)  0000         amt_temp	.EQU	$C5                       
+      (E)  0000         xtb_read	.EQU	$C5                       
+      (E)  0000         mtt_aman	.EQU	$C5                       
+      (E)  0000         dib_mons	.EQU	$C6                       
+      (E)  0000         dib_days	.EQU	$C7                       
+      (E)  0000         dib_hour	.EQU	$C8                       
+      (E)  0000         dib_mins	.EQU	$C9                       
+      (E)  0000         mtb_aexp	.EQU	$CC                       
+      (E)  0000         mtb_asgn	.EQU	$CD                       
+      (E)  0000         mtt_oman	.EQU	$CE                       
+      (E)  0000         mtb_oexp	.EQU	$D5                       
+      (E)  0000         mtb_osgn	.EQU	$D6                       
+      (E)  0000         ita_pcnt	.EQU	$D7                       
+      (E)  0000         ita_base	.EQU	$D9                       
+      (E)  0000         ita_sptr	.EQU	$DB                       
+      (E)  0000         itb_test	.EQU	$DD                       
+      (E)  0000         ima_gptr	.EQU	$DE                       
+      (E)  0000         zpg_free	.EQU	$E0                       
+      (E)  0000         amb_svei	.EQU	$E1                       
+      (E)  0000         alt_base	.EQU	$2000                     
+      (E)  0000         ala_free	.EQU	$2040                     
+      (E)  0000         bta_2iq		.EQU	$2042                     
+      (E)  0000         bta_cmi		.EQU	$2044                     
+      (E)  0000         bta_bug		.EQU	$2046                     
+      (E)  0000         bta_sio		.EQU	$2048                     
+      (E)  0000         bta_toi		.EQU	$204A                     
+      (E)  0000         bta_oci		.EQU	$204C                     
+      (E)  0000         bta_ici		.EQU	$204E                     
+      (E)  0000         bta_1iq		.EQU	$2050                     
+      (E)  0000         bta_swi		.EQU	$2052                     
+      (E)  0000         bta_nmi		.EQU	$2054                     
+      (E)  0000         bta_wrm		.EQU	$2056                     
+      (E)  0000         bta_sof		.EQU	$2058                     
+      (E)  0000         bta_poll	.EQU	$205A                     
+      (E)  0000         bta_tran	.EQU	$205C                     
+      (E)  0000         bta_tabl	.EQU	$205E                     
+      (E)  0000         utw_fp		.EQU	$2060                      
+      (E)  0000         btb_ignm	.EQU	$2062                     
+      (E)  0000         btb_imsk	.EQU	$2063                     
+      (E)  0000         btb_tcsr	.EQU	$2064                     
+      (E)  0000         bta_sbas	.EQU	$2065                     
+      (E)  0000         bta_savstack	.EQU	$2067                 
+      (E)  0000         btw_1dontuse	.EQU	$2069                 
+      (E)  0000         btw_2dontuse	.EQU	$206B                 
+      (E)  0000         btw_3dontuse	.EQU	$206D                 
+      (E)  0000         btb_4dontuse	.EQU	$206F                 
+      (E)  0000         dpt_tlin	.EQU	$2070                     
+      (E)  0000         dpt_blin	.EQU	$2080                     
+      (E)  0000         dpa_scrn	.EQU	$2090                     
+      (E)  0000         dpb_nlin	.EQU	$2092                     
+      (E)  0000         dpb_wide	.EQU	$2093                     
+      (E)  0000         dpb_mflg	.EQU	$2094                     
+      (E)  0000         dpb_clok	.EQU	$2095                     
+      (E)  0000         dpb_cred	.EQU	$2096                     
+      (E)  0000         dpb_vpos	.EQU	$2097                     
+      (E)  0000         dpb_cmin	.EQU	$2098                     
+      (E)  0000         dpb_bord	.EQU	$2099                     
+      (E)  0000         mnb_xmen	.EQU	$209A                     
+      (E)  0000         mnb_xlin	.EQU	$209B                     
+      (E)  0000         mnb_cptz	.EQU	$209C                     
+      (E)  0000         btw_toff	.EQU	$209D                     
+      (E)  0000         lgb_flgs	.EQU	$209F                     
+      (E)  0000         lga_tag		.EQU	$20A0                     
+      (E)  0000         lgb_spos	.EQU	$20A2                     
+      (E)  0000         ntb_spos	.EQU	$20A3                     
+      (E)  0000         lxa_fixp	.EQU	$20A4                     
+      (E)  0000         tmb_24f		.EQU	$20A6                     
+      (E)  0000         amb_wrkd	.EQU	$20A7                     
+      (E)  0000         kbb_svst	.EQU	$20A8                     
+      (E)  0000         dib_1slt	.EQU	$20A9                     
+      (E)  0000         dib_2slt	.EQU	$20AA                     
+      (E)  0000         dib_3slt	.EQU	$20AB                     
+      (E)  0000         dib_ap		.EQU	$20AC                      
+      (E)  0000         dib_palarm	.EQU	$20AD                   
+      (E)  0000         dib_pdrtn	.EQU	$20AE                    
+      (E)  0000         btb_wnmi	.EQU	$20AF                     
+      (E)  0000         kbt_buff	.EQU	$20B0                     
+      (E)  0000         kbb_clik	.EQU	$20C0                     
+      (E)  0000         kbb_pkof	.EQU	$20C1                     
+      (E)  0000         kbb_capk	.EQU	$20C2                     
+      (E)  0000         kbb_numk	.EQU	$20C3                     
+      (E)  0000         kbb_shfk	.EQU	$20C4                     
+      (E)  0000         tmb_year	.EQU	$20C5                     
+      (E)  0000         tmb_mons	.EQU	$20C6                     
+      (E)  0000         tmb_days	.EQU	$20C7                     
+      (E)  0000         tmb_hour	.EQU	$20C8                     
+      (E)  0000         tmb_mins	.EQU	$20C9                     
+      (E)  0000         tmb_secs	.EQU	$20CA                     
+      (E)  0000         tmw_fram	.EQU	$20CB                     
+      (E)  0000         tmw_tcnt	.EQU	$20CD                     
+      (E)  0000         utt_tbuf	.EQU	$20CF                     
+      (E)  0000         pkb_imsk	.EQU	$20D6                     
+      (E)  0000         pkt_id		.EQU	$20D7                      
+      (E)  0000         rtt_numb	.EQU	$20FF                     
+      (E)  0000         dvt_spar	.EQU	$214F                     
+      (E)  0000         dpb_mode	.EQU	$2184                     
+      (E)  0000         kbb_spec	.EQU	$2185                     
+      (E)  0000         btb_lang	.EQU	$2186                     
+      (E)  0000         rtb_bl		.EQU	$2187                      
+      (E)  0000         rtt_bf		.EQU	$2188                      
+      (E)  0000         mtt_wbuf	.EQU	$2288                     
+      (E)  0000         amt_now		.EQU	$2288                     
+      (E)  0000         amt_week	.EQU	$228E                     
+      (E)  0000         rtb_fl		.EQU	$22C8                      
+      (E)  0000         rtt_ff		.EQU	$22C9                      
+      (E)  0000         rtt_fil		.EQU	$22E9                     
+      (E)  0000         amt_tab		.EQU	$22F9                     
+      (E)  0000         dva_bot		.EQU	$2329                     
+      (E)  0000         dva_top		.EQU	$232B                     
+      (E)  0000         mlb_case	.EQU	$232D                     
+      (E)  0000         xtb_cold	.EQU	$232E                     
+      (E)  0000         kbb_lbfl	.EQU	$232F                             
+      (E)  0000         amb_ei		.EQU	$2335                      
+      (E)  0000         amt_t0		.EQU	$2336                      
+      (E)  0000         amt_t1		.EQU	$233C                      
+      (E)  0000         amt_t2		.EQU	$2342                      
+      (E)  0000         amw_r1		.EQU	$2348                      
+      (E)  0000         amb_doit	.EQU	$234A                     
+      (E)  0000         ita_uvc		.EQU	$234B                     
+      (E)  0000         itt_regs	.EQU	$234D                     
+      (E)  0000         itt_stak	.EQU	$236D                     
+      (E)  0000         imb_ssgn	.EQU	$23AD                     
+      (E)  0000         fnt_seed	.EQU	$23AE                     
+      (E)  0000         acw_stop	.EQU	$23B5                     
+      (E)  0000         acw_xtcd	.EQU	$23B7                     
+      (E)  0000         act_ddat	.EQU	$23B9                     
+      (E)  0000         act_nvar	.EQU	$23BD                     
+      (E)  0000         act_bran	.EQU	$23C1                     
+      (E)  0000         act_psym	.EQU	$23C9                     
+      (E)  0000         lxa_cend	.EQU	$23CD                     
+      (E)  0000         lxa_strt	.EQU	$23CF                     
+      (E)  0000         lxb_stok	.EQU	$23D1                     
+      (E)  0000         lxb_scla	.EQU	$23D2                     
+      (E)  0000         lxb_ftyp	.EQU	$23D3                     
+      (E)  0000         lgb_fixp	.EQU	$23D4                     
+      (E)  0000         lgb_nl		.EQU	$23D5                      
+      (E)  0000         lgt_nf		.EQU	$23D6                      
+      (E)  0000         lgb_lant	.EQU	$23E0                     
+      (E)  0000         lgb_menu	.EQU	$23E1                     
+      (E)  0000         rta_1vct	.EQU	$23E2                     
+      (E)  0000         utw_reta	.EQU	$23E4                     
+      (E)  0000         pkb_ovbl	.EQU	$23E6                     
+      (E)  0000         bta_vect	.EQU	$23E7                     
+      (E)  0000         flb_iglb	.EQU	$23E9                     
+      (E)  0000         pkb_bblw	.EQU	$23EA                     
+      (E)  0000         flt_cfil	.EQU	$23EB                     
+      (E)  0000         fla_flid	.EQU	$2403                     
+      (E)  0000         lna_svsp	.EQU	$2405                     
+      (E)  0000         pkb_ramb	.EQU	$2407                     
+      (E)  0000         pkb_blow	.EQU	$2408                     
+      (E)  0000         pkb_hsav	.EQU	$2409                     
+      (E)  0000         flb_r0		.EQU	$240A                      
+      (E)  0000         flb_r1		.EQU	$240B                      
+      (E)  0000         flb_r3		.EQU	$240C                      
+      (E)  0000         flb_r4		.EQU	$240D                      
+      (E)  0000         flb_r5		.EQU	$240E                      
+      (E)  0000         flb_r6		.EQU	$240F                      
+      (E)  0000         flb_fnad	.EQU	$2410                     
+      (E)  0000         dvw_r0		.EQU	$2411                      
+      (E)  0000         btt_mstack	.EQU	$2413                   
+      (E)  0000         mlt_buf		.EQU	$2513                     
+      (E)  0000         dib_pastelen	.EQU	$25DC                 
+      (E)  0000         dib_paste	.EQU	$25DD                    
+      (E)  0000         flt_dmat	.EQU	$261D                     
+      (E)  0000         btb_rbnk	.EQU	$262A                     
+      (E)  0000         mlb_bank	.EQU	$262B                     
+      (E)  0000         dpt_4lin	.EQU	$262C                     
+      (E)  0000         xfb_nlen	.EQU	$267C                     
+      (E)  0000         xft_name	.EQU	$267D                     
+      (E)  0000         xfb_cpak	.EQU	$2685                     
+      (E)  0000         wla_curr	.EQU	$2686                     
+      (E)  0000         wla_base	.EQU	$2688                     
+      (E)  0000         wlb_gmt		.EQU	$268A                     
+      (E)  0000         dpb_vpar	.EQU	$268B                     
+      (E)  0000         dpb_pvln	.EQU	$268C                     
+      (E)  0000         btt_ramf	.EQU	$268D                     
+      (E)  0000         btt_bboot	.EQU	$7F00                    
+      (E)  0000         dpt_sudg	.EQU	$7F22                     
+      (E)  0000         dpt_4sav	.EQU	$7F62                     
+      (E)  0000         mlt_ebuf	.EQU	$7FB2                     
+      (E)  0000         rtt_fsav	.EQU	$7FC3                     
+      (E)  0000         xtt_pasw	.EQU	$7FD6                     
+      (E)  0000         dis_e		.EQU	$7FE0                       
+      (E)  0000         dib_dmode	.EQU	$7FE9                    
+      (E)  0000         ntb_flgs	.EQU	$7FEA                     
+      (E)  0000         ntb_pssw	.EQU	$7FEB                     
+      (E)  0000         ntt_pssw	.EQU	$7FEC                     
+      (E)  0000         ntt_estd	.EQU	$7FF4                     
+      (E)  0000         ntw_clin	.EQU	$7FFD                     
+      (E)  0000         ntb_cpos	.EQU	$7FFF                     
+      (E)  0000         MLANG             .EQU 0                
+      (E)  0000         BUILDLA           .EQU 0                
+      (E)  0000         BUILDXP           .EQU 0                
+      (E)  0000         LADDR             .EQU 1                
+      (E)  0000         RAMPAK            .EQU 1                
+      (E)  0000         REMOVE_INFO       .EQU 0                
+      (E)  0000         REMOVE_MK1        .EQU 0                
+      (E)  0000         UDG_CLK0	.EQU    0                      
+      (E)  0000         UDG_CLK9	.EQU    9                      
+      (E)  0000         UDG_CLKCOLON	.EQU    10                 
+      (E)  0000         UDG_UNDERSCORE	.EQU    11               
+      (E)  0000         ICON_MAIN	.EQU    12                    
+      (E)  0000         ICON_PROG	.EQU    13                    
+      (E)  0000         ICON_FILES	.EQU    14                   
+      (E)  0000         ICON_UTILS	.EQU    15                   
+      (E)  0000         ICON_ALARM	.EQU    16                   
+      (E)  0000         ICON_CALC	.EQU    17                    
+      (E)  0000         ICON_AM	.EQU    	18                     
+      (E)  0000         ICON_PM	.EQU    	19                     
+      (E)  0000         UDG_LDOT	.EQU    20                     
+      (E)  0000         UDG_HDOT	.EQU    21                     
+      (E)  0000         UDG_DI_TARROW	.EQU    22                
+      (E)  0000         UDG_DI_BARROW	.EQU    23                
+      (E)  0000         UDG_DI_BELL	.EQU    24                  
+      (E)  0000         UDG_DI_WKBOX0	.EQU    25                
+      (E)  0000         UDG_DI_WKBOX1	.EQU    26                
+      (E)  0000         UDG_DI_WKBOX2	.EQU    27                
+      (E)  0000         UDG_DI_WKBOX3	.EQU    28                
+      (E)  0000         ICON_NOTES	.EQU    29                   
+      (E)  0000         UDG_DI_LCHEVRON	.EQU    30              
+      (E)  0000         UDG_DI_RCHEVRON	.EQU    31              
+      (E)  0000         POB_DDR2	.EQU    $01                    
+      (E)  0000         POB_PORT2	.EQU    $03		                 
+      (E)  0000         POB_TCSR1	.EQU    $08		; timer control status register 1 
+      (E)  0000         POW_FRC		.EQU    $09		; free running counter		
+      (E)  0000         POW_OCR1	.EQU    $0B		; ouput compare register 1	
+      (E)  0000         POB_TCSR2	.EQU    $0F		; Timer 2 control/status register 
+      (E)  0000         POB_RMCR	.EQU    $10		; rate, mode control register	
+      (E)  0000         POB_TRCSR	.EQU    $11		; Tx/Rx control status register 
+      (E)  0000         POB_RDR		.EQU    $12		; Recieve data register 
+      (E)  0000         POB_TDR		.EQU    $13		; Transmit data register 
+      (E)  0000         POB_RCR		.EQU    $14		; ram/port 5 control register	
+      (E)  0000         POB_PORT5	.EQU    $15                   
+      (E)  0000         POB_DDR6	.EQU    $16                    
+      (E)  0000         POB_PORT6	.EQU    $17                   
+      (E)  0000         POB_TCSR3	.EQU    $1B		; Timer 3 control/status register 
+      (E)  0000         POB_TCONR	.EQU    $1C		; Timer constant register 
+      (E)  0000         SCA_LCDCONTROL	.EQU    $0180	; lcd registers		
+      (E)  0000         SCA_LCDDATA	.EQU    $0181               
+      (E)  0000         SCA_SWITCHOFF	.EQU    $01c0	; switch off			
+      (E)  0000         SCA_PULSEENABLE	.EQU    $0200	; pulse enable			
+      (E)  0000         SCA_PULSEDISABLE .EQU    $0240	; pulse disable		
+      (E)  0000         SCA_ALARMHIGH	.EQU    $0280	; buzzer			 
+      (E)  0000         SCA_ALARMLOW	.EQU    $02c0              
+      (E)  0000         SCA_COUNTERRESET .EQU    $0300	; counter for kybd + clock	
+      (E)  0000         SCA_COUNTERCLOCK .EQU    $0340          
+      (E)  0000         SCA_NMIMPU	.EQU    $0380	; enable nmi to processor	
+      (E)  0000         SCA_NMICOUNTER	.EQU    $03c0	; enable nmi to counter	
+      (E)  0000         SCA_SETMODE1	.EQU    $2a0		; select mode 1 bit		
+      (E)  0000         SCA_SETMODE2	.EQU    $2e0		; select mode 2 bit		
+      (E)  0000         SCA_MODERESET	.EQU    $320		; clear mode bits		
+      (E)  0000         SCA_BANKRESET	.EQU    $360		; reset bank counters		
+      (E)  0000         SCA_NEXTRAM	.EQU    $3a0		; select next RAM bank		
+      (E)  0000         SCA_NEXTROM	.EQU    $3e0		; select next ROM bank		
+      (E)  0000         ONCLR	.EQU    $80                       
+      (E)  0000         ACOUT	.EQU    $02                       
+      (E)  0000         LOWBATTERY	.EQU    $01                  
+      (E)  0000         PACON		.EQU    $80                      
+      (E)  0000         CS3		.EQU    $40                        
+      (E)  0000         CS2		.EQU    $20                        
+      (E)  0000         CS1		.EQU    $10                        
+      (E)  0000         OE		.EQU    $08                         
+      (E)  0000         PGM		.EQU    $04                        
+      (E)  0000         MR		.EQU    $02                         
+      (E)  0000         CLK		.EQU    $01                        
+      (E)  0000         EOCI1		.EQU    $08                      
+      (E)  0000         KY_SHFT		.EQU    $80		; shift			        
+      (E)  0000         KY_NUMB		.EQU    $40		; numeric lock			 
+      (E)  0000         KY_CPNM		.EQU    $02		; CAPS / NUMB flag		
+      (E)  0000         KY_CAPS		.EQU    $01		; caps lock			    
+      (E)  0000         KY_MLKY		.EQU    $04		; multi-lingual key flag	
+      (E)  0000         PACONDEL	.EQU    11520		; for 50ms delay		
+      (E)  0000         VPPONDEL	.EQU    1613		; for 7ms delay		
+      (E)  0000         VPPOFFDEL       .EQU    	46080		; for 200ms delay		
+      (E)  0000         PK_OVERBLOW	.EQU    5		; 5*X overblow   
+      (E)  0000         RAMBASE		.EQU    $2000	; machine ram base		
+      (E)  0000         RAMFREE		.EQU    btt_ramf	; end of osvars (first free byte) 
+      (E)  0000         MACHINE_STACK	.EQU    $0100	; size of machine stack	
+      (E)  0000         MINEVL_STACK	.EQU    $0100	; min. size of evaluator stack	
+      (E)  0000         ALLCELLS	.EQU    32      	; number of allocator cells	
+      (E)  0000         PERMCELL	.EQU    0		; permanent cell		  
+      (E)  0000         MENUCELL	.EQU    1		; top level menu cell		
+      (E)  0000         DIRYCELL	.EQU    2		; diary cell			     
+      (E)  0000         TEXTCELL	.EQU    3		; language text cell		
+      (E)  0000         SYMBCELL	.EQU    4		; symbol table cell		
+      (E)  0000         GLOBCELL	.EQU    5		; global record cell		
+      (E)  0000         OCODCELL	.EQU    6		; QCODE ouput cell		
+      (E)  0000         FSY1CELL	.EQU    7		; field name symbol table 1	
+      (E)  0000         FSY2CELL	.EQU    8		; field name symbol table 2	
+      (E)  0000         FSY3CELL	.EQU    9		; field name symbol table 3	
+      (E)  0000         FSY4CELL	.EQU    10		; field name symbol table 4	
+      (E)  0000         FBF1CELL	.EQU    11		; field buffer cell 1		
+      (E)  0000         FBF2CELL	.EQU    12		; field buffer cell 2		
+      (E)  0000         FBF3CELL	.EQU    13		; field buffer cell 3		
+      (E)  0000         FBF4CELL	.EQU    14		; field buffer cell 4		
+      (E)  0000         DATACELL	.EQU    15		; database cell		  
+      (E)  0000         NOTECELL	.EQU    16		; Notepad cell			  
+      (E)  0000         DUMYCELL	.EQU    17		; Dummy cell for spreadsheet	
+      (E)  0000         PREALLOC	.EQU    18		; number of cells to preallocate 
+      (E)  0000         SWIDTH		.EQU    $10		; screen width 		  
+      (E)  0000         CURS_ON		.EQU    $80		; cursor on flag		
+      (E)  0000         CURS_OFF	.EQU    $00		; cursor off			   
+      (E)  0000         CURSOR_BLOCK	.EQU    $00		; cursor in block form		
+      (E)  0000         CURSOR_LINE	.EQU    $01		; cursor in line form		
+      (E)  0000         CY_SWIDTH     .EQU    	20		; LZ screen width		
+      (E)  0000         CY_NLINES     .EQU    	4		; 4 lines on LZ screen		
+      (E)  0000         TIMEOUT		.EQU    300		; automatic timeout in 5 mins	
+      (E)  0000         BSIZE		.EQU    256+64	; general purpose buffer size	
+      (E)  0000         FSIZE		.EQU    32		; find buffer size		 
+      (E)  0000         DELIM		.EQU    9		; buffer delimiter		  
+      (E)  0000         KEY_TIME	.EQU    $b39F	; gives 50.000ms key polling	
+      (E)  0000         KEY_DELAY	.EQU    14		; delay before key repeat	
+      (E)  0000         KEY_REPEAT      .EQU    	0		; rate of key repeat 0=fastest	
+      (E)  0000         KEY_CLICK	.EQU    1		; length of key click		
+      (E)  0000         TYPEAHEAD	.EQU    16		; 16 character type ahead	
+      (E)  0000         HDELAY		.EQU    4    	; horizontal scrolling delay	
+      (E)  0000         VDELAY		.EQU    10		; vertical scrolling delay	
+      (E)  0000         REGSIZE		.EQU    32		; number of table registers	
+      (E)  0000         REGBASE		.EQU    256-REGSIZE	; first register number	
+      (E)  0000         STACKSIZE	.EQU    32		; table stack size		
+      (E)  0000         K_AC		.EQU    1		; all/clear key		      
+      (E)  0000         K_MODE		.EQU    2		; mode key			        
+      (E)  0000         K_UP		.EQU    3		; up arrow			          
+      (E)  0000         K_DOWN		.EQU    4		; down arrow			      
+      (E)  0000         K_LEFT		.EQU    5		; left arrow			      
+      (E)  0000         K_RGHT		.EQU    6		; right arrow			     
+      (E)  0000         K_DELR		.EQU    7		; delete right key		 
+      (E)  0000         K_DEL		.EQU    8		; delete key			       
+      (E)  0000         K_EXE		.EQU    13		; execute key			     
+      (E)  0000         K_SHFTEXE	.EQU    14		; Shift EXE			    
+      (E)  0000         K_SHFTSPACE	.EQU    15		; Shift SPACE			
+      (E)  0000         K_F1		.EQU    3		; function keys on POS200	
+      (E)  0000         K_F2		.EQU    4                         
+      (E)  0000         K_F3		.EQU    5                         
+      (E)  0000         D_BS		.EQU    8		; back space			        
+      (E)  0000         D_HT		.EQU    9		; nearest position modulo 8	
+      (E)  0000         D_LF		.EQU    10		; line feed			        
+      (E)  0000         D_HM		.EQU    11		; position cursor top left	
+      (E)  0000         D_FF		.EQU    12		; clear entire display		
+      (E)  0000         D_CR		.EQU    13		; goto start of line		
+      (E)  0000         D_CT		.EQU    14		; clear top line		    
+      (E)  0000         D_CB		.EQU    15		; clear bottom line		 
+      (E)  0000         D_BL		.EQU    16		; bell !			           
+      (E)  0000         D_RE		.EQU    17		; refresh both lines		
+      (E)  0000         D_TR		.EQU    18		; refresh top line		  
+      (E)  0000         D_BR		.EQU    19		; refresh bottom line		
+      (E)  0000         D_3R		.EQU    20		; refresh 3rd line		  
+      (E)  0000         D_4R		.EQU    21		; refresh 4th line		  
+      (E)  0000         D_C3		.EQU    22		; clear 3rd line		    
+      (E)  0000         D_C4		.EQU    23		; clear 4th line		    
+      (E)  0000         D_HD		.EQU    24		; print high dotted line	
+      (E)  0000         D_LD		.EQU    25		; print low dotted line	
+      (E)  0000         D_CE		.EQU    26		; clear to the end of line	
+      (E)  0000         DSP_CN		.EQU    31		; for centring text in ut$disp	
+      (E)  0000         PAKA 		.EQU    0		; Ram data pack 		    
+      (E)  0000         PAKB 		.EQU    1		; First pack slot 		  
+      (E)  0000         PAKC 		.EQU    2		; Second pack slot 		 
+      (E)  0000         PAKD		.EQU    3		; Top slot			          
+      (E)  0000         EPROM		.EQU    $02		; set if eprom pak (not ram pak) 
+      (E)  0000         PGCPK		.EQU    $04		; set if pak with page counter 
+      (E)  0000         RDWRT		.EQU    $08		; clear if pak write protected	
+      (E)  0000         NOBOOT		.EQU    $10		; clear if pak bootable ??? 	
+      (E)  0000         COPYPK		.EQU    $20		; set if pak copyable 		
+      (E)  0000         NYIMPL  	.EQU    $40		; set for future expansion 	
+      (E)  0000         MK1PAK  	.EQU    $80		; set if MARK 1 pak 		
+      (E)  0000         GENERAL 	.EQU    $90		; general record type		
+      (E)  0000         MAXFILE 	.EQU    4		; Maximum number of open files 
+      (E)  0000         BBODTYP		.EQU    $80		; block body records		
+      (E)  0000         NAMETYP		.EQU    $81		; record type for file names 	
+      (E)  0000         BDIATYP		.EQU    $82		; block name record type for diary 
+      (E)  0000         BLANTYP		.EQU    $83		; block name record type for language
+      (E)  0000         BNOTTYP		.EQU    $87		; block name record type for notepad 
+      (E)  0000         FRECTYP		.EQU    $91		; lowest rec. type for named files 
+      (E)  0000         NAMELEN		.EQU    8		; max len of a file name	
+      (E)  0000         TLRECT 		.EQU    FRECTYP-1	; record type for find/save	
+      (E)  0000         AMSIZE .EQU    6	; size of an alarm entry 
+      (E)  0000         AMNUM  .EQU    8	; number of alarm entries 
+      (E)  0000         EDITMODE 	.EQU         3                
+      (E)  0000         LISTMODE 	.EQU         4                
+      (E)  0000         RUNMODE 	.EQU         7                 
+      (E)  0000         ERAMODE		.EQU         8                 
+      (E)  0000         SIZEOF_PAKDEF	.EQU    10		; paktype, paksize, 8 byte id	
+      (E)  0000         PTYP		.EQU    0		; pak type			          
+      (E)  0000         PSIZ		.EQU    1		; pak size			          
+      (E)  0000         PIDS		.EQU    2		; unique ID string		   
+      (E)  0000         PRECISION	.EQU    12		; working precision for maths. 
+      (E)  0000         MANSIZE		.EQU    6		; size of BCD mantissa         
+      (E)  0000         MANBYTES	.EQU    7		; size of register mantissa    
+      (E)  0000         SZREG		.EQU    9		; size of BCD register		
+      (E)  0000         SZBCD		.EQU    8		; size of BCD number		
+      (E)  0000         SMSB		.EQU    5		; most significant byte	
+      (E)  0000         SEXP		.EQU    6		; exponent 			         
+      (E)  0000         SSGN		.EQU    7		; sign				             
+      (E)  0000         AMSB		.EQU    6		; most significant byte	
+      (E)  0000         AEXP		.EQU    7		; exponent 			         
+      (E)  0000         ASGN		.EQU    8		; sign				             
+      (E)  0000         MAXEXP		.EQU    99		; maximum exponent size	
+      (E)  0000         MINEXP		.EQU    -99		; max. negative exponent size	
+      (E)  0000         MAXDLEN		.EQU    32		; max. no. of dec. places      
+      (E)  0000         AMNUM .EQU         8                    
+      (E)  0000         MAXDLEN		.EQU    32		; max. dec. places + exponent	
+      (E)  0000         LANG_ENG	.EQU         0                 
+      (E)  0000         LANG_FRN	.EQU         1                 
+      (E)  0000         LANG_GRM	.EQU         2                 
+      (E)  0000         MLT_PROTECT	.EQU         129            
+      (E)  0000         MLT_PASSWORD	.EQU         72            
+      (E)  0000         MLT_LENGTH	.EQU    MLT_PROTECT+MLT_PASSWORD+65
+      (E)  0000         WL_BASE_CITY	.EQU         100           
+      (E)  0000         WL_BASE_COUNTRY	.EQU         120        
+      (E)  0000         MAXPASSLEN .EQU         8               
 0000  (O)                       .ORG    0                       
 0000  (W)   00 00                       .WORD   CEND-CBASE              ; SIZE OF CODE
 0000  (O)                               .ORG    $1000           
 0     (L)               CBASE:                                  
-0000  (1)   CE 00 00                            LDX     #RTT_BF         ; RUN TIME BUFFER
-0003  (1)   86 00                               LDAA    #$20          ; SPACE CHARACTER
-0005  (1)   C6 00                               LDAB    #10           ; DO 10 TIMES
+0000  (1)   00 00 00                            LDX     #rtt_bf         ; RUN TIME BUFFER
+0003  (1)   00 00                               LDAA    #$20          ; SPACE CHARACTER
+0005  (1)   00 00                               LDAB    #10           ; DO 10 TIMES
 7     (L)               LOOP:                                   
-0007  (3)   A7 00                               STAA    0,X           ; STORE SPACE IN BUFFER
-0009  (5)   08                                  INX                     ; GO ON TO NEXT BYTE
-000A  (5)   5A                                  DECB                   ; DECREASE COUNT
-000B  (0)   26 F5                               BNE     LEND            ; FINISHED ?
-000D  (4)   7E 00 00                    FIX1:   JMP     LOOP            ; NO - SO LOOP
+0007  (3)   00 00                               STAA    0,X           ; STORE SPACE IN BUFFER
+0009  (5)   00                                  INX                     ; GO ON TO NEXT BYTE
+000A  (5)   00                                  DECB                   ; DECREASE COUNT
+000B  (0)   00 00                               BNE     LEND            ; FINISHED ?
+000D  (4)   00 00 00                    FIX1:   JMP     LOOP            ; NO - SO LOOP
 16    (L)               LEND:                                   
-0010  (5)   39                                  RTS                     ; EXIT ROUTINE
+0010  (5)   00                                  RTS                     ; EXIT ROUTINE
 17    (L)               CEND:                                   
 0011  (W)   00 00                               .WORD   $4E9            ; CHECKSUM OF CODE BLOCK
 0013  (W)   00 00                               .WORD   (FIXEN-FIXST)/2 ; NUMBER OF FIXUPS
@@ -25,28 +546,549 @@ Assembling test.asm  Pass 1
 0015  (W)   00 00                               .WORD   FIX1+1          ; ADDRESS IN CODE BLOCK
 23    (L)               FIXEN:                                  
 0017  (W)   00 00                               .WORD   $E              ; CHECKSUM OF FIXUPS
-0019  (1)   CE 00 00    	LDX     #CBASE          ; START ADDRESS
-001C  (5)   4F                  CLRA                            
-001D  (5)   5F                  CLRB                            
-001E  (4)   FD 00 00            STD     UTW_S0         ; START CHECKSUM AS 0
+0019  (1)   00 00 00    	LDX     #CBASE          ; START ADDRESS
+001C  (5)   00                  CLRA                            
+001D  (5)   00                  CLRB                            
+001E  (4)   00 00 00            STD     utw_s0         ; START CHECKSUM AS 0
 33    (L)               LOOP2:                                  
-0021  (5)   4F                  CLRA                            
-0022  (3)   E6 00               LDAB    0,X           ; GET BYTE
-0024  (4)   F3 00 00            ADDD    UTW_S0         ; ADD CHECKSUM
-0027  (4)   FD 00 00            STD     UTW_S0         ; SAVE IT
-002A  (5)   08                  INX                             
-002B  (1)   8C 00 00            CPX     #CEND           ; ALL DONE
-002E  (0)   26 D2               BNE     LOOP2            ; NO - SO DO MORE
+0021  (5)   00                  CLRA                            
+0022  (3)   00 00               LDAB    0,X           ; GET BYTE
+0024  (4)   00 00 00            ADDD    utw_s0         ; ADD CHECKSUM
+0027  (4)   00 00 00            STD     utw_s0         ; SAVE IT
+002A  (5)   00                  INX                             
+002B  (1)   00 00 00            CPX     #CEND           ; ALL DONE
+002E  (0)   00 00               BNE     LOOP2            ; NO - SO DO MORE
 Assembling test.asm  Pass 2
-      (E)  2188         	RTT_BF          .EQU    $2188          
-      (E)  3876         	UTW_S0          .EQU    $3876          
-0000  (5)   3F          		  	SWI                                
-0001  (B)   22          	  .BYTE $22                            
+      (E)  0040         utb_7e		.EQU	$40                        
+      (E)  0041         utw_s0		.EQU	$41                        
+      (E)  0043         utw_s1		.EQU	$43                        
+      (E)  0045         utw_s2		.EQU	$45                        
+      (E)  0047         utw_s3		.EQU	$47                        
+      (E)  0049         utw_s4		.EQU	$49                        
+      (E)  004B         utw_s5		.EQU	$4B                        
+      (E)  004D         utw_r0		.EQU	$4D                        
+      (E)  004D         utb_h0		.EQU	$4D                        
+      (E)  004E         utb_l0		.EQU	$4E                        
+      (E)  004F         utw_r1		.EQU	$4F                        
+      (E)  004F         utb_h1		.EQU	$4F                        
+      (E)  0050         utb_l1		.EQU	$50                        
+      (E)  0051         utw_r2		.EQU	$51                        
+      (E)  0051         utb_h2		.EQU	$51                        
+      (E)  0052         utb_l2		.EQU	$52                        
+      (E)  0053         utw_r3		.EQU	$53                        
+      (E)  0053         utb_h3		.EQU	$53                        
+      (E)  0054         utb_l3		.EQU	$54                        
+      (E)  0055         utw_r4		.EQU	$55                        
+      (E)  0055         utb_h4		.EQU	$55                        
+      (E)  0056         utb_l4		.EQU	$56                        
+      (E)  0057         utw_r5		.EQU	$57                        
+      (E)  0057         utb_h5		.EQU	$57                        
+      (E)  0058         utb_l5		.EQU	$58                        
+      (E)  0059         utw_r6		.EQU	$59                        
+      (E)  0059         utb_h6		.EQU	$59                        
+      (E)  005A         utb_l6		.EQU	$5A                        
+      (E)  005B         btb_nmfl	.EQU	$5B                       
+      (E)  005C         btw_ccnt	.EQU	$5C                       
+      (E)  005E         bta_rtop	.EQU	$5E                       
+      (E)  0060         rtb_lbat	.EQU	$60                       
+      (E)  0061         xxb_xxxx	.EQU	$61                       
+      (E)  0062         dpb_cpos	.EQU	$62                       
+      (E)  0063         dpb_cust	.EQU	$63                       
+      (E)  0064         dpb_vlin	.EQU	$64                       
+      (E)  0065         dpb_vsiz	.EQU	$65                       
+      (E)  0066         dpb_vdir	.EQU	$66                       
+      (E)  0067         dpb_spos	.EQU	$67                       
+      (E)  0068         dpb_scus	.EQU	$68                       
+      (E)  0069         dpw_sped	.EQU	$69                       
+      (E)  006B         dpw_dely	.EQU	$6B                       
+      (E)  006D         dpw_redy	.EQU	$6D                       
+      (E)  006F         dpa_vadd	.EQU	$6F                       
+      (E)  0071         kbw_tdel	.EQU	$71                       
+      (E)  0073         kbb_back	.EQU	$73                       
+      (E)  0074         kbb_nkys	.EQU	$74                       
+      (E)  0075         kbb_prev	.EQU	$75                       
+      (E)  0076         kbb_wait	.EQU	$76                       
+      (E)  0077         kbb_dlay	.EQU	$77                       
+      (E)  0078         kbb_rept	.EQU	$78                       
+      (E)  0079         kbb_cntr	.EQU	$79                       
+      (E)  007A         kbb_knum	.EQU	$7A                       
+      (E)  007B         kbb_stat	.EQU	$7B                       
+      (E)  007C         tmb_swof	.EQU	$7C                       
+      (E)  007D         tmw_tout	.EQU	$7D                       
+      (E)  007F         edb_mlen	.EQU	$7F                       
+      (E)  0080         edb_plen	.EQU	$80                       
+      (E)  0081         edb_flin	.EQU	$81                       
+      (E)  0082         edb_poff	.EQU	$82                       
+      (E)  0083         edb_clin	.EQU	$83                       
+      (E)  0084         edb_stat	.EQU	$84                       
+      (E)  0085         edw_cpos	.EQU	$85                       
+      (E)  0087         edw_cb		.EQU	$87                        
+      (E)  0089         edw_bl		.EQU	$89                        
+      (E)  008B         pkb_curp	.EQU	$8B                       
+      (E)  008C         pkb_cpak	.EQU	$8C                       
+      (E)  008D         pkw_rasi	.EQU	$8D                       
+      (E)  008F         pkw_cmad	.EQU	$8F                       
+      (E)  0091         pkb_hpad	.EQU	$91                       
+      (E)  0092         pkw_cpad	.EQU	$92                       
+      (E)  0094         pka_pkid	.EQU	$94                       
+      (E)  0096         flb_rect	.EQU	$96                       
+      (E)  0097         flb_cpak	.EQU	$97                       
+      (E)  0098         flb_cont	.EQU	$98                       
+      (E)  0099         flw_drec	.EQU	$99                       
+      (E)  009B         flw_crec	.EQU	$9B                       
+      (E)  009D         flw_fnad	.EQU	$9D                       
+      (E)  009F         flw_nrec	.EQU	$9F                       
+      (E)  00A1         xfb_rect	.EQU	$A1                       
+      (E)  00A2         tlb_cpak	.EQU	$A2                       
+      (E)  00A3         tlb_mode	.EQU	$A3                       
+      (E)  00A4         bzb_mute	.EQU	$A4                       
+      (E)  00A5         rta_sp		.EQU	$A5                        
+      (E)  00A7         rta_fp		.EQU	$A7                        
+      (E)  00A9         rta_pc		.EQU	$A9                        
+      (E)  00AB         lgw_clin	.EQU	$AB                       
+      (E)  00AD         lxa_curr	.EQU	$AD                       
+      (E)  00AF         lxb_ptok	.EQU	$AF                       
+      (E)  00B0         acw_1x		.EQU	$B0                        
+      (E)  00B0         rtb_escf	.EQU	$B0                       
+      (E)  00B1         rtb_logn	.EQU	$B1                       
+      (E)  00B2         acw_2x		.EQU	$B2                        
+      (E)  00B2         rtb_trap	.EQU	$B2                       
+      (E)  00B3         rtb_eror	.EQU	$B3                       
+      (E)  00B4         acw_prec	.EQU	$B4                       
+      (E)  00B4         rtb_crfl	.EQU	$B4                       
+      (E)  00B5         rtb_cdrv	.EQU	$B5                       
+      (E)  00B6         rtw_s0		.EQU	$B6                        
+      (E)  00B6         acw_cons	.EQU	$B6                       
+      (E)  00B8         rtw_s1		.EQU	$B8                        
+      (E)  00B8         acw_glcd	.EQU	$B8                       
+      (E)  00BA         rtw_s2		.EQU	$BA                        
+      (E)  00BA         acw_left	.EQU	$BA                       
+      (E)  00BC         rtw_s3		.EQU	$BC                        
+      (E)  00BC         acw_ocsz	.EQU	$BC                       
+      (E)  00BE         rtw_s4		.EQU	$BE                        
+      (E)  00BE         acb_nest	.EQU	$BE                       
+      (E)  00BF         acw_labl	.EQU	$BF                       
+      (E)  00C0         rtw_s5		.EQU	$C0                        
+      (E)  00C1         acw_r0		.EQU	$C1                        
+      (E)  00C2         rtw_s6		.EQU	$C2                        
+      (E)  00C3         acw_r1		.EQU	$C3                        
+      (E)  00C4         rtb_top		.EQU	$C4                       
+      (E)  00C5         dib_year	.EQU	$C5                       
+      (E)  00C5         amt_temp	.EQU	$C5                       
+      (E)  00C5         xtb_read	.EQU	$C5                       
+      (E)  00C5         mtt_aman	.EQU	$C5                       
+      (E)  00C6         dib_mons	.EQU	$C6                       
+      (E)  00C7         dib_days	.EQU	$C7                       
+      (E)  00C8         dib_hour	.EQU	$C8                       
+      (E)  00C9         dib_mins	.EQU	$C9                       
+      (E)  00CC         mtb_aexp	.EQU	$CC                       
+      (E)  00CD         mtb_asgn	.EQU	$CD                       
+      (E)  00CE         mtt_oman	.EQU	$CE                       
+      (E)  00D5         mtb_oexp	.EQU	$D5                       
+      (E)  00D6         mtb_osgn	.EQU	$D6                       
+      (E)  00D7         ita_pcnt	.EQU	$D7                       
+      (E)  00D9         ita_base	.EQU	$D9                       
+      (E)  00DB         ita_sptr	.EQU	$DB                       
+      (E)  00DD         itb_test	.EQU	$DD                       
+      (E)  00DE         ima_gptr	.EQU	$DE                       
+      (E)  00E0         zpg_free	.EQU	$E0                       
+      (E)  00E1         amb_svei	.EQU	$E1                       
+      (E)  2000         alt_base	.EQU	$2000                     
+      (E)  2040         ala_free	.EQU	$2040                     
+      (E)  2042         bta_2iq		.EQU	$2042                     
+      (E)  2044         bta_cmi		.EQU	$2044                     
+      (E)  2046         bta_bug		.EQU	$2046                     
+      (E)  2048         bta_sio		.EQU	$2048                     
+      (E)  204A         bta_toi		.EQU	$204A                     
+      (E)  204C         bta_oci		.EQU	$204C                     
+      (E)  204E         bta_ici		.EQU	$204E                     
+      (E)  2050         bta_1iq		.EQU	$2050                     
+      (E)  2052         bta_swi		.EQU	$2052                     
+      (E)  2054         bta_nmi		.EQU	$2054                     
+      (E)  2056         bta_wrm		.EQU	$2056                     
+      (E)  2058         bta_sof		.EQU	$2058                     
+      (E)  205A         bta_poll	.EQU	$205A                     
+      (E)  205C         bta_tran	.EQU	$205C                     
+      (E)  205E         bta_tabl	.EQU	$205E                     
+      (E)  2060         utw_fp		.EQU	$2060                      
+      (E)  2062         btb_ignm	.EQU	$2062                     
+      (E)  2063         btb_imsk	.EQU	$2063                     
+      (E)  2064         btb_tcsr	.EQU	$2064                     
+      (E)  2065         bta_sbas	.EQU	$2065                     
+      (E)  2067         bta_savstack	.EQU	$2067                 
+      (E)  2069         btw_1dontuse	.EQU	$2069                 
+      (E)  206B         btw_2dontuse	.EQU	$206B                 
+      (E)  206D         btw_3dontuse	.EQU	$206D                 
+      (E)  206F         btb_4dontuse	.EQU	$206F                 
+      (E)  2070         dpt_tlin	.EQU	$2070                     
+      (E)  2080         dpt_blin	.EQU	$2080                     
+      (E)  2090         dpa_scrn	.EQU	$2090                     
+      (E)  2092         dpb_nlin	.EQU	$2092                     
+      (E)  2093         dpb_wide	.EQU	$2093                     
+      (E)  2094         dpb_mflg	.EQU	$2094                     
+      (E)  2095         dpb_clok	.EQU	$2095                     
+      (E)  2096         dpb_cred	.EQU	$2096                     
+      (E)  2097         dpb_vpos	.EQU	$2097                     
+      (E)  2098         dpb_cmin	.EQU	$2098                     
+      (E)  2099         dpb_bord	.EQU	$2099                     
+      (E)  209A         mnb_xmen	.EQU	$209A                     
+      (E)  209B         mnb_xlin	.EQU	$209B                     
+      (E)  209C         mnb_cptz	.EQU	$209C                     
+      (E)  209D         btw_toff	.EQU	$209D                     
+      (E)  209F         lgb_flgs	.EQU	$209F                     
+      (E)  20A0         lga_tag		.EQU	$20A0                     
+      (E)  20A2         lgb_spos	.EQU	$20A2                     
+      (E)  20A3         ntb_spos	.EQU	$20A3                     
+      (E)  20A4         lxa_fixp	.EQU	$20A4                     
+      (E)  20A6         tmb_24f		.EQU	$20A6                     
+      (E)  20A7         amb_wrkd	.EQU	$20A7                     
+      (E)  20A8         kbb_svst	.EQU	$20A8                     
+      (E)  20A9         dib_1slt	.EQU	$20A9                     
+      (E)  20AA         dib_2slt	.EQU	$20AA                     
+      (E)  20AB         dib_3slt	.EQU	$20AB                     
+      (E)  20AC         dib_ap		.EQU	$20AC                      
+      (E)  20AD         dib_palarm	.EQU	$20AD                   
+      (E)  20AE         dib_pdrtn	.EQU	$20AE                    
+      (E)  20AF         btb_wnmi	.EQU	$20AF                     
+      (E)  20B0         kbt_buff	.EQU	$20B0                     
+      (E)  20C0         kbb_clik	.EQU	$20C0                     
+      (E)  20C1         kbb_pkof	.EQU	$20C1                     
+      (E)  20C2         kbb_capk	.EQU	$20C2                     
+      (E)  20C3         kbb_numk	.EQU	$20C3                     
+      (E)  20C4         kbb_shfk	.EQU	$20C4                     
+      (E)  20C5         tmb_year	.EQU	$20C5                     
+      (E)  20C6         tmb_mons	.EQU	$20C6                     
+      (E)  20C7         tmb_days	.EQU	$20C7                     
+      (E)  20C8         tmb_hour	.EQU	$20C8                     
+      (E)  20C9         tmb_mins	.EQU	$20C9                     
+      (E)  20CA         tmb_secs	.EQU	$20CA                     
+      (E)  20CB         tmw_fram	.EQU	$20CB                     
+      (E)  20CD         tmw_tcnt	.EQU	$20CD                     
+      (E)  20CF         utt_tbuf	.EQU	$20CF                     
+      (E)  20D6         pkb_imsk	.EQU	$20D6                     
+      (E)  20D7         pkt_id		.EQU	$20D7                      
+      (E)  20FF         rtt_numb	.EQU	$20FF                     
+      (E)  214F         dvt_spar	.EQU	$214F                     
+      (E)  2184         dpb_mode	.EQU	$2184                     
+      (E)  2185         kbb_spec	.EQU	$2185                     
+      (E)  2186         btb_lang	.EQU	$2186                     
+      (E)  2187         rtb_bl		.EQU	$2187                      
+      (E)  2188         rtt_bf		.EQU	$2188                      
+      (E)  2288         mtt_wbuf	.EQU	$2288                     
+      (E)  2288         amt_now		.EQU	$2288                     
+      (E)  228E         amt_week	.EQU	$228E                     
+      (E)  22C8         rtb_fl		.EQU	$22C8                      
+      (E)  22C9         rtt_ff		.EQU	$22C9                      
+      (E)  22E9         rtt_fil		.EQU	$22E9                     
+      (E)  22F9         amt_tab		.EQU	$22F9                     
+      (E)  2329         dva_bot		.EQU	$2329                     
+      (E)  232B         dva_top		.EQU	$232B                     
+      (E)  232D         mlb_case	.EQU	$232D                     
+      (E)  232E         xtb_cold	.EQU	$232E                     
+      (E)  232F         kbb_lbfl	.EQU	$232F                             
+      (E)  2335         amb_ei		.EQU	$2335                      
+      (E)  2336         amt_t0		.EQU	$2336                      
+      (E)  233C         amt_t1		.EQU	$233C                      
+      (E)  2342         amt_t2		.EQU	$2342                      
+      (E)  2348         amw_r1		.EQU	$2348                      
+      (E)  234A         amb_doit	.EQU	$234A                     
+      (E)  234B         ita_uvc		.EQU	$234B                     
+      (E)  234D         itt_regs	.EQU	$234D                     
+      (E)  236D         itt_stak	.EQU	$236D                     
+      (E)  23AD         imb_ssgn	.EQU	$23AD                     
+      (E)  23AE         fnt_seed	.EQU	$23AE                     
+      (E)  23B5         acw_stop	.EQU	$23B5                     
+      (E)  23B7         acw_xtcd	.EQU	$23B7                     
+      (E)  23B9         act_ddat	.EQU	$23B9                     
+      (E)  23BD         act_nvar	.EQU	$23BD                     
+      (E)  23C1         act_bran	.EQU	$23C1                     
+      (E)  23C9         act_psym	.EQU	$23C9                     
+      (E)  23CD         lxa_cend	.EQU	$23CD                     
+      (E)  23CF         lxa_strt	.EQU	$23CF                     
+      (E)  23D1         lxb_stok	.EQU	$23D1                     
+      (E)  23D2         lxb_scla	.EQU	$23D2                     
+      (E)  23D3         lxb_ftyp	.EQU	$23D3                     
+      (E)  23D4         lgb_fixp	.EQU	$23D4                     
+      (E)  23D5         lgb_nl		.EQU	$23D5                      
+      (E)  23D6         lgt_nf		.EQU	$23D6                      
+      (E)  23E0         lgb_lant	.EQU	$23E0                     
+      (E)  23E1         lgb_menu	.EQU	$23E1                     
+      (E)  23E2         rta_1vct	.EQU	$23E2                     
+      (E)  23E4         utw_reta	.EQU	$23E4                     
+      (E)  23E6         pkb_ovbl	.EQU	$23E6                     
+      (E)  23E7         bta_vect	.EQU	$23E7                     
+      (E)  23E9         flb_iglb	.EQU	$23E9                     
+      (E)  23EA         pkb_bblw	.EQU	$23EA                     
+      (E)  23EB         flt_cfil	.EQU	$23EB                     
+      (E)  2403         fla_flid	.EQU	$2403                     
+      (E)  2405         lna_svsp	.EQU	$2405                     
+      (E)  2407         pkb_ramb	.EQU	$2407                     
+      (E)  2408         pkb_blow	.EQU	$2408                     
+      (E)  2409         pkb_hsav	.EQU	$2409                     
+      (E)  240A         flb_r0		.EQU	$240A                      
+      (E)  240B         flb_r1		.EQU	$240B                      
+      (E)  240C         flb_r3		.EQU	$240C                      
+      (E)  240D         flb_r4		.EQU	$240D                      
+      (E)  240E         flb_r5		.EQU	$240E                      
+      (E)  240F         flb_r6		.EQU	$240F                      
+      (E)  2410         flb_fnad	.EQU	$2410                     
+      (E)  2411         dvw_r0		.EQU	$2411                      
+      (E)  2413         btt_mstack	.EQU	$2413                   
+      (E)  2513         mlt_buf		.EQU	$2513                     
+      (E)  25DC         dib_pastelen	.EQU	$25DC                 
+      (E)  25DD         dib_paste	.EQU	$25DD                    
+      (E)  261D         flt_dmat	.EQU	$261D                     
+      (E)  262A         btb_rbnk	.EQU	$262A                     
+      (E)  262B         mlb_bank	.EQU	$262B                     
+      (E)  262C         dpt_4lin	.EQU	$262C                     
+      (E)  267C         xfb_nlen	.EQU	$267C                     
+      (E)  267D         xft_name	.EQU	$267D                     
+      (E)  2685         xfb_cpak	.EQU	$2685                     
+      (E)  2686         wla_curr	.EQU	$2686                     
+      (E)  2688         wla_base	.EQU	$2688                     
+      (E)  268A         wlb_gmt		.EQU	$268A                     
+      (E)  268B         dpb_vpar	.EQU	$268B                     
+      (E)  268C         dpb_pvln	.EQU	$268C                     
+      (E)  268D         btt_ramf	.EQU	$268D                     
+      (E)  7F00         btt_bboot	.EQU	$7F00                    
+      (E)  7F22         dpt_sudg	.EQU	$7F22                     
+      (E)  7F62         dpt_4sav	.EQU	$7F62                     
+      (E)  7FB2         mlt_ebuf	.EQU	$7FB2                     
+      (E)  7FC3         rtt_fsav	.EQU	$7FC3                     
+      (E)  7FD6         xtt_pasw	.EQU	$7FD6                     
+      (E)  7FE0         dis_e		.EQU	$7FE0                       
+      (E)  7FE9         dib_dmode	.EQU	$7FE9                    
+      (E)  7FEA         ntb_flgs	.EQU	$7FEA                     
+      (E)  7FEB         ntb_pssw	.EQU	$7FEB                     
+      (E)  7FEC         ntt_pssw	.EQU	$7FEC                     
+      (E)  7FF4         ntt_estd	.EQU	$7FF4                     
+      (E)  7FFD         ntw_clin	.EQU	$7FFD                     
+      (E)  7FFF         ntb_cpos	.EQU	$7FFF                     
+      (E)  0000         MLANG             .EQU 0                
+      (E)  0000         BUILDLA           .EQU 0                
+      (E)  0000         BUILDXP           .EQU 0                
+      (E)  0001         LADDR             .EQU 1                
+      (E)  0001         RAMPAK            .EQU 1                
+      (E)  0000         REMOVE_INFO       .EQU 0                
+      (E)  0000         REMOVE_MK1        .EQU 0                
+      (E)  0000         UDG_CLK0	.EQU    0                      
+      (E)  0009         UDG_CLK9	.EQU    9                      
+      (E)  000A         UDG_CLKCOLON	.EQU    10                 
+      (E)  000B         UDG_UNDERSCORE	.EQU    11               
+      (E)  000C         ICON_MAIN	.EQU    12                    
+      (E)  000D         ICON_PROG	.EQU    13                    
+      (E)  000E         ICON_FILES	.EQU    14                   
+      (E)  000F         ICON_UTILS	.EQU    15                   
+      (E)  0010         ICON_ALARM	.EQU    16                   
+      (E)  0011         ICON_CALC	.EQU    17                    
+      (E)  0012         ICON_AM	.EQU    	18                     
+      (E)  0013         ICON_PM	.EQU    	19                     
+      (E)  0014         UDG_LDOT	.EQU    20                     
+      (E)  0015         UDG_HDOT	.EQU    21                     
+      (E)  0016         UDG_DI_TARROW	.EQU    22                
+      (E)  0017         UDG_DI_BARROW	.EQU    23                
+      (E)  0018         UDG_DI_BELL	.EQU    24                  
+      (E)  0019         UDG_DI_WKBOX0	.EQU    25                
+      (E)  001A         UDG_DI_WKBOX1	.EQU    26                
+      (E)  001B         UDG_DI_WKBOX2	.EQU    27                
+      (E)  001C         UDG_DI_WKBOX3	.EQU    28                
+      (E)  001D         ICON_NOTES	.EQU    29                   
+      (E)  001E         UDG_DI_LCHEVRON	.EQU    30              
+      (E)  001F         UDG_DI_RCHEVRON	.EQU    31              
+      (E)  0001         POB_DDR2	.EQU    $01                    
+      (E)  0003         POB_PORT2	.EQU    $03		                 
+      (E)  0008         POB_TCSR1	.EQU    $08		; timer control status register 1 
+      (E)  0009         POW_FRC		.EQU    $09		; free running counter		
+      (E)  000B         POW_OCR1	.EQU    $0B		; ouput compare register 1	
+      (E)  000F         POB_TCSR2	.EQU    $0F		; Timer 2 control/status register 
+      (E)  0010         POB_RMCR	.EQU    $10		; rate, mode control register	
+      (E)  0011         POB_TRCSR	.EQU    $11		; Tx/Rx control status register 
+      (E)  0012         POB_RDR		.EQU    $12		; Recieve data register 
+      (E)  0013         POB_TDR		.EQU    $13		; Transmit data register 
+      (E)  0014         POB_RCR		.EQU    $14		; ram/port 5 control register	
+      (E)  0015         POB_PORT5	.EQU    $15                   
+      (E)  0016         POB_DDR6	.EQU    $16                    
+      (E)  0017         POB_PORT6	.EQU    $17                   
+      (E)  001B         POB_TCSR3	.EQU    $1B		; Timer 3 control/status register 
+      (E)  001C         POB_TCONR	.EQU    $1C		; Timer constant register 
+      (E)  0180         SCA_LCDCONTROL	.EQU    $0180	; lcd registers		
+      (E)  0181         SCA_LCDDATA	.EQU    $0181               
+      (E)  01C0         SCA_SWITCHOFF	.EQU    $01c0	; switch off			
+      (E)  0200         SCA_PULSEENABLE	.EQU    $0200	; pulse enable			
+      (E)  0240         SCA_PULSEDISABLE .EQU    $0240	; pulse disable		
+      (E)  0280         SCA_ALARMHIGH	.EQU    $0280	; buzzer			 
+      (E)  02C0         SCA_ALARMLOW	.EQU    $02c0              
+      (E)  0300         SCA_COUNTERRESET .EQU    $0300	; counter for kybd + clock	
+      (E)  0340         SCA_COUNTERCLOCK .EQU    $0340          
+      (E)  0380         SCA_NMIMPU	.EQU    $0380	; enable nmi to processor	
+      (E)  03C0         SCA_NMICOUNTER	.EQU    $03c0	; enable nmi to counter	
+      (E)  02A0         SCA_SETMODE1	.EQU    $2a0		; select mode 1 bit		
+      (E)  02E0         SCA_SETMODE2	.EQU    $2e0		; select mode 2 bit		
+      (E)  0320         SCA_MODERESET	.EQU    $320		; clear mode bits		
+      (E)  0360         SCA_BANKRESET	.EQU    $360		; reset bank counters		
+      (E)  03A0         SCA_NEXTRAM	.EQU    $3a0		; select next RAM bank		
+      (E)  03E0         SCA_NEXTROM	.EQU    $3e0		; select next ROM bank		
+      (E)  0080         ONCLR	.EQU    $80                       
+      (E)  0002         ACOUT	.EQU    $02                       
+      (E)  0001         LOWBATTERY	.EQU    $01                  
+      (E)  0080         PACON		.EQU    $80                      
+      (E)  0040         CS3		.EQU    $40                        
+      (E)  0020         CS2		.EQU    $20                        
+      (E)  0010         CS1		.EQU    $10                        
+      (E)  0008         OE		.EQU    $08                         
+      (E)  0004         PGM		.EQU    $04                        
+      (E)  0002         MR		.EQU    $02                         
+      (E)  0001         CLK		.EQU    $01                        
+      (E)  0008         EOCI1		.EQU    $08                      
+      (E)  0080         KY_SHFT		.EQU    $80		; shift			        
+      (E)  0040         KY_NUMB		.EQU    $40		; numeric lock			 
+      (E)  0002         KY_CPNM		.EQU    $02		; CAPS / NUMB flag		
+      (E)  0001         KY_CAPS		.EQU    $01		; caps lock			    
+      (E)  0004         KY_MLKY		.EQU    $04		; multi-lingual key flag	
+      (E)  2D00         PACONDEL	.EQU    11520		; for 50ms delay		
+      (E)  064D         VPPONDEL	.EQU    1613		; for 7ms delay		
+      (E)  B400         VPPOFFDEL       .EQU    	46080		; for 200ms delay		
+      (E)  0005         PK_OVERBLOW	.EQU    5		; 5*X overblow   
+      (E)  2000         RAMBASE		.EQU    $2000	; machine ram base		
+      (E)  268D         RAMFREE		.EQU    btt_ramf	; end of osvars (first free byte) 
+      (E)  0100         MACHINE_STACK	.EQU    $0100	; size of machine stack	
+      (E)  0100         MINEVL_STACK	.EQU    $0100	; min. size of evaluator stack	
+      (E)  0020         ALLCELLS	.EQU    32      	; number of allocator cells	
+      (E)  0000         PERMCELL	.EQU    0		; permanent cell		  
+      (E)  0001         MENUCELL	.EQU    1		; top level menu cell		
+      (E)  0002         DIRYCELL	.EQU    2		; diary cell			     
+      (E)  0003         TEXTCELL	.EQU    3		; language text cell		
+      (E)  0004         SYMBCELL	.EQU    4		; symbol table cell		
+      (E)  0005         GLOBCELL	.EQU    5		; global record cell		
+      (E)  0006         OCODCELL	.EQU    6		; QCODE ouput cell		
+      (E)  0007         FSY1CELL	.EQU    7		; field name symbol table 1	
+      (E)  0008         FSY2CELL	.EQU    8		; field name symbol table 2	
+      (E)  0009         FSY3CELL	.EQU    9		; field name symbol table 3	
+      (E)  000A         FSY4CELL	.EQU    10		; field name symbol table 4	
+      (E)  000B         FBF1CELL	.EQU    11		; field buffer cell 1		
+      (E)  000C         FBF2CELL	.EQU    12		; field buffer cell 2		
+      (E)  000D         FBF3CELL	.EQU    13		; field buffer cell 3		
+      (E)  000E         FBF4CELL	.EQU    14		; field buffer cell 4		
+      (E)  000F         DATACELL	.EQU    15		; database cell		  
+      (E)  0010         NOTECELL	.EQU    16		; Notepad cell			  
+      (E)  0011         DUMYCELL	.EQU    17		; Dummy cell for spreadsheet	
+      (E)  0012         PREALLOC	.EQU    18		; number of cells to preallocate 
+      (E)  0010         SWIDTH		.EQU    $10		; screen width 		  
+      (E)  0080         CURS_ON		.EQU    $80		; cursor on flag		
+      (E)  0000         CURS_OFF	.EQU    $00		; cursor off			   
+      (E)  0000         CURSOR_BLOCK	.EQU    $00		; cursor in block form		
+      (E)  0001         CURSOR_LINE	.EQU    $01		; cursor in line form		
+      (E)  0014         CY_SWIDTH     .EQU    	20		; LZ screen width		
+      (E)  0004         CY_NLINES     .EQU    	4		; 4 lines on LZ screen		
+      (E)  012C         TIMEOUT		.EQU    300		; automatic timeout in 5 mins	
+      (E)  0140         BSIZE		.EQU    256+64	; general purpose buffer size	
+      (E)  0020         FSIZE		.EQU    32		; find buffer size		 
+      (E)  0009         DELIM		.EQU    9		; buffer delimiter		  
+      (E)  B39F         KEY_TIME	.EQU    $b39F	; gives 50.000ms key polling	
+      (E)  000E         KEY_DELAY	.EQU    14		; delay before key repeat	
+      (E)  0000         KEY_REPEAT      .EQU    	0		; rate of key repeat 0=fastest	
+      (E)  0001         KEY_CLICK	.EQU    1		; length of key click		
+      (E)  0010         TYPEAHEAD	.EQU    16		; 16 character type ahead	
+      (E)  0004         HDELAY		.EQU    4    	; horizontal scrolling delay	
+      (E)  000A         VDELAY		.EQU    10		; vertical scrolling delay	
+      (E)  0020         REGSIZE		.EQU    32		; number of table registers	
+      (E)  00E0         REGBASE		.EQU    256-REGSIZE	; first register number	
+      (E)  0020         STACKSIZE	.EQU    32		; table stack size		
+      (E)  0001         K_AC		.EQU    1		; all/clear key		      
+      (E)  0002         K_MODE		.EQU    2		; mode key			        
+      (E)  0003         K_UP		.EQU    3		; up arrow			          
+      (E)  0004         K_DOWN		.EQU    4		; down arrow			      
+      (E)  0005         K_LEFT		.EQU    5		; left arrow			      
+      (E)  0006         K_RGHT		.EQU    6		; right arrow			     
+      (E)  0007         K_DELR		.EQU    7		; delete right key		 
+      (E)  0008         K_DEL		.EQU    8		; delete key			       
+      (E)  000D         K_EXE		.EQU    13		; execute key			     
+      (E)  000E         K_SHFTEXE	.EQU    14		; Shift EXE			    
+      (E)  000F         K_SHFTSPACE	.EQU    15		; Shift SPACE			
+      (E)  0003         K_F1		.EQU    3		; function keys on POS200	
+      (E)  0004         K_F2		.EQU    4                         
+      (E)  0005         K_F3		.EQU    5                         
+      (E)  0008         D_BS		.EQU    8		; back space			        
+      (E)  0009         D_HT		.EQU    9		; nearest position modulo 8	
+      (E)  000A         D_LF		.EQU    10		; line feed			        
+      (E)  000B         D_HM		.EQU    11		; position cursor top left	
+      (E)  000C         D_FF		.EQU    12		; clear entire display		
+      (E)  000D         D_CR		.EQU    13		; goto start of line		
+      (E)  000E         D_CT		.EQU    14		; clear top line		    
+      (E)  000F         D_CB		.EQU    15		; clear bottom line		 
+      (E)  0010         D_BL		.EQU    16		; bell !			           
+      (E)  0011         D_RE		.EQU    17		; refresh both lines		
+      (E)  0012         D_TR		.EQU    18		; refresh top line		  
+      (E)  0013         D_BR		.EQU    19		; refresh bottom line		
+      (E)  0014         D_3R		.EQU    20		; refresh 3rd line		  
+      (E)  0015         D_4R		.EQU    21		; refresh 4th line		  
+      (E)  0016         D_C3		.EQU    22		; clear 3rd line		    
+      (E)  0017         D_C4		.EQU    23		; clear 4th line		    
+      (E)  0018         D_HD		.EQU    24		; print high dotted line	
+      (E)  0019         D_LD		.EQU    25		; print low dotted line	
+      (E)  001A         D_CE		.EQU    26		; clear to the end of line	
+      (E)  001F         DSP_CN		.EQU    31		; for centring text in ut$disp	
+      (E)  0000         PAKA 		.EQU    0		; Ram data pack 		    
+      (E)  0001         PAKB 		.EQU    1		; First pack slot 		  
+      (E)  0002         PAKC 		.EQU    2		; Second pack slot 		 
+      (E)  0003         PAKD		.EQU    3		; Top slot			          
+      (E)  0002         EPROM		.EQU    $02		; set if eprom pak (not ram pak) 
+      (E)  0004         PGCPK		.EQU    $04		; set if pak with page counter 
+      (E)  0008         RDWRT		.EQU    $08		; clear if pak write protected	
+      (E)  0010         NOBOOT		.EQU    $10		; clear if pak bootable ??? 	
+      (E)  0020         COPYPK		.EQU    $20		; set if pak copyable 		
+      (E)  0040         NYIMPL  	.EQU    $40		; set for future expansion 	
+      (E)  0080         MK1PAK  	.EQU    $80		; set if MARK 1 pak 		
+      (E)  0090         GENERAL 	.EQU    $90		; general record type		
+      (E)  0004         MAXFILE 	.EQU    4		; Maximum number of open files 
+      (E)  0080         BBODTYP		.EQU    $80		; block body records		
+      (E)  0081         NAMETYP		.EQU    $81		; record type for file names 	
+      (E)  0082         BDIATYP		.EQU    $82		; block name record type for diary 
+      (E)  0083         BLANTYP		.EQU    $83		; block name record type for language
+      (E)  0087         BNOTTYP		.EQU    $87		; block name record type for notepad 
+      (E)  0091         FRECTYP		.EQU    $91		; lowest rec. type for named files 
+      (E)  0008         NAMELEN		.EQU    8		; max len of a file name	
+      (E)  0090         TLRECT 		.EQU    FRECTYP-1	; record type for find/save	
+      (E)  0006         AMSIZE .EQU    6	; size of an alarm entry 
+      (E)  0008         AMNUM  .EQU    8	; number of alarm entries 
+      (E)  0003         EDITMODE 	.EQU         3                
+      (E)  0004         LISTMODE 	.EQU         4                
+      (E)  0007         RUNMODE 	.EQU         7                 
+      (E)  0008         ERAMODE		.EQU         8                 
+      (E)  000A         SIZEOF_PAKDEF	.EQU    10		; paktype, paksize, 8 byte id	
+      (E)  0000         PTYP		.EQU    0		; pak type			          
+      (E)  0001         PSIZ		.EQU    1		; pak size			          
+      (E)  0002         PIDS		.EQU    2		; unique ID string		   
+      (E)  000C         PRECISION	.EQU    12		; working precision for maths. 
+      (E)  0006         MANSIZE		.EQU    6		; size of BCD mantissa         
+      (E)  0007         MANBYTES	.EQU    7		; size of register mantissa    
+      (E)  0009         SZREG		.EQU    9		; size of BCD register		
+      (E)  0008         SZBCD		.EQU    8		; size of BCD number		
+      (E)  0005         SMSB		.EQU    5		; most significant byte	
+      (E)  0006         SEXP		.EQU    6		; exponent 			         
+      (E)  0007         SSGN		.EQU    7		; sign				             
+      (E)  0006         AMSB		.EQU    6		; most significant byte	
+      (E)  0007         AEXP		.EQU    7		; exponent 			         
+      (E)  0008         ASGN		.EQU    8		; sign				             
+      (E)  0063         MAXEXP		.EQU    99		; maximum exponent size	
+      (E)  FFFFFFFFFFFFFF9D         MINEXP		.EQU    -99		; max. negative exponent size	
+      (E)  0020         MAXDLEN		.EQU    32		; max. no. of dec. places      
+      (E)  0008         AMNUM .EQU         8                    
+      (E)  0020         MAXDLEN		.EQU    32		; max. dec. places + exponent	
+      (E)  0000         LANG_ENG	.EQU         0                 
+      (E)  0001         LANG_FRN	.EQU         1                 
+      (E)  0002         LANG_GRM	.EQU         2                 
+      (E)  0081         MLT_PROTECT	.EQU         129            
+      (E)  0048         MLT_PASSWORD	.EQU         72            
+      (E)  010A         MLT_LENGTH	.EQU    MLT_PROTECT+MLT_PASSWORD+65
+      (E)  0064         WL_BASE_CITY	.EQU         100           
+      (E)  0078         WL_BASE_COUNTRY	.EQU         120        
+      (E)  0008         MAXPASSLEN .EQU         8               
 0000  (O)                       .ORG    0                       
 0000  (W)   00 11                       .WORD   CEND-CBASE              ; SIZE OF CODE
 1000  (O)                               .ORG    $1000           
 4096  (L)               CBASE:                                  
-1000  (1)   CE 21 88                            LDX     #RTT_BF         ; RUN TIME BUFFER
+1000  (1)   CE 21 88                            LDX     #rtt_bf         ; RUN TIME BUFFER
 1003  (1)   86 20                               LDAA    #$20          ; SPACE CHARACTER
 1005  (1)   C6 0A                               LDAB    #10           ; DO 10 TIMES
 4103  (L)               LOOP:                                   
@@ -67,18 +1109,539 @@ Assembling test.asm  Pass 2
 1019  (1)   CE 10 00    	LDX     #CBASE          ; START ADDRESS
 101C  (5)   4F                  CLRA                            
 101D  (5)   5F                  CLRB                            
-101E  (4)   FD 38 76            STD     UTW_S0         ; START CHECKSUM AS 0
+101E  (4)   FD 00 41            STD     utw_s0         ; START CHECKSUM AS 0
 4129  (L)               LOOP2:                                  
 1021  (5)   4F                  CLRA                            
 1022  (3)   E6 00               LDAB    0,X           ; GET BYTE
-1024  (4)   F3 38 76            ADDD    UTW_S0         ; ADD CHECKSUM
-1027  (4)   FD 38 76            STD     UTW_S0         ; SAVE IT
+1024  (4)   F3 00 41            ADDD    utw_s0         ; ADD CHECKSUM
+1027  (4)   FD 00 41            STD     utw_s0         ; SAVE IT
 102A  (5)   08                  INX                             
 102B  (1)   8C 10 11            CPX     #CEND           ; ALL DONE
 102E  (0)   26 1A               BNE     LOOP2            ; NO - SO DO MORE
 
-              RTT_BF: $2188
-              UTW_S0: $3876
+              utb_7e: $0040
+              utw_s0: $0041
+              utw_s1: $0043
+              utw_s2: $0045
+              utw_s3: $0047
+              utw_s4: $0049
+              utw_s5: $004B
+              utw_r0: $004D
+              utb_h0: $004D
+              utb_l0: $004E
+              utw_r1: $004F
+              utb_h1: $004F
+              utb_l1: $0050
+              utw_r2: $0051
+              utb_h2: $0051
+              utb_l2: $0052
+              utw_r3: $0053
+              utb_h3: $0053
+              utb_l3: $0054
+              utw_r4: $0055
+              utb_h4: $0055
+              utb_l4: $0056
+              utw_r5: $0057
+              utb_h5: $0057
+              utb_l5: $0058
+              utw_r6: $0059
+              utb_h6: $0059
+              utb_l6: $005A
+            btb_nmfl: $005B
+            btw_ccnt: $005C
+            bta_rtop: $005E
+            rtb_lbat: $0060
+            xxb_xxxx: $0061
+            dpb_cpos: $0062
+            dpb_cust: $0063
+            dpb_vlin: $0064
+            dpb_vsiz: $0065
+            dpb_vdir: $0066
+            dpb_spos: $0067
+            dpb_scus: $0068
+            dpw_sped: $0069
+            dpw_dely: $006B
+            dpw_redy: $006D
+            dpa_vadd: $006F
+            kbw_tdel: $0071
+            kbb_back: $0073
+            kbb_nkys: $0074
+            kbb_prev: $0075
+            kbb_wait: $0076
+            kbb_dlay: $0077
+            kbb_rept: $0078
+            kbb_cntr: $0079
+            kbb_knum: $007A
+            kbb_stat: $007B
+            tmb_swof: $007C
+            tmw_tout: $007D
+            edb_mlen: $007F
+            edb_plen: $0080
+            edb_flin: $0081
+            edb_poff: $0082
+            edb_clin: $0083
+            edb_stat: $0084
+            edw_cpos: $0085
+              edw_cb: $0087
+              edw_bl: $0089
+            pkb_curp: $008B
+            pkb_cpak: $008C
+            pkw_rasi: $008D
+            pkw_cmad: $008F
+            pkb_hpad: $0091
+            pkw_cpad: $0092
+            pka_pkid: $0094
+            flb_rect: $0096
+            flb_cpak: $0097
+            flb_cont: $0098
+            flw_drec: $0099
+            flw_crec: $009B
+            flw_fnad: $009D
+            flw_nrec: $009F
+            xfb_rect: $00A1
+            tlb_cpak: $00A2
+            tlb_mode: $00A3
+            bzb_mute: $00A4
+              rta_sp: $00A5
+              rta_fp: $00A7
+              rta_pc: $00A9
+            lgw_clin: $00AB
+            lxa_curr: $00AD
+            lxb_ptok: $00AF
+              acw_1x: $00B0
+            rtb_escf: $00B0
+            rtb_logn: $00B1
+              acw_2x: $00B2
+            rtb_trap: $00B2
+            rtb_eror: $00B3
+            acw_prec: $00B4
+            rtb_crfl: $00B4
+            rtb_cdrv: $00B5
+              rtw_s0: $00B6
+            acw_cons: $00B6
+              rtw_s1: $00B8
+            acw_glcd: $00B8
+              rtw_s2: $00BA
+            acw_left: $00BA
+              rtw_s3: $00BC
+            acw_ocsz: $00BC
+              rtw_s4: $00BE
+            acb_nest: $00BE
+            acw_labl: $00BF
+              rtw_s5: $00C0
+              acw_r0: $00C1
+              rtw_s6: $00C2
+              acw_r1: $00C3
+             rtb_top: $00C4
+            dib_year: $00C5
+            amt_temp: $00C5
+            xtb_read: $00C5
+            mtt_aman: $00C5
+            dib_mons: $00C6
+            dib_days: $00C7
+            dib_hour: $00C8
+            dib_mins: $00C9
+            mtb_aexp: $00CC
+            mtb_asgn: $00CD
+            mtt_oman: $00CE
+            mtb_oexp: $00D5
+            mtb_osgn: $00D6
+            ita_pcnt: $00D7
+            ita_base: $00D9
+            ita_sptr: $00DB
+            itb_test: $00DD
+            ima_gptr: $00DE
+            zpg_free: $00E0
+            amb_svei: $00E1
+            alt_base: $2000
+            ala_free: $2040
+             bta_2iq: $2042
+             bta_cmi: $2044
+             bta_bug: $2046
+             bta_sio: $2048
+             bta_toi: $204A
+             bta_oci: $204C
+             bta_ici: $204E
+             bta_1iq: $2050
+             bta_swi: $2052
+             bta_nmi: $2054
+             bta_wrm: $2056
+             bta_sof: $2058
+            bta_poll: $205A
+            bta_tran: $205C
+            bta_tabl: $205E
+              utw_fp: $2060
+            btb_ignm: $2062
+            btb_imsk: $2063
+            btb_tcsr: $2064
+            bta_sbas: $2065
+        bta_savstack: $2067
+        btw_1dontuse: $2069
+        btw_2dontuse: $206B
+        btw_3dontuse: $206D
+        btb_4dontuse: $206F
+            dpt_tlin: $2070
+            dpt_blin: $2080
+            dpa_scrn: $2090
+            dpb_nlin: $2092
+            dpb_wide: $2093
+            dpb_mflg: $2094
+            dpb_clok: $2095
+            dpb_cred: $2096
+            dpb_vpos: $2097
+            dpb_cmin: $2098
+            dpb_bord: $2099
+            mnb_xmen: $209A
+            mnb_xlin: $209B
+            mnb_cptz: $209C
+            btw_toff: $209D
+            lgb_flgs: $209F
+             lga_tag: $20A0
+            lgb_spos: $20A2
+            ntb_spos: $20A3
+            lxa_fixp: $20A4
+             tmb_24f: $20A6
+            amb_wrkd: $20A7
+            kbb_svst: $20A8
+            dib_1slt: $20A9
+            dib_2slt: $20AA
+            dib_3slt: $20AB
+              dib_ap: $20AC
+          dib_palarm: $20AD
+           dib_pdrtn: $20AE
+            btb_wnmi: $20AF
+            kbt_buff: $20B0
+            kbb_clik: $20C0
+            kbb_pkof: $20C1
+            kbb_capk: $20C2
+            kbb_numk: $20C3
+            kbb_shfk: $20C4
+            tmb_year: $20C5
+            tmb_mons: $20C6
+            tmb_days: $20C7
+            tmb_hour: $20C8
+            tmb_mins: $20C9
+            tmb_secs: $20CA
+            tmw_fram: $20CB
+            tmw_tcnt: $20CD
+            utt_tbuf: $20CF
+            pkb_imsk: $20D6
+              pkt_id: $20D7
+            rtt_numb: $20FF
+            dvt_spar: $214F
+            dpb_mode: $2184
+            kbb_spec: $2185
+            btb_lang: $2186
+              rtb_bl: $2187
+              rtt_bf: $2188
+            mtt_wbuf: $2288
+             amt_now: $2288
+            amt_week: $228E
+              rtb_fl: $22C8
+              rtt_ff: $22C9
+             rtt_fil: $22E9
+             amt_tab: $22F9
+             dva_bot: $2329
+             dva_top: $232B
+            mlb_case: $232D
+            xtb_cold: $232E
+            kbb_lbfl: $232F
+              amb_ei: $2335
+              amt_t0: $2336
+              amt_t1: $233C
+              amt_t2: $2342
+              amw_r1: $2348
+            amb_doit: $234A
+             ita_uvc: $234B
+            itt_regs: $234D
+            itt_stak: $236D
+            imb_ssgn: $23AD
+            fnt_seed: $23AE
+            acw_stop: $23B5
+            acw_xtcd: $23B7
+            act_ddat: $23B9
+            act_nvar: $23BD
+            act_bran: $23C1
+            act_psym: $23C9
+            lxa_cend: $23CD
+            lxa_strt: $23CF
+            lxb_stok: $23D1
+            lxb_scla: $23D2
+            lxb_ftyp: $23D3
+            lgb_fixp: $23D4
+              lgb_nl: $23D5
+              lgt_nf: $23D6
+            lgb_lant: $23E0
+            lgb_menu: $23E1
+            rta_1vct: $23E2
+            utw_reta: $23E4
+            pkb_ovbl: $23E6
+            bta_vect: $23E7
+            flb_iglb: $23E9
+            pkb_bblw: $23EA
+            flt_cfil: $23EB
+            fla_flid: $2403
+            lna_svsp: $2405
+            pkb_ramb: $2407
+            pkb_blow: $2408
+            pkb_hsav: $2409
+              flb_r0: $240A
+              flb_r1: $240B
+              flb_r3: $240C
+              flb_r4: $240D
+              flb_r5: $240E
+              flb_r6: $240F
+            flb_fnad: $2410
+              dvw_r0: $2411
+          btt_mstack: $2413
+             mlt_buf: $2513
+        dib_pastelen: $25DC
+           dib_paste: $25DD
+            flt_dmat: $261D
+            btb_rbnk: $262A
+            mlb_bank: $262B
+            dpt_4lin: $262C
+            xfb_nlen: $267C
+            xft_name: $267D
+            xfb_cpak: $2685
+            wla_curr: $2686
+            wla_base: $2688
+             wlb_gmt: $268A
+            dpb_vpar: $268B
+            dpb_pvln: $268C
+            btt_ramf: $268D
+           btt_bboot: $7F00
+            dpt_sudg: $7F22
+            dpt_4sav: $7F62
+            mlt_ebuf: $7FB2
+            rtt_fsav: $7FC3
+            xtt_pasw: $7FD6
+               dis_e: $7FE0
+           dib_dmode: $7FE9
+            ntb_flgs: $7FEA
+            ntb_pssw: $7FEB
+            ntt_pssw: $7FEC
+            ntt_estd: $7FF4
+            ntw_clin: $7FFD
+            ntb_cpos: $7FFF
+               MLANG: $0000
+             BUILDLA: $0000
+             BUILDXP: $0000
+               LADDR: $0001
+              RAMPAK: $0001
+         REMOVE_INFO: $0000
+          REMOVE_MK1: $0000
+            UDG_CLK0: $0000
+            UDG_CLK9: $0009
+        UDG_CLKCOLON: $000A
+      UDG_UNDERSCORE: $000B
+           ICON_MAIN: $000C
+           ICON_PROG: $000D
+          ICON_FILES: $000E
+          ICON_UTILS: $000F
+          ICON_ALARM: $0010
+           ICON_CALC: $0011
+             ICON_AM: $0012
+             ICON_PM: $0013
+            UDG_LDOT: $0014
+            UDG_HDOT: $0015
+       UDG_DI_TARROW: $0016
+       UDG_DI_BARROW: $0017
+         UDG_DI_BELL: $0018
+       UDG_DI_WKBOX0: $0019
+       UDG_DI_WKBOX1: $001A
+       UDG_DI_WKBOX2: $001B
+       UDG_DI_WKBOX3: $001C
+          ICON_NOTES: $001D
+     UDG_DI_LCHEVRON: $001E
+     UDG_DI_RCHEVRON: $001F
+            POB_DDR2: $0001
+           POB_PORT2: $0003
+           POB_TCSR1: $0008
+             POW_FRC: $0009
+            POW_OCR1: $000B
+           POB_TCSR2: $000F
+            POB_RMCR: $0010
+           POB_TRCSR: $0011
+             POB_RDR: $0012
+             POB_TDR: $0013
+             POB_RCR: $0014
+           POB_PORT5: $0015
+            POB_DDR6: $0016
+           POB_PORT6: $0017
+           POB_TCSR3: $001B
+           POB_TCONR: $001C
+      SCA_LCDCONTROL: $0180
+         SCA_LCDDATA: $0181
+       SCA_SWITCHOFF: $01C0
+     SCA_PULSEENABLE: $0200
+    SCA_PULSEDISABLE: $0240
+       SCA_ALARMHIGH: $0280
+        SCA_ALARMLOW: $02C0
+    SCA_COUNTERRESET: $0300
+    SCA_COUNTERCLOCK: $0340
+          SCA_NMIMPU: $0380
+      SCA_NMICOUNTER: $03C0
+        SCA_SETMODE1: $02A0
+        SCA_SETMODE2: $02E0
+       SCA_MODERESET: $0320
+       SCA_BANKRESET: $0360
+         SCA_NEXTRAM: $03A0
+         SCA_NEXTROM: $03E0
+               ONCLR: $0080
+               ACOUT: $0002
+          LOWBATTERY: $0001
+               PACON: $0080
+                 CS3: $0040
+                 CS2: $0020
+                 CS1: $0010
+                  OE: $0008
+                 PGM: $0004
+                  MR: $0002
+                 CLK: $0001
+               EOCI1: $0008
+             KY_SHFT: $0080
+             KY_NUMB: $0040
+             KY_CPNM: $0002
+             KY_CAPS: $0001
+             KY_MLKY: $0004
+            PACONDEL: $2D00
+            VPPONDEL: $064D
+           VPPOFFDEL: $B400
+         PK_OVERBLOW: $0005
+             RAMBASE: $2000
+             RAMFREE: $268D
+       MACHINE_STACK: $0100
+        MINEVL_STACK: $0100
+            ALLCELLS: $0020
+            PERMCELL: $0000
+            MENUCELL: $0001
+            DIRYCELL: $0002
+            TEXTCELL: $0003
+            SYMBCELL: $0004
+            GLOBCELL: $0005
+            OCODCELL: $0006
+            FSY1CELL: $0007
+            FSY2CELL: $0008
+            FSY3CELL: $0009
+            FSY4CELL: $000A
+            FBF1CELL: $000B
+            FBF2CELL: $000C
+            FBF3CELL: $000D
+            FBF4CELL: $000E
+            DATACELL: $000F
+            NOTECELL: $0010
+            DUMYCELL: $0011
+            PREALLOC: $0012
+              SWIDTH: $0010
+             CURS_ON: $0080
+            CURS_OFF: $0000
+        CURSOR_BLOCK: $0000
+         CURSOR_LINE: $0001
+           CY_SWIDTH: $0014
+           CY_NLINES: $0004
+             TIMEOUT: $012C
+               BSIZE: $0140
+               FSIZE: $0020
+               DELIM: $0009
+            KEY_TIME: $B39F
+           KEY_DELAY: $000E
+          KEY_REPEAT: $0000
+           KEY_CLICK: $0001
+           TYPEAHEAD: $0010
+              HDELAY: $0004
+              VDELAY: $000A
+             REGSIZE: $0020
+             REGBASE: $00E0
+           STACKSIZE: $0020
+                K_AC: $0001
+              K_MODE: $0002
+                K_UP: $0003
+              K_DOWN: $0004
+              K_LEFT: $0005
+              K_RGHT: $0006
+              K_DELR: $0007
+               K_DEL: $0008
+               K_EXE: $000D
+           K_SHFTEXE: $000E
+         K_SHFTSPACE: $000F
+                K_F1: $0003
+                K_F2: $0004
+                K_F3: $0005
+                D_BS: $0008
+                D_HT: $0009
+                D_LF: $000A
+                D_HM: $000B
+                D_FF: $000C
+                D_CR: $000D
+                D_CT: $000E
+                D_CB: $000F
+                D_BL: $0010
+                D_RE: $0011
+                D_TR: $0012
+                D_BR: $0013
+                D_3R: $0014
+                D_4R: $0015
+                D_C3: $0016
+                D_C4: $0017
+                D_HD: $0018
+                D_LD: $0019
+                D_CE: $001A
+              DSP_CN: $001F
+                PAKA: $0000
+                PAKB: $0001
+                PAKC: $0002
+                PAKD: $0003
+               EPROM: $0002
+               PGCPK: $0004
+               RDWRT: $0008
+              NOBOOT: $0010
+              COPYPK: $0020
+              NYIMPL: $0040
+              MK1PAK: $0080
+             GENERAL: $0090
+             MAXFILE: $0004
+             BBODTYP: $0080
+             NAMETYP: $0081
+             BDIATYP: $0082
+             BLANTYP: $0083
+             BNOTTYP: $0087
+             FRECTYP: $0091
+             NAMELEN: $0008
+              TLRECT: $0090
+              AMSIZE: $0006
+               AMNUM: $0008
+            EDITMODE: $0003
+            LISTMODE: $0004
+             RUNMODE: $0007
+             ERAMODE: $0008
+       SIZEOF_PAKDEF: $000A
+                PTYP: $0000
+                PSIZ: $0001
+                PIDS: $0002
+           PRECISION: $000C
+             MANSIZE: $0006
+            MANBYTES: $0007
+               SZREG: $0009
+               SZBCD: $0008
+                SMSB: $0005
+                SEXP: $0006
+                SSGN: $0007
+                AMSB: $0006
+                AEXP: $0007
+                ASGN: $0008
+              MAXEXP: $0063
+              MINEXP: $FFFFFFFFFFFFFF9D
+             MAXDLEN: $0020
+            LANG_ENG: $0000
+            LANG_FRN: $0001
+            LANG_GRM: $0002
+         MLT_PROTECT: $0081
+        MLT_PASSWORD: $0048
+          MLT_LENGTH: $010A
+        WL_BASE_CITY: $0064
+     WL_BASE_COUNTRY: $0078
+          MAXPASSLEN: $0008
                CBASE: $1000
                 LOOP: $1007
                 FIX1: $100D

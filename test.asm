@@ -1,19 +1,19 @@
-	RTT_BF          .EQU    $2188
-	UTW_S0          .EQU    $3876
-
-		OS      .MACRO  VAL, SECOND
+	.INCLUDE        MOSVARS.INC
+	.INCLUDE        MOSHEAD.INC
+	
+		OS      .MACRO  VAL
 	
 		  	SWI
 	  .BYTE VAL
 	
 		  		.ENDM
 
-	  OS  $22,324
+
         .ORG    0
                 .WORD   CEND-CBASE              ; SIZE OF CODE
                 .ORG    $1000
                 CBASE:
-                        LDX     #RTT_BF         ; RUN TIME BUFFER
+                        LDX     #rtt_bf         ; RUN TIME BUFFER
                         LDAA    #$20          ; SPACE CHARACTER
                         LDAB    #10           ; DO 10 TIMES
                 LOOP:
@@ -35,12 +35,12 @@
 	LDX     #CBASE          ; START ADDRESS
         CLRA
         CLRB
-        STD     UTW_S0         ; START CHECKSUM AS 0
+        STD     utw_s0         ; START CHECKSUM AS 0
 LOOP2:
         CLRA
         LDAB    0,X           ; GET BYTE
-        ADDD    UTW_S0         ; ADD CHECKSUM
-        STD     UTW_S0         ; SAVE IT
+        ADDD    utw_s0         ; ADD CHECKSUM
+        STD     utw_s0         ; SAVE IT
         INX
         CPX     #CEND           ; ALL DONE
         BNE     LOOP2            ; NO - SO DO MORE
