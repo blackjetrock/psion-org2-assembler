@@ -529,7 +529,7 @@ Assembling test.asm  Pass 1
 0000  (O)                               .ORG    $1000           
 0     (L)               CBASE:                                  
 0000  (1)   00 00 00                            LDX     #rtt_bf         ; RUN TIME BUFFER
-0003  (1)   00 00                               LDAA    #$20          ; SPACE CHARACTER
+0003  (1)   00 00                               LDAA    #^x20          ; SPACE CHARACTER
 0005  (1)   00 00                               LDAB    #10           ; DO 10 TIMES
 7     (L)               LOOP:                                   
 0007  (3)   00 00                               STAA    0,X           ; STORE SPACE IN BUFFER
@@ -1089,7 +1089,7 @@ Assembling test.asm  Pass 2
 1000  (O)                               .ORG    $1000           
 4096  (L)               CBASE:                                  
 1000  (1)   CE 21 88                            LDX     #rtt_bf         ; RUN TIME BUFFER
-1003  (1)   86 20                               LDAA    #$20          ; SPACE CHARACTER
+1003  (1)   86 20                               LDAA    #^x20          ; SPACE CHARACTER
 1005  (1)   C6 0A                               LDAB    #10           ; DO 10 TIMES
 4103  (L)               LOOP:                                   
 1007  (3)   A7 00                               STAA    0,X           ; STORE SPACE IN BUFFER

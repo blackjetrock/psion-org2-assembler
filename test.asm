@@ -14,7 +14,7 @@
                 .ORG    $1000
                 CBASE:
                         LDX     #rtt_bf         ; RUN TIME BUFFER
-                        LDAA    #$20          ; SPACE CHARACTER
+                        LDAA    #^x20          ; SPACE CHARACTER
                         LDAB    #10           ; DO 10 TIMES
                 LOOP:
                         STAA    0,X           ; STORE SPACE IN BUFFER

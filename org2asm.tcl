@@ -21,15 +21,19 @@ set ::INCLUDELINES ""
 set ::DIRNAMES ".ORG .WORD .EQU .BYTE org equ"
 set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ"
 
+#    {"REL" 2 "^%s\[ \t\]+(\[A-Z0-9a-z_$^\]+)"                                                                chk_nul  proc_rel }
+
+set ::RE_EXPR "\[A-Z0-9a-z_$^\]+"
+set ::IMM_RE "^%s\[ \t\]+#\[ \t\]*(\[A-Z0-9a-z_$^\]+)"
 set ::ADDMODE {
-    {"REL" 2 "^%s\[ \t\]+(\[A-Z0-9a-z_$\]+)"                                                                chk_nul  proc_rel }
-    {"IMM" 2 "^%s\[ \t\]+#\[ \t\]*(\[A-Za-z0-9_$\]+)"                                                       chk_nul  proc_imm }
-    {"DIR" 2 "^%s\[ \t\]+(\[A-Za-z0-9_$\]+)"                                                                chk_dir  proc_dir }
-    {"IDX" 2 "^%s\[ \t\]+(\[0-9A-Fa-f$\]+)\[ \t\]*,\[ \t\]*(\[XY\])"                                        chk_nul  proc_idx }
-    {"EXT" 3 "^%s\[ \t\]+(\[A-Za-z0-9_$\]+)"                                                                chk_nul  proc_ext }
+    {"REL" 2 "^%s\[ \t\]+($::RE_EXPR)"                                                                chk_nul  proc_rel }
+    {"IMM" 2 "^%s\[ \t\]+#\[ \t\]*($::RE_EXPR)"                                                       chk_nul  proc_imm }
+    {"DIR" 2 "^%s\[ \t\]+($::RE_EXPR)"                                                                chk_dir  proc_dir }
+    {"IDX" 2 "^%s\[ \t\]+($::RE_EXPR)\[ \t\]*,\[ \t\]*(\[XY\])"                                        chk_nul  proc_idx }
+    {"EXT" 3 "^%s\[ \t\]+($::RE_EXPR)"                                                                chk_nul  proc_ext }
     {"IMP" 1 "^%s\[ \t\]*$"                                                                                 chk_nul  proc_imp }
-    {"XIM" 3 "^%s\[ \t\]+#\[ \t\]*(\[A-Za-z0-9_$\]+)\[ \t\]*,\[ \t\]*(\[A-Za-z0-9_$\]+)"                    chk_nul  proc_xim }
-    {"XXM" 3 "^%s\[ \t\]+#\[ \t\]*(\[A-Za-z0-9_$\]+)\[ \t\]*,\[ \t\]*(\[A-Za-z0-9_$\]+)\[ \t\]*,\[ \t\]*X"  chk_nul  proc_xxm }
+    {"XIM" 3 "^%s\[ \t\]+#\[ \t\]*($::RE_EXPR)\[ \t\]*,\[ \t\]*($::RE_EXPR)"                    chk_nul  proc_xim }
+    {"XXM" 3 "^%s\[ \t\]+#\[ \t\]*($::RE_EXPR)\[ \t\]*,\[ \t\]*($::RE_EXPR)\[ \t\]*,\[ \t\]*X"  chk_nul  proc_xxm }
 }
 
 # Search order for addressing modes to ensure more complicated formats first
@@ -753,7 +757,7 @@ proc assemble_file {filename} {
 		# We have the information for each addressing mode
 		# Get the regexp for that mode
 		set addrmode_spec      [lindex $::ADDMODE  $addrmode_i]
-		set addrmode_regexp    [lindex $addrmode_spec 2]
+		set addrmode_regexp    [subst -nocommands [lindex $addrmode_spec 2]]
 		set inst_length        [lindex $addrmode_spec 1]
 		set addrmode_chk_proc  [lindex $addrmode_spec 3]
 		set addrmode_proc_proc [lindex $addrmode_spec 4]
@@ -766,7 +770,7 @@ proc assemble_file {filename} {
 		
 		# Put the mnemonic in the regexp
 		set def_regexp [format $addrmode_regexp $mne]
-		#puts "DEF REGEXP:'$def_regexp'"
+		puts $::DBF "DEF REGEXP:'$def_regexp'"
 		
 		# See if we have a match
 		set p1 0
@@ -789,9 +793,9 @@ proc assemble_file {filename} {
 
 		    # If opcode is invalid, keep looking
 		    if { $opcode == "____" } {
-			#puts "OPCODE=$opcode"
-			#puts "addrmode_spec=$addrmode_spec"
-			#puts "def_regexp=$def_regexp"
+			puts $::DBF "OPCODE=$opcode"
+			puts $::DBF "addrmode_spec=$addrmode_spec"
+			puts $::DBF "def_regexp=$def_regexp"
 			incr addrmode_index 1
 			continue
 		    }
