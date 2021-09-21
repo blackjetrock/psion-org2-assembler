@@ -18,8 +18,8 @@ set ::LABELLIST    ""
 set ::MACROLIST    ""
 set ::INCLUDELINES ""
 
-set ::DIRNAMES ".ORG .WORD .EQU .BYTE org equ"
-set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ"
+set ::DIRNAMES ".ORG    .WORD    .EQU    .BYTE    org     EQU     "
+set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ "
 
 #    {"REL" 2 "^%s\[ \t\]+(\[A-Z0-9a-z_$^\]+)"                                                                chk_nul  proc_rel }
 
@@ -351,9 +351,9 @@ proc emitword {w} {
 	return
     }
     
-    set fb [format "%02X" [value_to_dec [expr $w / 256]]]
+    set fb [format "%02X" [evaluate_expression [expr $w / 256]]]
     append ::EMITTED " $fb"
-    set fb [format "%02X" [value_to_dec [expr $w % 256]]]
+    set fb [format "%02X" [evaluate_expression [expr $w % 256]]]
     append ::EMITTED " $fb"
 }
 
@@ -390,19 +390,20 @@ proc evaluate_expression {exp} {
     }
     
     # Turn the expression into Tcl and evaluate it
-    #puts "EVALEXP:'$exp'"
+    puts $::DBF "EVALEXP:exp = '$exp'"
     
     # Turn label names into references to the label variables
     foreach label $::LABELLIST {
 	set exp [string map "$label [set ::LABEL($label)]" $exp]
     }
-    #puts "EVALEXP:'$exp'"
+    puts $::DBF "EVALEXP:after labels = '$exp'"
     
     # Force hex values to correct format
-    set exp [string map "\$ 0x ^x 0x" $exp]
+    set exp [string map "\$ 0x ^x 0x ^X 0x" $exp]
 
-    #puts "EVALEXP:'$exp'"
-    #puts "EVALEXP ='[expr $exp]'"
+    puts $::DBF "EVALEXP:hex conv='$exp'"
+    puts $::DBF "EVALEXP ='[expr $exp]'"
+    
     # Evaluate, trap errors
     set result 0
 
@@ -430,23 +431,29 @@ proc dir_org {line original_line} {
     }
 }
 
+# Byte list
 proc dir_byte {line original_line} {
     # We create a byte
-    #puts "dir_byte:'$line'"
+    puts $::DBF "dir_byte:'$line'"
     
-    if { [regexp -- ".BYTE\[ \t\]+(.+)" $line all byte] } {
-	set byte [evaluate_expression $byte]
-
-	# Emit it
-	set ::EMITTED ""
-	emit $byte
+    if { [regexp -- "(.BYTE|.byte)\[ \t\]+(.+)" $line all bytedir bytelist] } {
+	puts $::DBF "BYTE directive byte list = '$bytelist'"
 	
-	set f_addr    [format "%04X" $::ADDR]
-	set f_emitted [format "%-12s" $::EMITTED]
-	set line [string trim $original_line]
-	addlstline $f_addr "(B)" $f_emitted  $original_line
+	foreach byte [split $bytelist " \t,"] {
+	    set bytelist [string map {" " ""} $bytelist]
+	    set byte [evaluate_expression $byte]
+	    
+	    # Emit it
+	    set ::EMITTED ""
+	    emit $byte
 	
-	incr ::ADDR 2
+	    set f_addr    [format "%04X" $::ADDR]
+	    set f_emitted [format "%-12s" $::EMITTED]
+	    set line [string trim $original_line]
+	    addlstline $f_addr "(B)" $f_emitted  $original_line
+	
+	    incr ::ADDR 1
+	}
 	return 1
     } else {
 	error $line "Bad .BYTE"
@@ -455,23 +462,32 @@ proc dir_byte {line original_line} {
     return 0
 }
 
+# Word list
 proc dir_word {line original_line} {
     # We create a word
     #puts "dir_word:'$line'"
-    
-    if { [regexp -- ".WORD\[ \t\]+(.+)" $line all word] } {
-	set word [evaluate_expression $word]
 
-	# Emit it
-	set ::EMITTED ""
-	emitword $word
-	
-	set f_addr    [format "%04X" $::ADDR]
-	set f_emitted [format "%-12s" $::EMITTED]
-	set line [string trim $original_line]
-	addlstline $f_addr "(W)" $f_emitted  $original_line
-	
-	incr ::ADDR 2
+    # remove space from line
+
+    if { [regexp -- "(.WORD|.word)\[ \t\]+(.+)" $line all worddir wordlist] } {
+	set wordlist [string map {" " ""} $wordlist]
+	puts $::DBF "WORD directive word list = '$wordlist'"
+
+	foreach word [split $wordlist " \t,"] {
+	    
+	    set word [evaluate_expression $word]
+	    
+	    # Emit it
+	    set ::EMITTED ""
+	    emitword $word
+	    
+	    set f_addr    [format "%04X" $::ADDR]
+	    set f_emitted [format "%-12s" $::EMITTED]
+	    set line [string trim $original_line]
+	    addlstline $f_addr "(W)" $f_emitted  $original_line
+	    
+	    incr ::ADDR 2
+	}
 	return 1
     } else {
 	error $line "Bad .WORD"
@@ -482,7 +498,7 @@ proc dir_word {line original_line} {
 
 # Set label value
 proc dir_equ {line original_line} {
-    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+(.EQU|equ)\[ \t\]+(\[A-Za-z0-9$\(\)_<>*/+-\]+)" $line all name dir value] } {
+    if { [regexp -- "(\[A-Za-z0-9_$\]+)\[ \t\]+(.EQU|equ|EQU|.equ)\[ \t\]+(\[A-Za-z0-9$\(\)_<>*/+-\]+)" $line all name dir value] } {
 	set value [evaluate_expression $value]
 	create_label $name $value
 	
@@ -627,8 +643,8 @@ proc assemble_file {filename} {
 		puts $::DBF "Found macro $macro"
 		puts $::DBF "RE=$macro\[ \t\]+($::MACROPAREXP($macro))"
 		
-		# This could be a macro expansion
-		if { [regexp -- "$macro\[ \t\]+($::MACROPAREXP($macro))" $line all parvals] } {
+		# This could be a macro expansion. Macro name has to be a word, i.e. spaces on either side.
+		if { [regexp -- "\[ \t\]+$macro\[ \t\]+($::MACROPAREXP($macro))" $line all parvals] } {
 		    puts $::DBF "Match regexp"
 		    
 		    # We need to expand parameters in the macro bidy
@@ -658,11 +674,11 @@ proc assemble_file {filename} {
 	
 	# Handle macros
 	# We collect macro text here then insert macros into the line stream
-	if { [string first .MACRO $line] != -1 } {
+	if { [string first .MACRO [string toupper $line]] != -1 } {
 	    puts $::DBF "Macro def started in '$line'"
 	    
 	    # Get the macro name and parameters
-	    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+.MACRO\[ \t\]+(.+)" $line all macname macpars] } {
+	    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+(.MACRO|.macro)\[ \t\]+(.+)" $line all macname macdir macpars] } {
 		puts $::DBF "Macro $macname"
 		
 		# Add to macro list
@@ -695,7 +711,7 @@ proc assemble_file {filename} {
 
 	# Macro body collection
 	if { $collect_macro } {
-	    if { [string first .ENDM $line] != -1 } {
+	    if { [string first .ENDM [string toupper $line]] != -1 } {
 		# End of macro definition
 		set collect_macro 0
 		continue
@@ -711,7 +727,7 @@ proc assemble_file {filename} {
 	# handle directives
 	set donedir 0
 	foreach dirname $::DIRNAMES dirproc $::DIRPROCS {
-	    if { [string first $dirname $line] != -1 } {
+	    if { [string first $dirname [string toupper $line]] != -1 } {
 		# Process directive line
 		if { [$dirproc $line $original_line] } {
 		    set donedir 1

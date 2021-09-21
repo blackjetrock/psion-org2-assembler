@@ -1,14 +1,12 @@
 	.INCLUDE        MOSVARS.INC
 	.INCLUDE        MOSHEAD.INC
+	.INCLUDE        MSWI.INC
 	
-		OS      .MACRO  VAL
-	
-		  	SWI
-	  .BYTE VAL
-	
-		  		.ENDM
 
+	os dp$udg
 
+	.word 1,2,3
+	   
         .ORG    0
                 .WORD   CEND-CBASE              ; SIZE OF CODE
                 .ORG    $1000

@@ -524,6 +524,191 @@ Assembling test.asm  Pass 1
       (E)  0000         WL_BASE_CITY	.EQU         100           
       (E)  0000         WL_BASE_COUNTRY	.EQU         120        
       (E)  0000         MAXPASSLEN .EQU         8               
+      (E)  0000         al$free	EQU	0                           
+      (E)  0000         al$grab	EQU	1                           
+      (E)  0000         al$grow	EQU	2                           
+      (E)  0000         al$repl	EQU	3                           
+      (E)  0000         al$shnk	EQU	4                           
+      (E)  0000         al$size	EQU	5                           
+      (E)  0000         al$zero	EQU	6                           
+      (E)  0000         bt$nmdn	EQU	7                           
+      (E)  0000         bt$nmen	EQU	8                           
+      (E)  0000         bt$nof 	EQU	9                           
+      (E)  0000         bt$non 	EQU	10                          
+      (E)  0000         bt$pprg	EQU	11                          
+      (E)  0000         bt$swof	EQU	12                          
+      (E)  0000         bz$alrm	EQU	13                          
+      (E)  0000         bz$bell	EQU	14                          
+      (E)  0000         bz$tone	EQU	15                          
+      (E)  0000         dp$emit	EQU	16                          
+      (E)  0000         dp$prnt	EQU	17                          
+      (E)  0000         dp$rest	EQU	18                          
+      (E)  0000         dp$save	EQU	19                          
+      (E)  0000         dp$stat	EQU	20                          
+      (E)  0000         dp$view	EQU	21                          
+      (E)  0000         dp$wrdy	EQU	22                          
+      (E)  0000         dv$boot	EQU	23                          
+      (E)  0000         dv$cler	EQU	24                          
+      (E)  0000         dv$lkup	EQU	25                          
+      (E)  0000         dv$load	EQU	26                          
+      (E)  0000         dv$vect	EQU	27                          
+      (E)  0000         ed$edit	EQU	28                          
+      (E)  0000         ed$epos	EQU	29                          
+      (E)  0000         ed$view	EQU	30                          
+      (E)  0000         er$lkup	EQU	31                          
+      (E)  0000         er$mess	EQU	32                          
+      (E)  0000         fl$back	EQU	33                          
+      (E)  0000         fl$bcat	EQU	34                          
+      (E)  0000         fl$bdel	EQU	35                          
+      (E)  0000         fl$bopn	EQU	36                          
+      (E)  0000         fl$bsav	EQU	37                          
+      (E)  0000         fl$catl	EQU	38                          
+      (E)  0000         fl$copy	EQU	39                          
+      (E)  0000         fl$cret	EQU	40                          
+      (E)  0000         fl$deln	EQU	41                          
+      (E)  0000         fl$eras	EQU	42                          
+      (E)  0000         fl$ffnd	EQU	43                          
+      (E)  0000         fl$find	EQU	44                          
+      (E)  0000         fl$frec	EQU	45                          
+      (E)  0000         fl$next	EQU	46                          
+      (E)  0000         fl$open	EQU	47                          
+      (E)  0000         fl$pars	EQU	48                          
+      (E)  0000         fl$read	EQU	49                          
+      (E)  0000         fl$rect	EQU	50                          
+      (E)  0000         fl$renm	EQU	51                          
+      (E)  0000         fl$rset	EQU	52                          
+      (E)  0000         fl$setp	EQU	53                          
+      (E)  0000         fl$size	EQU	54                          
+      (E)  0000         fl$writ	EQU	55                          
+      (E)  0000         fn$atan	EQU	56                          
+      (E)  0000         fn$cos	EQU	57                           
+      (E)  0000         fn$exp	EQU	58                           
+      (E)  0000         fn$ln	EQU	59                            
+      (E)  0000         fn$log	EQU	60                           
+      (E)  0000         fn$powr	EQU	61                          
+      (E)  0000         fn$rnd	EQU	62                           
+      (E)  0000         fn$sin	EQU	63                           
+      (E)  0000         fn$sqrt	EQU	64                          
+      (E)  0000         fn$tan	EQU	65                           
+      (E)  0000         it$gval	EQU	66                          
+      (E)  0000         it$radd	EQU	67                          
+      (E)  0000         it$strt	EQU	68                          
+      (E)  0000         it$tadd	EQU	69                          
+      (E)  0000         kb$brek	EQU	70                          
+      (E)  0000         kb$flsh	EQU	71                          
+      (E)  0000         kb$getk	EQU	72                          
+      (E)  0000         kb$init	EQU	73                          
+      (E)  0000         kb$stat	EQU	74                          
+      (E)  0000         kb$test	EQU	75                          
+      (E)  0000         kb$uget	EQU	76                          
+      (E)  0000         lg$newp	EQU	77                          
+      (E)  0000         lg$rled	EQU	78                          
+      (E)  0000         ln$strt	EQU	79                          
+      (E)  0000         mn$disp	EQU	80                          
+      (E)  0000         mt$btof	EQU	81                          
+      (E)  0000         mt$fadd	EQU	82                          
+      (E)  0000         mt$fbdc	EQU	83                          
+      (E)  0000         mt$fbex	EQU	84                          
+      (E)  0000         mt$fbgn	EQU	85                          
+      (E)  0000         mt$fbin	EQU	86                          
+      (E)  0000         mt$fdiv	EQU	87                          
+      (E)  0000         mt$fmul	EQU	88                          
+      (E)  0000         mt$fngt	EQU	89                          
+      (E)  0000         mt$fsub	EQU	90                          
+      (E)  0000         pk$pkof	EQU	91                          
+      (E)  0000         pk$qadd	EQU	92                          
+      (E)  0000         pk$rbyt	EQU	93                          
+      (E)  0000         pk$read	EQU	94                          
+      (E)  0000         pk$rwrd	EQU	95                          
+      (E)  0000         pk$sadd	EQU	96                          
+      (E)  0000         pk$save	EQU	97                          
+      (E)  0000         pk$setp	EQU	98                          
+      (E)  0000         pk$skip	EQU	99                          
+      (E)  0000         rm$runp	EQU	100                         
+      (E)  0000         tl$addi	EQU	101                         
+      (E)  0000         tl$cpyx	EQU	102                         
+      (E)  0000         tl$deli	EQU	103                         
+      (E)  0000         tl$xxmd	EQU	104                         
+      (E)  0000         tm$dayv	EQU	105                         
+      (E)  0000         tm$tget	EQU	106                         
+      (E)  0000         tm$updt	EQU	107                         
+      (E)  0000         tm$wait	EQU	108                         
+      (E)  0000         ut$cpyb	EQU	109                         
+      (E)  0000         ut$ddsp	EQU	110                         
+      (E)  0000         ut$disp	EQU	111                         
+      (E)  0000         ut$entr	EQU	112                         
+      (E)  0000         ut$fill	EQU	113                         
+      (E)  0000         ut$icpb	EQU	114                         
+      (E)  0000         ut$isbf	EQU	115                         
+      (E)  0000         ut$leav	EQU	116                         
+      (E)  0000         ut$sdiv	EQU	117                         
+      (E)  0000         ut$smul	EQU	118                         
+      (E)  0000         ut$splt	EQU	119                         
+      (E)  0000         ut$udiv	EQU	120                         
+      (E)  0000         ut$umul	EQU	121                         
+      (E)  0000         ut$utob	EQU	122                         
+      (E)  0000         ut$xcat	EQU	123                         
+      (E)  0000         ut$xtob	EQU	124                         
+      (E)  0000         ut$ysno	EQU	125                         
+      (E)  0000         ut$cdsp	EQU	126		;available on version 2.5 and above only
+      (E)  0000         tl$rstr	EQU	127		;available on version 2.7 and above only
+      (E)  0000         tl$lset	EQU	128		;available on multi-lingual versions only
+      (E)  0000         bt$toff	EQU	129                         
+      (E)  0000         dp$mset	EQU	130                         
+      (E)  0000         dp$cset	EQU	131                         
+      (E)  0000         dp$cprn	EQU	132                         
+      (E)  0000         dp$udg	EQU	133                          
+      (E)  0000         mn$xdsp	EQU	134                         
+      (E)  0000         mn$1dsp	EQU	135                         
+      (E)  0000         mn$titl	EQU	136                         
+      (E)  0000         fn$sum	EQU	137                          
+      (E)  0000         fn$mean	EQU	138                         
+      (E)  0000         fn$var	EQU	139                          
+      (E)  0000         fn$std	EQU	140                          
+      (E)  0000         fn$min	EQU	141                          
+      (E)  0000         fn$max	EQU	142                          
+      (E)  0000         fl$wpar	EQU	143                         
+      (E)  0000         fl$wcat	EQU	144                         
+      (E)  0000         fl$wcpy	EQU	145                         
+      (E)  0000         fl$wdel	EQU	146                         
+      (E)  0000         fl$wfnd	EQU	147                         
+      (E)  0000         ut$wild	EQU	148                         
+      (E)  0000         tm$ndys	EQU	149                         
+      (E)  0000         tm$week	EQU	150                         
+      (E)  0000         tm$dnam	EQU	151                         
+      (E)  0000         fl$getx	EQU	152                         
+      (E)  0000         fl$valx	EQU	153                         
+      (E)  0000         ln$xstt	EQU	154                         
+      (E)  0000         tl$zzmd	EQU	155                         
+      (E)  0000         xt$dirm	EQU	156                         
+      (E)  0000         fl$ncat	EQU	157                         
+      (E)  0000         am$entr	EQU	158                         
+      (E)  0000         nt$entr	EQU	159                         
+      (E)  0000         ca$entr	EQU	160                         
+      (E)  0000         xt$entr	EQU	161                         
+      (E)  0000         xt$bar	EQU	162                          
+      (E)  0000         dp$pvew	EQU	163                         
+      (E)  0000         ti$entr	EQU	164                         
+      (E)  0000         ut$sort	EQU	165                         
+      (E)  0000         wl$entr	EQU	166                         
+      (E)  0000         di$entr	EQU	167                         
+      (E)  0000         xf$entr	EQU	168                         
+      (E)  0000         er$prnt	EQU	169                         
+      (E)  0000         tm$mnam	EQU	170                         
+      (E)  0000         lg$edit	EQU	171                         
+      (E)  0000         fn$asin	EQU	172                         
+      (E)  0000         fn$acos	EQU	173                         
+      (E)  0000         xf$sort	EQU	174                         
+      (E)  0000         lg$entr	EQU	175                         
+      (E)  0000         fl$fdel	EQU	176                         
+      (E)  0000         kb$conk	EQU	177                         
+      (E)  0000         ut$cmpb	EQU	178                         
+      (E)  0000         tm$tset	EQU	179                         
+0000  (B)   00          	.byte	^X3F,dp$udg                      
+0001  (B)   00          	.byte	^X3F,dp$udg                      
+0002  (W)   00 00       	.word 1,2,3                            
+0004  (W)   00 00       	.word 1,2,3                            
+0006  (W)   00 00       	.word 1,2,3                            
 0000  (O)                       .ORG    0                       
 0000  (W)   00 00                       .WORD   CEND-CBASE              ; SIZE OF CODE
 0000  (O)                               .ORG    $1000           
@@ -1084,6 +1269,191 @@ Assembling test.asm  Pass 2
       (E)  0064         WL_BASE_CITY	.EQU         100           
       (E)  0078         WL_BASE_COUNTRY	.EQU         120        
       (E)  0008         MAXPASSLEN .EQU         8               
+      (E)  0000         al$free	EQU	0                           
+      (E)  0001         al$grab	EQU	1                           
+      (E)  0002         al$grow	EQU	2                           
+      (E)  0003         al$repl	EQU	3                           
+      (E)  0004         al$shnk	EQU	4                           
+      (E)  0005         al$size	EQU	5                           
+      (E)  0006         al$zero	EQU	6                           
+      (E)  0007         bt$nmdn	EQU	7                           
+      (E)  0008         bt$nmen	EQU	8                           
+      (E)  0009         bt$nof 	EQU	9                           
+      (E)  000A         bt$non 	EQU	10                          
+      (E)  000B         bt$pprg	EQU	11                          
+      (E)  000C         bt$swof	EQU	12                          
+      (E)  000D         bz$alrm	EQU	13                          
+      (E)  000E         bz$bell	EQU	14                          
+      (E)  000F         bz$tone	EQU	15                          
+      (E)  0010         dp$emit	EQU	16                          
+      (E)  0011         dp$prnt	EQU	17                          
+      (E)  0012         dp$rest	EQU	18                          
+      (E)  0013         dp$save	EQU	19                          
+      (E)  0014         dp$stat	EQU	20                          
+      (E)  0015         dp$view	EQU	21                          
+      (E)  0016         dp$wrdy	EQU	22                          
+      (E)  0017         dv$boot	EQU	23                          
+      (E)  0018         dv$cler	EQU	24                          
+      (E)  0019         dv$lkup	EQU	25                          
+      (E)  001A         dv$load	EQU	26                          
+      (E)  001B         dv$vect	EQU	27                          
+      (E)  001C         ed$edit	EQU	28                          
+      (E)  001D         ed$epos	EQU	29                          
+      (E)  001E         ed$view	EQU	30                          
+      (E)  001F         er$lkup	EQU	31                          
+      (E)  0020         er$mess	EQU	32                          
+      (E)  0021         fl$back	EQU	33                          
+      (E)  0022         fl$bcat	EQU	34                          
+      (E)  0023         fl$bdel	EQU	35                          
+      (E)  0024         fl$bopn	EQU	36                          
+      (E)  0025         fl$bsav	EQU	37                          
+      (E)  0026         fl$catl	EQU	38                          
+      (E)  0027         fl$copy	EQU	39                          
+      (E)  0028         fl$cret	EQU	40                          
+      (E)  0029         fl$deln	EQU	41                          
+      (E)  002A         fl$eras	EQU	42                          
+      (E)  002B         fl$ffnd	EQU	43                          
+      (E)  002C         fl$find	EQU	44                          
+      (E)  002D         fl$frec	EQU	45                          
+      (E)  002E         fl$next	EQU	46                          
+      (E)  002F         fl$open	EQU	47                          
+      (E)  0030         fl$pars	EQU	48                          
+      (E)  0031         fl$read	EQU	49                          
+      (E)  0032         fl$rect	EQU	50                          
+      (E)  0033         fl$renm	EQU	51                          
+      (E)  0034         fl$rset	EQU	52                          
+      (E)  0035         fl$setp	EQU	53                          
+      (E)  0036         fl$size	EQU	54                          
+      (E)  0037         fl$writ	EQU	55                          
+      (E)  0038         fn$atan	EQU	56                          
+      (E)  0039         fn$cos	EQU	57                           
+      (E)  003A         fn$exp	EQU	58                           
+      (E)  003B         fn$ln	EQU	59                            
+      (E)  003C         fn$log	EQU	60                           
+      (E)  003D         fn$powr	EQU	61                          
+      (E)  003E         fn$rnd	EQU	62                           
+      (E)  003F         fn$sin	EQU	63                           
+      (E)  0040         fn$sqrt	EQU	64                          
+      (E)  0041         fn$tan	EQU	65                           
+      (E)  0042         it$gval	EQU	66                          
+      (E)  0043         it$radd	EQU	67                          
+      (E)  0044         it$strt	EQU	68                          
+      (E)  0045         it$tadd	EQU	69                          
+      (E)  0046         kb$brek	EQU	70                          
+      (E)  0047         kb$flsh	EQU	71                          
+      (E)  0048         kb$getk	EQU	72                          
+      (E)  0049         kb$init	EQU	73                          
+      (E)  004A         kb$stat	EQU	74                          
+      (E)  004B         kb$test	EQU	75                          
+      (E)  004C         kb$uget	EQU	76                          
+      (E)  004D         lg$newp	EQU	77                          
+      (E)  004E         lg$rled	EQU	78                          
+      (E)  004F         ln$strt	EQU	79                          
+      (E)  0050         mn$disp	EQU	80                          
+      (E)  0051         mt$btof	EQU	81                          
+      (E)  0052         mt$fadd	EQU	82                          
+      (E)  0053         mt$fbdc	EQU	83                          
+      (E)  0054         mt$fbex	EQU	84                          
+      (E)  0055         mt$fbgn	EQU	85                          
+      (E)  0056         mt$fbin	EQU	86                          
+      (E)  0057         mt$fdiv	EQU	87                          
+      (E)  0058         mt$fmul	EQU	88                          
+      (E)  0059         mt$fngt	EQU	89                          
+      (E)  005A         mt$fsub	EQU	90                          
+      (E)  005B         pk$pkof	EQU	91                          
+      (E)  005C         pk$qadd	EQU	92                          
+      (E)  005D         pk$rbyt	EQU	93                          
+      (E)  005E         pk$read	EQU	94                          
+      (E)  005F         pk$rwrd	EQU	95                          
+      (E)  0060         pk$sadd	EQU	96                          
+      (E)  0061         pk$save	EQU	97                          
+      (E)  0062         pk$setp	EQU	98                          
+      (E)  0063         pk$skip	EQU	99                          
+      (E)  0064         rm$runp	EQU	100                         
+      (E)  0065         tl$addi	EQU	101                         
+      (E)  0066         tl$cpyx	EQU	102                         
+      (E)  0067         tl$deli	EQU	103                         
+      (E)  0068         tl$xxmd	EQU	104                         
+      (E)  0069         tm$dayv	EQU	105                         
+      (E)  006A         tm$tget	EQU	106                         
+      (E)  006B         tm$updt	EQU	107                         
+      (E)  006C         tm$wait	EQU	108                         
+      (E)  006D         ut$cpyb	EQU	109                         
+      (E)  006E         ut$ddsp	EQU	110                         
+      (E)  006F         ut$disp	EQU	111                         
+      (E)  0070         ut$entr	EQU	112                         
+      (E)  0071         ut$fill	EQU	113                         
+      (E)  0072         ut$icpb	EQU	114                         
+      (E)  0073         ut$isbf	EQU	115                         
+      (E)  0074         ut$leav	EQU	116                         
+      (E)  0075         ut$sdiv	EQU	117                         
+      (E)  0076         ut$smul	EQU	118                         
+      (E)  0077         ut$splt	EQU	119                         
+      (E)  0078         ut$udiv	EQU	120                         
+      (E)  0079         ut$umul	EQU	121                         
+      (E)  007A         ut$utob	EQU	122                         
+      (E)  007B         ut$xcat	EQU	123                         
+      (E)  007C         ut$xtob	EQU	124                         
+      (E)  007D         ut$ysno	EQU	125                         
+      (E)  007E         ut$cdsp	EQU	126		;available on version 2.5 and above only
+      (E)  007F         tl$rstr	EQU	127		;available on version 2.7 and above only
+      (E)  0080         tl$lset	EQU	128		;available on multi-lingual versions only
+      (E)  0081         bt$toff	EQU	129                         
+      (E)  0082         dp$mset	EQU	130                         
+      (E)  0083         dp$cset	EQU	131                         
+      (E)  0084         dp$cprn	EQU	132                         
+      (E)  0085         dp$udg	EQU	133                          
+      (E)  0086         mn$xdsp	EQU	134                         
+      (E)  0087         mn$1dsp	EQU	135                         
+      (E)  0088         mn$titl	EQU	136                         
+      (E)  0089         fn$sum	EQU	137                          
+      (E)  008A         fn$mean	EQU	138                         
+      (E)  008B         fn$var	EQU	139                          
+      (E)  008C         fn$std	EQU	140                          
+      (E)  008D         fn$min	EQU	141                          
+      (E)  008E         fn$max	EQU	142                          
+      (E)  008F         fl$wpar	EQU	143                         
+      (E)  0090         fl$wcat	EQU	144                         
+      (E)  0091         fl$wcpy	EQU	145                         
+      (E)  0092         fl$wdel	EQU	146                         
+      (E)  0093         fl$wfnd	EQU	147                         
+      (E)  0094         ut$wild	EQU	148                         
+      (E)  0095         tm$ndys	EQU	149                         
+      (E)  0096         tm$week	EQU	150                         
+      (E)  0097         tm$dnam	EQU	151                         
+      (E)  0098         fl$getx	EQU	152                         
+      (E)  0099         fl$valx	EQU	153                         
+      (E)  009A         ln$xstt	EQU	154                         
+      (E)  009B         tl$zzmd	EQU	155                         
+      (E)  009C         xt$dirm	EQU	156                         
+      (E)  009D         fl$ncat	EQU	157                         
+      (E)  009E         am$entr	EQU	158                         
+      (E)  009F         nt$entr	EQU	159                         
+      (E)  00A0         ca$entr	EQU	160                         
+      (E)  00A1         xt$entr	EQU	161                         
+      (E)  00A2         xt$bar	EQU	162                          
+      (E)  00A3         dp$pvew	EQU	163                         
+      (E)  00A4         ti$entr	EQU	164                         
+      (E)  00A5         ut$sort	EQU	165                         
+      (E)  00A6         wl$entr	EQU	166                         
+      (E)  00A7         di$entr	EQU	167                         
+      (E)  00A8         xf$entr	EQU	168                         
+      (E)  00A9         er$prnt	EQU	169                         
+      (E)  00AA         tm$mnam	EQU	170                         
+      (E)  00AB         lg$edit	EQU	171                         
+      (E)  00AC         fn$asin	EQU	172                         
+      (E)  00AD         fn$acos	EQU	173                         
+      (E)  00AE         xf$sort	EQU	174                         
+      (E)  00AF         lg$entr	EQU	175                         
+      (E)  00B0         fl$fdel	EQU	176                         
+      (E)  00B1         kb$conk	EQU	177                         
+      (E)  00B2         ut$cmpb	EQU	178                         
+      (E)  00B3         tm$tset	EQU	179                         
+0000  (B)   3F          	.byte	^X3F,dp$udg                      
+0001  (B)   85          	.byte	^X3F,dp$udg                      
+0002  (W)   00 01       	.word 1,2,3                            
+0004  (W)   00 02       	.word 1,2,3                            
+0006  (W)   00 03       	.word 1,2,3                            
 0000  (O)                       .ORG    0                       
 0000  (W)   00 11                       .WORD   CEND-CBASE              ; SIZE OF CODE
 1000  (O)                               .ORG    $1000           
@@ -1642,6 +2012,186 @@ Assembling test.asm  Pass 2
         WL_BASE_CITY: $0064
      WL_BASE_COUNTRY: $0078
           MAXPASSLEN: $0008
+             al$free: $0000
+             al$grab: $0001
+             al$grow: $0002
+             al$repl: $0003
+             al$shnk: $0004
+             al$size: $0005
+             al$zero: $0006
+             bt$nmdn: $0007
+             bt$nmen: $0008
+              bt$nof: $0009
+              bt$non: $000A
+             bt$pprg: $000B
+             bt$swof: $000C
+             bz$alrm: $000D
+             bz$bell: $000E
+             bz$tone: $000F
+             dp$emit: $0010
+             dp$prnt: $0011
+             dp$rest: $0012
+             dp$save: $0013
+             dp$stat: $0014
+             dp$view: $0015
+             dp$wrdy: $0016
+             dv$boot: $0017
+             dv$cler: $0018
+             dv$lkup: $0019
+             dv$load: $001A
+             dv$vect: $001B
+             ed$edit: $001C
+             ed$epos: $001D
+             ed$view: $001E
+             er$lkup: $001F
+             er$mess: $0020
+             fl$back: $0021
+             fl$bcat: $0022
+             fl$bdel: $0023
+             fl$bopn: $0024
+             fl$bsav: $0025
+             fl$catl: $0026
+             fl$copy: $0027
+             fl$cret: $0028
+             fl$deln: $0029
+             fl$eras: $002A
+             fl$ffnd: $002B
+             fl$find: $002C
+             fl$frec: $002D
+             fl$next: $002E
+             fl$open: $002F
+             fl$pars: $0030
+             fl$read: $0031
+             fl$rect: $0032
+             fl$renm: $0033
+             fl$rset: $0034
+             fl$setp: $0035
+             fl$size: $0036
+             fl$writ: $0037
+             fn$atan: $0038
+              fn$cos: $0039
+              fn$exp: $003A
+               fn$ln: $003B
+              fn$log: $003C
+             fn$powr: $003D
+              fn$rnd: $003E
+              fn$sin: $003F
+             fn$sqrt: $0040
+              fn$tan: $0041
+             it$gval: $0042
+             it$radd: $0043
+             it$strt: $0044
+             it$tadd: $0045
+             kb$brek: $0046
+             kb$flsh: $0047
+             kb$getk: $0048
+             kb$init: $0049
+             kb$stat: $004A
+             kb$test: $004B
+             kb$uget: $004C
+             lg$newp: $004D
+             lg$rled: $004E
+             ln$strt: $004F
+             mn$disp: $0050
+             mt$btof: $0051
+             mt$fadd: $0052
+             mt$fbdc: $0053
+             mt$fbex: $0054
+             mt$fbgn: $0055
+             mt$fbin: $0056
+             mt$fdiv: $0057
+             mt$fmul: $0058
+             mt$fngt: $0059
+             mt$fsub: $005A
+             pk$pkof: $005B
+             pk$qadd: $005C
+             pk$rbyt: $005D
+             pk$read: $005E
+             pk$rwrd: $005F
+             pk$sadd: $0060
+             pk$save: $0061
+             pk$setp: $0062
+             pk$skip: $0063
+             rm$runp: $0064
+             tl$addi: $0065
+             tl$cpyx: $0066
+             tl$deli: $0067
+             tl$xxmd: $0068
+             tm$dayv: $0069
+             tm$tget: $006A
+             tm$updt: $006B
+             tm$wait: $006C
+             ut$cpyb: $006D
+             ut$ddsp: $006E
+             ut$disp: $006F
+             ut$entr: $0070
+             ut$fill: $0071
+             ut$icpb: $0072
+             ut$isbf: $0073
+             ut$leav: $0074
+             ut$sdiv: $0075
+             ut$smul: $0076
+             ut$splt: $0077
+             ut$udiv: $0078
+             ut$umul: $0079
+             ut$utob: $007A
+             ut$xcat: $007B
+             ut$xtob: $007C
+             ut$ysno: $007D
+             ut$cdsp: $007E
+             tl$rstr: $007F
+             tl$lset: $0080
+             bt$toff: $0081
+             dp$mset: $0082
+             dp$cset: $0083
+             dp$cprn: $0084
+              dp$udg: $0085
+             mn$xdsp: $0086
+             mn$1dsp: $0087
+             mn$titl: $0088
+              fn$sum: $0089
+             fn$mean: $008A
+              fn$var: $008B
+              fn$std: $008C
+              fn$min: $008D
+              fn$max: $008E
+             fl$wpar: $008F
+             fl$wcat: $0090
+             fl$wcpy: $0091
+             fl$wdel: $0092
+             fl$wfnd: $0093
+             ut$wild: $0094
+             tm$ndys: $0095
+             tm$week: $0096
+             tm$dnam: $0097
+             fl$getx: $0098
+             fl$valx: $0099
+             ln$xstt: $009A
+             tl$zzmd: $009B
+             xt$dirm: $009C
+             fl$ncat: $009D
+             am$entr: $009E
+             nt$entr: $009F
+             ca$entr: $00A0
+             xt$entr: $00A1
+              xt$bar: $00A2
+             dp$pvew: $00A3
+             ti$entr: $00A4
+             ut$sort: $00A5
+             wl$entr: $00A6
+             di$entr: $00A7
+             xf$entr: $00A8
+             er$prnt: $00A9
+             tm$mnam: $00AA
+             lg$edit: $00AB
+             fn$asin: $00AC
+             fn$acos: $00AD
+             xf$sort: $00AE
+             lg$entr: $00AF
+             fl$fdel: $00B0
+             kb$conk: $00B1
+             ut$cmpb: $00B2
+             tm$tset: $00B3
                CBASE: $1000
                 LOOP: $1007
                 FIX1: $100D
