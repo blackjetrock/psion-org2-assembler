@@ -18,8 +18,17 @@ set ::LABELLIST    ""
 set ::MACROLIST    ""
 set ::INCLUDELINES ""
 
-set ::DIRNAMES ".ORG    .WORD    .EQU    .BYTE    org     EQU     "
-set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ "
+set ::DIRNAMES ".ORG    .WORD    .EQU    .BYTE    org     EQU     .ASCIC    "
+set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ dir_ascic"
+
+set ::DIRECTIVES ".ORG  dir_org \
+                  .WORD dir_word \
+		  .EQU	dir_equ  \	 
+                  .BYTE dir_byte \
+                  org   dir_org  \
+                  EQU   dir_equ  \
+                  .ASCIC  dir_ascic\
+"
 
 #    {"REL" 2 "^%s\[ \t\]+(\[A-Z0-9a-z_$^\]+)"                                                                chk_nul  proc_rel }
 
@@ -390,19 +399,19 @@ proc evaluate_expression {exp} {
     }
     
     # Turn the expression into Tcl and evaluate it
-    puts $::DBF "EVALEXP:exp = '$exp'"
+    dbg "EVALEXP:exp = '$exp'"
     
     # Turn label names into references to the label variables
     foreach label $::LABELLIST {
 	set exp [string map "$label [set ::LABEL($label)]" $exp]
     }
-    puts $::DBF "EVALEXP:after labels = '$exp'"
+    dbg "EVALEXP:after labels = '$exp'"
     
     # Force hex values to correct format
     set exp [string map "\$ 0x ^x 0x ^X 0x" $exp]
 
-    puts $::DBF "EVALEXP:hex conv='$exp'"
-    puts $::DBF "EVALEXP ='[expr $exp]'"
+    dbg "EVALEXP:hex conv='$exp'"
+    dbg "EVALEXP ='[expr $exp]'"
     
     # Evaluate, trap errors
     set result 0
@@ -413,6 +422,11 @@ proc evaluate_expression {exp} {
     
     return $result
 }
+
+################################################################################
+#
+# Directives
+#
 
 proc dir_org {line original_line} {
     # We set up ::ADDR as specified
@@ -434,10 +448,10 @@ proc dir_org {line original_line} {
 # Byte list
 proc dir_byte {line original_line} {
     # We create a byte
-    puts $::DBF "dir_byte:'$line'"
+    dbg "dir_byte:'$line'"
     
     if { [regexp -- "(.BYTE|.byte)\[ \t\]+(.+)" $line all bytedir bytelist] } {
-	puts $::DBF "BYTE directive byte list = '$bytelist'"
+	dbg "BYTE directive byte list = '$bytelist'"
 	
 	foreach byte [split $bytelist " \t,"] {
 	    set bytelist [string map {" " ""} $bytelist]
@@ -471,7 +485,7 @@ proc dir_word {line original_line} {
 
     if { [regexp -- "(.WORD|.word)\[ \t\]+(.+)" $line all worddir wordlist] } {
 	set wordlist [string map {" " ""} $wordlist]
-	puts $::DBF "WORD directive word list = '$wordlist'"
+	dbg "WORD directive word list = '$wordlist'"
 
 	foreach word [split $wordlist " \t,"] {
 	    
@@ -513,6 +527,49 @@ proc dir_equ {line original_line} {
     }
 }
 
+proc dir_ascic {line original_line} {
+    if { [regexp -- "(.ASCIC|.ascic)\[ \t\]+\"(\[^\"\]+)\"" $line all dir str] } {
+	dbg "ASCIC: '$str'"
+	# First, the string length byte
+	set str_len [string length $str]
+	dbg "ASCIC:$str_len"
+	if { $str_len > 255 } {
+	    error $line "String in .ASCIC ('$str') too long ($str_len bytes)"
+	    return 0
+	}
+	
+	set ::EMITTED ""
+	emit $str_len
+
+	dbg "ASCIC: '$::EMITTED'"
+	set f_addr    [format "%04X" $::ADDR]
+	set f_emitted [format "%-12s" $::EMITTED]
+	set line [string trim $original_line]
+	addlstline $f_addr "(AL)" $f_emitted  $original_line
+
+	incr ::ADDR 1
+	
+	foreach char [split $str ""] {
+	    
+	    binary scan $char H2 hex_char
+	    
+	    set ::EMITTED ""
+	    emit $hex_char
+	    
+	    set f_addr    [format "%04X" $::ADDR]
+	    set f_emitted [format "%-12s" $::EMITTED]
+	    set line [string trim $original_line]
+	    addlstline $f_addr "(A)" $f_emitted  $original_line
+	    
+	    incr ::ADDR 1
+	}
+	return 1
+    } else {
+	error $line "Bad .ASCIC"
+	return 0
+    }
+}
+
 ################################################################################
 #
 # Returns the next line to be processed
@@ -525,7 +582,7 @@ proc next_line {} {
     if { [llength $::MACROEXP] != 0 } {
 	set result [lindex $::MACROEXP 0]
 	set ::MACROEXP [lrange $::MACROEXP 1 end]
-	puts $::DBF "NL(M):'$result'"
+	dbg "NL(M):'$result'"
 	return $result
     }
 
@@ -533,7 +590,7 @@ proc next_line {} {
     if { [llength $::INCLUDELINES] != 0 } {
 	set result [lindex $::INCLUDELINES 0]
 	set ::INCLUDELINES [lrange $::INCLUDELINES 1 end]
-	puts $::DBF "NL(I):'$result'"
+	dbg "NL(I):'$result'"
 	return $result
     }
 
@@ -541,7 +598,7 @@ proc next_line {} {
     if { [llength $::FILETEXT] != 0 } {
 	set result [lindex $::FILETEXT 0]
 	set ::FILETEXT [lrange $::FILETEXT 1 end]
-	puts $::DBF "NL(F):'$result'"
+	dbg "NL(F):'$result'"
 	return $result
     } else {
 	set ::DONE 1
@@ -611,11 +668,11 @@ proc assemble_file {filename} {
 
 	# Handle included files
 	if { [string first .INCLUDE $line] != -1 } {
-	    puts $::DBF "Include in '$line'"
+	    dbg "Include in '$line'"
 	    
 	    # Get the file name
 	    if { [regexp -- ".INCLUDE\[ \t\]+(.+)" $line all filename] } {
-		puts $::DBF "Include $filename"
+		dbg "Include $filename"
 
 		# Read file and add to a line stream
 		set g [open $filename]
@@ -640,25 +697,25 @@ proc assemble_file {filename} {
 	
 	foreach macro $::MACROLIST {
 	    if { [string first $macro $line] != -1 } {
-		puts $::DBF "Found macro $macro"
-		puts $::DBF "RE=$macro\[ \t\]+($::MACROPAREXP($macro))"
+		dbg "Found macro $macro"
+		dbg "RE=$macro\[ \t\]+($::MACROPAREXP($macro))"
 		
 		# This could be a macro expansion. Macro name has to be a word, i.e. spaces on either side.
 		if { [regexp -- "\[ \t\]+$macro\[ \t\]+($::MACROPAREXP($macro))" $line all parvals] } {
-		    puts $::DBF "Match regexp"
+		    dbg "Match regexp"
 		    
 		    # We need to expand parameters in the macro bidy
 		    set macrotext $::MACRO($macro)
 
-		    puts $::DBF "Macro text='$macrotext'"
+		    dbg "Macro text='$macrotext'"
 		    
 		    # Replace every parameter with a value
 		    foreach parname [split $::MACROPARS($macro) ","] parval [split $parvals " ,"] {
-			puts $::DBF "Replace '$parname' with '$parval'"
+			dbg "Replace '$parname' with '$parval'"
 			regsub -all $parname $macrotext $parval macrotext
 		    }
 
-		    puts $::DBF "Macro text after replace='$macrotext'"
+		    dbg "Macro text after replace='$macrotext'"
 		    
 		    # We now replace the input lines with the macro text
 		    set ::MACROEXP [split $macrotext "\n"]
@@ -675,11 +732,11 @@ proc assemble_file {filename} {
 	# Handle macros
 	# We collect macro text here then insert macros into the line stream
 	if { [string first .MACRO [string toupper $line]] != -1 } {
-	    puts $::DBF "Macro def started in '$line'"
+	    dbg "Macro def started in '$line'"
 	    
 	    # Get the macro name and parameters
 	    if { [regexp -- "(\[A-Za-z0-9_\]+)\[ \t\]+(.MACRO|.macro)\[ \t\]+(.+)" $line all macname macdir macpars] } {
-		puts $::DBF "Macro $macname"
+		dbg "Macro $macname"
 		
 		# Add to macro list
 		if { [lsearch -exact $::MACROLIST $macname] != -1 } {
@@ -726,7 +783,7 @@ proc assemble_file {filename} {
 	
 	# handle directives
 	set donedir 0
-	foreach dirname $::DIRNAMES dirproc $::DIRPROCS {
+	foreach {dirname dirproc} $::DIRECTIVES {
 	    if { [string first $dirname [string toupper $line]] != -1 } {
 		# Process directive line
 		if { [$dirproc $line $original_line] } {
@@ -786,7 +843,7 @@ proc assemble_file {filename} {
 		
 		# Put the mnemonic in the regexp
 		set def_regexp [format $addrmode_regexp $mne]
-		puts $::DBF "DEF REGEXP:'$def_regexp'"
+		dbg "DEF REGEXP:'$def_regexp'"
 		
 		# See if we have a match
 		set p1 0
@@ -809,9 +866,9 @@ proc assemble_file {filename} {
 
 		    # If opcode is invalid, keep looking
 		    if { $opcode == "____" } {
-			puts $::DBF "OPCODE=$opcode"
-			puts $::DBF "addrmode_spec=$addrmode_spec"
-			puts $::DBF "def_regexp=$def_regexp"
+			dbg "OPCODE=$opcode"
+			dbg "addrmode_spec=$addrmode_spec"
+			dbg "def_regexp=$def_regexp"
 			incr addrmode_index 1
 			continue
 		    }

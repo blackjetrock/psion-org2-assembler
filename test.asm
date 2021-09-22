@@ -6,6 +6,7 @@
 	os dp$udg
 
 	.word 1,2,3
+	.ascic  "TEST    "
 	   
         .ORG    0
                 .WORD   CEND-CBASE              ; SIZE OF CODE

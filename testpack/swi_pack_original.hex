@@ -1,0 +1,138 @@
+2402 6A            .BYTE        ^X6A            ; DATAPACK BOOTABLE
+2403 02            .BYTE        ^X02            ; 16K DATAPACK
+2404 00            .BYTE        0               ; NO HARDWARE
+2405 02            .BYTE        2               ; DEVICE NUMBER
+2406 10            .BYTE        ^X10            ; VERSION NUMBER (1.0)
+2407 02            .BYTE        2               ; PRIORITY
+2408 0000-         .WORD        %ROOT-2         ; ROOT OVERLAY ADDRESS
+240A FF            .BYTE        ^XFF
+240B FF            .BYTE        ^XFF
+240C 09            .BYTE        ^X09
+240D 81            .BYTE        ^X81
+240E 4D 41         .ASCII       "MAIN    "
+2410 49 4E
+2410 20 20
+2412 20 20
+2416 90            .BYTE        ^X90
+2417 02            .BYTE        ^X02
+2418 80            .BYTE        ^X80
+2419 0000-         .WORD        %PRGEND-%ROOT+2 ; SIZE OF CODE
+241B 0000          .WORD        0000            ; SET BY DV$BOOT
+241D 00            .BYTE        00              ; SET BY DV$BOOT
+241E 02            .BYTE        2               ; DEVICE NUMBER
+241F 10            .BYTE        ^X10            ; VERSION 1.0
+2420 00-           .BYTE        <ENDVEC-VECTABLE>/2 ; NUMBER OF VECTORS
+2421 0000-         .WORD        INSTALL         ; INSTALL VECTOR
+2423 0000-         .WORD        REMOVE          ; REMOVE VECTOR
+2425 0000-         .WORD        LANG            ; LANGUAGE VECTOR
+2427 0000-         .WORD        DO_SWI          ; HANDLE SWI%: VECTOR
+2429 0C            CLC                  ; SIGNAL SUCCESS
+242A 39            RTS
+242B 0C            CLC                  ; SIGNAL SUCCESS
+242C 39            RTS
+242D EC 00         LDD  0,X
+242F 83 0453       SUBD #<4*256>+^A'S'
+2432 26 00-        BNE  NOT_SWI
+2434 EC 02         LDD  2,X
+2436 83 5749       SUBD #<^A'W'*256>+^A'I'
+2439 26 00-        BNE  NOT_SWI
+243B A6 04         LDA  A,4,X
+243D 81 25         CMP  A,#^A'%'
+243F 26 00-        BNE  NOT_SWI
+2441 86 02         LDA  A,#2            ; DEVICE 2
+2443 C6 03         LDA  B,#3            ; DO_SWI VECTOR SERVICE NUMBER
+2445 0C            CLC                  ; SIGNAL SUCCESS
+2446 39            RTS
+2447 0D            SEC                  ; SIGNAL NOT PREPARED TO HANDLE
+2448 39            RTS                  ; REQUEST
+2449 DE A5         LDX  RTA_SP:         ; GET LANGUAGE STACK
+244B A6 00         LDA  A,0,X           ; GET NUMBER OF ARGUMENTS
+244D 4A            DEC  A               ; CHECK IF 1
+244E 27 00-        BEQ  ARG_OK          ; YES - SO CORRECT ARG COUNT
+2450 C6 CD         LDA  B,#ER_RT_NP     ; SIGNAL WRONG NUMBER OF ARGUMENTS
+2452 0D            SEC                  ; SIGNAL BAD CALL
+2453 39            RTS
+2454 A6 01         LDA  A,1,X           ; GET ARGUMENT TYPE
+2456 27 00-        BEQ  ARG_INT         ; ZERO - SO ARG IS INTEGER
+2458 C6 E0         LDA  B,#ER_EX_TV     ; SIGNAL TYPE VIOLATION
+245A 20 F6         BRA  BAD_EXIT
+245C EC 02         LDD  2,X             ; GET SWI FUNCTION TO DO
+245E 83 0080       SUBD #^X80           ; MAXIMUM FUNCTION + 1
+2461 25 00-        BCS  FUNCTION_OK     ; GOOD FUNCTION RANGE 0-127
+2463 C6 F7         LDA  B,#ER_FN_BA     ; SIGNAL BAD FUNCTION ARGUMENT
+2465 20 EB         BRA  BAD_EXIT
+2467 CB 80         ADD  B,#^X80         ; GET BACK THE FUNCTION NUMBER
+2469 F7 0000-      STA  B,SWI_FUNC      ; PATCH THE CODE TO DO SWI FUNCTION
+246C CC 0000       LDD  #0
+246F DD E0         STD  D_ADDR:         ; MARK D NOT FOUND
+2471 DD E2         STD  X_ADDR:         ; MARK X NOT FOUND
+2473 DE A7         LDX  RTA_FP:         ; GET THE FRAME POINTER
+2475 09            DEX
+2476 09            DEX
+2477 DF 41         STX  UTW_S0:         ; SAVE END OF GLOBALS TABLE
+2479 EE 00         LDX  0,X             ; ADDRESS OF BASE OF GLOBALS TABLE
+247B 9C 41         CPX  UTW_S0:         ; SEARCHED WHOLE TABLE YET
+247D 27 00-        BEQ  TEST_OK         ; FINISHED
+247F EC 00         LDD  0,X
+2481 83 0244       SUBD #<2*256>+^A'D'  ; CHECK IF D%
+2484 26 00-        BNE  CHECK_X         ; NO - SO CHECK X
+2486 EC 02         LDD  2,X
+2488 83 2500       SUBD #<^A'%'*256>    ; CHECK IF D%
+248B 26 00-        BNE  CHECK_X         ; NO - SO CHECK X
+248D EC 04         LDD  4,X             ; ADDRESS OF D
+248F DD E0         STD  D_ADDR:         ; SAVE IT AWAY
+2491 20 00-        BRA  NEXT_EXT        ; GO LOOK UP THE OTHERS
+2493 EC 00         LDD  0,X
+2495 83 0258       SUBD #<2*256>+^A'X'  ; CHECK IF X%
+2498 26 00-        BNE  NEXT_EXT        ; NO - SO CHECK NEXT
+249A EC 02         LDD  2,X
+249C 83 2500       SUBD #<^A'%'*256>    ; CHECK IF X%
+249F 26 00-        BNE  NEXT_EXT        ; NO - SO CHECK NEXT
+24A1 EC 04         LDD  4,X             ; ADDRESS OF X%
+24A3 DD E2         STD  X_ADDR:         ; SAVE IT AWAY
+24A5 E6 00         LDA  B,0,X           ; GET LENGTH OF NAME
+24A7 CB 04         ADD  B,#4            ; SKIP TO NEXT NAME
+24A9 3A            ABX
+24AA 20 CF         BRA  LOOP
+24AC DE E2         LDX  X_ADDR:         ; GET X'S ADDRESS
+24AE 26 00-        BNE  X_FOUND
+24B0 C6 58         LDA  B,#^A'X'        ; SIGNAL X% NOT DECLARED
+24B2 86 02         LDA  A,#2
+24B4 FD 2187       STD  RTB_BL
+24B7 86 25         LDA  A,#^A'%'
+24B9 B7 2189       STA  A,RTB_BL+2      ; USED WHEN REPORTING MISSING EXTERNALS
+24BC C6 CC         LDA  B,#ER_RT_UE     ; SIGNAL UNDEFINED EXTERNALS
+24BE 20 92         BRA  BAD_EXIT
+24C0 DE E0         LDX  D_ADDR:         ; GET D'S ADDRESS
+24C2 26 00-        BNE  D_FOUND
+24C4 C6 44         LDA  B,#^A'D'        ; SIGNAL D% NOT DECLARED
+24C6 20 EA         BRA  SET_MISS
+24C8 EC 00         LDD  0,X             ; GET VALUE FOR D
+24CA DE E2         LDX  X_ADDR:
+24CC EE 00         LDX  0,X             ; GET VALUE FOR X
+24CE 3F            SWI
+24CF 00            .BYTE 0              ; PATCHED HIGHER UP
+24D0 24 00-        BCC  NO_ERR          ; ALL OK
+24D2 4F            CLR  A
+24D3 DE E0         LDX  D_ADDR:         ; GET D'S ADDRESS
+24D5 ED 00         STD  0,X             ; SAVE ERROR IN D
+24D7 CC FFFF       LDD  #^XFFFF         ; SIGNAL FAILURE
+24DA 20 00-        BRA  EXIT            ; RETURN SWI%:'S VALUE
+24DC 3C            PSHX                 ; SAVE X
+24DD DE E0         LDX  D_ADDR:         ; GET D'S ADDRESS
+24DF ED 00         STD  0,X             ; SAVE D'S VALUE
+24E1 DE E2         LDX  X_ADDR:         ; GET X'S ADDRESS
+24E3 32            PUL  A               ; GET BACK X IN D
+24E4 33            PUL  B
+24E5 ED 00         STD  0,X             ; SAVE X'S VALUE
+24E7 4F            CLR  A
+24E8 5F            CLR  B               ; SIGNAL SUCCESS
+24E9 DE A5         LDX  RTA_SP:         ; GET STACK ADDRESS
+24EB 09            DEX
+24EC 09            DEX                  ; LEAVE ROOM FOR INT RESULT
+24ED ED 00         STD  0,X
+24EF DF A5         STX  RTA_SP:         ; UPDATE STACK POINTER
+24F1 0C            CLC                  ; SIGNAL SUCCESS
+24F2 39            RTS
+
+	
