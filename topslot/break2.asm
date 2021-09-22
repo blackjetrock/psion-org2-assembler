@@ -1,8 +1,8 @@
 
-	.nlist
-#include "MOSHEAD.INC"
-#include "MOSVARS.INC"
-#include "MSWI.INC"
+	;; .nlist
+	.INCLUDE MOSHEAD.INC
+	.INCLUDE MOSVARS.INC
+	.INCLUDE MSWI.INC
 
 ; ============================
 ; Zero page variable declarations
@@ -30,7 +30,7 @@ x1	equ	endflg+1
 x2	equ	x1+2
 x3	equ	x2+2
 
-	.list
+	;; .list
 
 	.asect
 

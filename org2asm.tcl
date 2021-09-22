@@ -17,6 +17,7 @@ set ::LIST_TEXT    ""
 set ::LABELLIST    ""
 set ::MACROLIST    ""
 set ::INCLUDELINES ""
+set ::INCLUDEDIR_LIST ""
 
 set ::DIRNAMES ".ORG    .WORD    .EQU    .BYTE    org     EQU     .ASCIC    "
 set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ dir_ascic"
@@ -375,9 +376,22 @@ proc create_label {name value} {
 	# Add a new label
 	#puts "Label $name"
 	lappend ::LABELLIST $name
+
+	# Sort into length order, for substitution
+	set ::LABELLIST [lsort -command sz $::LABELLIST]
     }
 
     set ::LABEL($name) $value
+}
+
+################################################################################
+#
+# Sort a list into size order.
+# We use this when replacing label text so we get the largest match
+# possible first
+
+proc sz {a b} {
+    return [expr [string length $a] < [string length $b]]
 }
 
 ################################################################################
@@ -422,6 +436,7 @@ proc evaluate_expression {exp} {
     
     return $result
 }
+
 
 ################################################################################
 #
@@ -666,14 +681,28 @@ proc assemble_file {filename} {
 	    }
 	}
 
+	# Are we done?
+	if { [regexp -- ".END$" $line] } {
+	    set ::DONE 1
+	    continue
+	}
+
 	# Handle included files
-	if { [string first .INCLUDE $line] != -1 } {
+	if { [string first .INCLUDE [string toupper $line]] != -1 } {
 	    dbg "Include in '$line'"
 	    
 	    # Get the file name
-	    if { [regexp -- ".INCLUDE\[ \t\]+(.+)" $line all filename] } {
+	    if { [regexp -- "(.INCLUDE)\[ \t\]+(.+)" $line all dir filename] } {
 		dbg "Include $filename"
 
+		# Try to find include file in all directories inthe include dir list
+		foreach directory $::INCLUDEDIR_LIST {
+		    if { [file exists $directory/$filename] } {
+			set filename $directory/$filename
+			break;
+		    }
+		}
+		
 		# Read file and add to a line stream
 		set g [open $filename]
 		set itxt [read $g]
@@ -996,6 +1025,17 @@ proc write_lst_file {filename} {
     close $f
 }
 
+################################################################################
+#
+# Set up
+#
+################################################################################
+
+# First place to look for include files is the location of the assembler
+set asm_dir [file dirname $argv0]
+
+lappend ::INCLUDEDIR_LIST "."
+lappend ::INCLUDEDIR_LIST $asm_dir
 
 set asm_filename [lindex $argv 0]
 set lst_filename [string map {.asm .lst} $asm_filename]
@@ -1006,9 +1046,12 @@ set ::DBG_FILENAME [string map {.asm .dbg} $asm_filename]
 
 set ::DBF [open $::DBG_FILENAME w]
 
+
+
 ################################################################################
 #
 # two passes
+
 
 set ::PASS 1
 
