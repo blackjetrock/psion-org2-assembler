@@ -12,38 +12,44 @@
 #        object code generation
 
 set ::PASS 0
+set ::NUMBER_OF_PASSES 8
+set ::LAST_PASS         [expr $::NUMBER_OF_PASSES]
 
 set ::LIST_TEXT    ""
 set ::LABELLIST    ""
 set ::MACROLIST    ""
 set ::INCLUDELINES ""
 set ::INCLUDEDIR_LIST ""
+set ::LAST_GLOBAL_LABEL "NONE"
 
-set ::DIRNAMES ".ORG    .WORD    .EQU    .BYTE    org     EQU     .ASCIC    "
-set ::DIRPROCS "dir_org dir_word dir_equ dir_byte dir_org dir_equ dir_ascic"
+set ::LABEL_DELIM "\[^A-Za-z0-9_\]"
 
-set ::DIRECTIVES ".ORG  dir_org \
-                  .WORD dir_word \
-		  .EQU	dir_equ  \	 
-                  .BYTE dir_byte \
-                  org   dir_org  \
-                  EQU   dir_equ  \
-                  .ASCIC  dir_ascic\
+set ::DIRECTIVES ".ORG    dir_org    \
+                  .WORD   dir_word   \
+		  .EQU	  dir_equ    \	 
+                  .BYTE   dir_byte   \
+                  org     dir_org    \
+                  EQU     dir_equ    \
+                  .ASCIC  dir_ascic  \
+                  .ASCIZ  dir_asciz  \
+		  .ASCII  dir_ascii  \
+		  .BLKB   dir_blkb  \	
 "
 
 #    {"REL" 2 "^%s\[ \t\]+(\[A-Z0-9a-z_$^\]+)"                                                                chk_nul  proc_rel }
 
 set ::RE_EXPR "\[A-Z0-9a-z_$^\]+"
+set ::RE_EXPR ".+"
 set ::IMM_RE "^%s\[ \t\]+#\[ \t\]*(\[A-Z0-9a-z_$^\]+)"
 set ::ADDMODE {
     {"REL" 2 "^%s\[ \t\]+($::RE_EXPR)"                                                                chk_nul  proc_rel }
     {"IMM" 2 "^%s\[ \t\]+#\[ \t\]*($::RE_EXPR)"                                                       chk_nul  proc_imm }
     {"DIR" 2 "^%s\[ \t\]+($::RE_EXPR)"                                                                chk_dir  proc_dir }
-    {"IDX" 2 "^%s\[ \t\]+($::RE_EXPR)\[ \t\]*,\[ \t\]*(\[XY\])"                                        chk_nul  proc_idx }
+    {"IDX" 2 "^%s\[ \t\]+($::RE_EXPR)\[ \t\]*,\[ \t\]*(\[Xx\])"                                        chk_nul  proc_idx }
     {"EXT" 3 "^%s\[ \t\]+($::RE_EXPR)"                                                                chk_nul  proc_ext }
     {"IMP" 1 "^%s\[ \t\]*$"                                                                                 chk_nul  proc_imp }
     {"XIM" 3 "^%s\[ \t\]+#\[ \t\]*($::RE_EXPR)\[ \t\]*,\[ \t\]*($::RE_EXPR)"                    chk_nul  proc_xim }
-    {"XXM" 3 "^%s\[ \t\]+#\[ \t\]*($::RE_EXPR)\[ \t\]*,\[ \t\]*($::RE_EXPR)\[ \t\]*,\[ \t\]*X"  chk_nul  proc_xxm }
+    {"XXM" 3 "^%s\[ \t\]+#\[ \t\]*($::RE_EXPR)\[ \t\]*,\[ \t\]*($::RE_EXPR)\[ \t\]*,\[ \t\]*\[Xx\]"  chk_nul  proc_xxm }
 }
 
 # Search order for addressing modes to ensure more complicated formats first
@@ -198,7 +204,7 @@ set ::INST {
 set ::FIXUP_TEXT ""
 
 proc add_fixup {a} {
-    if { $::PASS == 2 } {
+    if { $::PASS == $::LAST_PASS } {
 	set d_a [evaluate_expression $a]
 #	set d_a [value_to_dec $a]
 	set f_a [format "%04X" $d_a]
@@ -221,6 +227,11 @@ proc addlstline {addr type object line} {
 }
     
 proc error {line msg} {
+    
+    dbg "**ERROR***"
+    dbg $line
+    dbg $msg
+
     puts "**ERROR***"
     puts $line
     puts $msg
@@ -248,6 +259,8 @@ proc chk_nul {p1 p2} {
 }
 
 proc chk_dir {p1 p2} {
+    set p1 [evaluate_expression $p1]
+    dbg "chk_dir '$p1'"
     if { $p1 < 256 } {
 	return 1
     }
@@ -273,6 +286,7 @@ proc proc_rel {len p1 p2} {
 }
 
 proc proc_imm {len p1 p2} {
+    dbg "Proc_imm: '$p1'"
     set p1 [evaluate_expression $p1]
     
     switch $len {
@@ -297,6 +311,7 @@ proc proc_idx {len p1 p2} {
 
 # Extended addressing needs fixup for relocatable code
 proc proc_ext {len p1 p2} {
+    dbg "proc_ext '$p1'"
     set p1 [evaluate_expression $p1]
     emitword $p1
 
@@ -360,7 +375,8 @@ proc emitword {w} {
 	append ::HEX_EMITTED "0000"
 	return
     }
-    
+
+    dbg "Emitword:'$w'"
     set fb [format "%02X" [evaluate_expression [expr $w / 256]]]
     append ::EMITTED " $fb"
     set fb [format "%02X" [evaluate_expression [expr $w % 256]]]
@@ -400,8 +416,12 @@ proc sz {a b} {
 #
 # Directives can have expressions as arguments
 #
+# ^xnn     converted to 0xnn
+# ^Cx      converted to ~x
+# ^Adxd    converted to ASCII code of 'x'
+# ^Adxyd   converted to ASCIi code of x and y as two bytes
 
-proc evaluate_expression {exp} {
+proc evaluate_expression_core {exp} {
     # if this is pass 1 then just return zero
     if { $::PASS == 1 } {
 	return 0
@@ -415,16 +435,97 @@ proc evaluate_expression {exp} {
     # Turn the expression into Tcl and evaluate it
     dbg "EVALEXP:exp = '$exp'"
     
+    # Force complement to tilde as it stops label substitution
+    set exp [string map "^C ~" $exp]
+
+    
+    dbg "After map = '$exp'"
+    
     # Turn label names into references to the label variables
     foreach label $::LABELLIST {
-	set exp [string map "$label [set ::LABEL($label)]" $exp]
+	# If it is a local label then we check it's valid and then convert it
+	# to its original form
+	set labellookup $label
+	if { [regexp -- "LOCAL:(\[A-Za-z0-9_\]+):(\[0-9\]+)" $label all last_global number] } {
+	    if { [string compare $last_global $::LAST_GLOBAL_LABEL] == 0 } {
+		# Valid local variable, create local label name
+		dbg "Is valid:($label), last global ($::LAST_GLOBAL_LABEL)"
+		set labellookup $label
+		set label "$number\$"
+		dbg "Becomes '$label'"
+	    } else {
+		# Not valid, skip it
+		dbg "Not valid ($label), last global ($::LAST_GLOBAL_LABEL)"
+		continue
+	    }
+	}
+
+	# Labels are replaced but only if they are correctly delimited, i.e. they
+	# don't have characters next to them. They have to be delimited by something
+	# other than just characters that can be in label names
+
+	dbg "Subst for $label with [set ::LABEL($labellookup)]"
+	if { [string first $label $exp] != -1 } {
+	    dbg "Found2 $label"
+	    set exp "=$exp="
+	    dbg "'$exp'"
+
+	    # If label has '$' in it then we have to escape it
+	    set label [string map {"$" "SSS"} $label]
+	    dbg "Label escaped:'$label'"
+	    
+	    regsub -all "($::LABEL_DELIM)$label\($::LABEL_DELIM)" [string map {"$" "SSS"} $exp] "\\1[set ::LABEL($labellookup)]\\2" exp
+	    dbg "'$exp'"
+	    set exp [string trim $exp "="]
+	}
+	#set exp [string map "$label [set ::LABEL($labellookup)]" $exp]
     }
     dbg "EVALEXP:after labels = '$exp'"
-    
+
+    # Now handle the ASCII character expressions
+    if { [regexp -- "\\^(a|A)(.)(.+)(.)" $exp all code delim1 ascii delim2] } {
+	dbg "code='$code' del1='$delim1' del2='$delim2' ascii='$ascii'"
+	# We have an ascii expression
+	# Get indices of expression
+	if { [regexp -indices -- "\\^(a|A)(.)(.+)(.)" $exp i_all i_code i_delim1 i_ascii i_delim2] } {
+	    # Some checks
+	    dbg "i_all    $i_all"
+	    dbg "i_code   $i_code"
+	    dbg "i_delim1 $i_delim1"
+	    dbg "i_ascii  $i_ascii"
+	    dbg "i_delim2 $i_delim2"
+
+	    
+	    if { $delim1 != $delim2 } {
+		error $original_line "Different delimiters in $code"
+	    }
+
+	    if { [string length $ascii] > 2 } {
+		error $original_line "Too many characters in $code"
+	    }
+
+	    # Convert characters and replace original expression with ASCII codes
+	    set value "0x"
+	    foreach ch [split $ascii ""] {
+		binary scan $ch H2 hex_ch
+		append value $hex_ch
+	    }
+
+	    dbg "ASCII conv: $ascii => $value"
+
+	    dbg "insert $i_all"
+	    # insert into expression
+ 	    set exp [string replace $exp [lindex $i_all 0] [lindex $i_all 1] $value]
+	    dbg "EXP after ^A: '$exp'"
+	}
+    }
+
+
     # Force hex values to correct format
     set exp [string map "\$ 0x ^x 0x ^X 0x" $exp]
 
-    dbg "EVALEXP:hex conv='$exp'"
+    dbg "EVALEXP:after hex conv='$exp'"
+
     dbg "EVALEXP ='[expr $exp]'"
     
     # Evaluate, trap errors
@@ -437,6 +538,14 @@ proc evaluate_expression {exp} {
     return $result
 }
 
+proc evaluate_expression {exp} {
+
+    set result 0x99
+    
+    return [evaluate_expression_core $exp]
+    return $result
+}
+
 
 ################################################################################
 #
@@ -445,7 +554,7 @@ proc evaluate_expression {exp} {
 
 proc dir_org {line original_line} {
     # We set up ::ADDR as specified
-    if { [regexp -- "(.ORG|org)\[ \t\]+(\[A-Za-z0-9$+*/<>\-]+)" $line all dir addr] } {
+    if { [regexp -- "(.ORG|org)\[ \t\]+(\[A-Za-z0-9$+*/<>\^-]+)" $line all dir addr] } {
 	set ::ADDR [evaluate_expression $addr]
 
 	set f_addr    [format "%04X" $::ADDR]
@@ -466,6 +575,8 @@ proc dir_byte {line original_line} {
     dbg "dir_byte:'$line'"
     
     if { [regexp -- "(.BYTE|.byte)\[ \t\]+(.+)" $line all bytedir bytelist] } {
+	set bytelist [string trim $bytelist]
+	
 	dbg "BYTE directive byte list = '$bytelist'"
 	
 	foreach byte [split $bytelist " \t,"] {
@@ -499,7 +610,7 @@ proc dir_word {line original_line} {
     # remove space from line
 
     if { [regexp -- "(.WORD|.word)\[ \t\]+(.+)" $line all worddir wordlist] } {
-	set wordlist [string map {" " ""} $wordlist]
+	set wordlist [string trim $wordlist]
 	dbg "WORD directive word list = '$wordlist'"
 
 	foreach word [split $wordlist " \t,"] {
@@ -542,6 +653,58 @@ proc dir_equ {line original_line} {
     }
 }
 
+proc dir_blkb {line original_line} {
+    if { [regexp -- "(.BLKB|blkb|BLKB|.blkb)\[ \t\]+(\[A-Za-z0-9$\(\)_<>*/+-\]+)" $line all dir value] } {
+	set value [evaluate_expression $value]
+
+	# Make space
+
+	set f_addr    [format "%04X" $::ADDR]	
+	set f_value [format "%04X        " [evaluate_expression $value]]
+	set line [string trim $original_line]
+	addlstline "$f_addr" "(E)" $f_value  $original_line
+
+	incr ::ADDR $value
+	
+	return 1
+    } else {
+	error $line "Bad .BLKB"
+	return 0
+    }
+}
+
+proc dir_ascii {line original_line} {
+    if { [regexp -- "(.ASCII|.ascii)\[ \t\]+\"(\[^\"\]+)\"" $line all dir str] } {
+	dbg "ASCII: '$str'"
+	# First, the string length byte
+	set str_len [string length $str]
+	dbg "ASCII:$str_len"
+	if { $str_len > 255 } {
+	    error $line "String in .ASCII ('$str') too long ($str_len bytes)"
+	    return 0
+	}
+	
+	foreach char [split $str ""] {
+	    
+	    binary scan $char H2 hex_char
+	    
+	    set ::EMITTED ""
+	    emit 0x$hex_char
+	    
+	    set f_addr    [format "%04X" $::ADDR]
+	    set f_emitted [format "%-12s" $::EMITTED]
+	    set line [string trim $original_line]
+	    addlstline $f_addr "(A)" $f_emitted  $original_line
+	    
+	    incr ::ADDR 1
+	}
+	return 1
+    } else {
+	error $line "Bad .ASCII"
+	return 0
+    }
+}
+
 proc dir_ascic {line original_line} {
     if { [regexp -- "(.ASCIC|.ascic)\[ \t\]+\"(\[^\"\]+)\"" $line all dir str] } {
 	dbg "ASCIC: '$str'"
@@ -569,7 +732,7 @@ proc dir_ascic {line original_line} {
 	    binary scan $char H2 hex_char
 	    
 	    set ::EMITTED ""
-	    emit $hex_char
+	    emit 0x$hex_char
 	    
 	    set f_addr    [format "%04X" $::ADDR]
 	    set f_emitted [format "%-12s" $::EMITTED]
@@ -581,6 +744,53 @@ proc dir_ascic {line original_line} {
 	return 1
     } else {
 	error $line "Bad .ASCIC"
+	return 0
+    }
+}
+
+
+proc dir_asciz {line original_line} {
+    if { [regexp -- "(.ASCIZ|.asciz)\[ \t\]+\"(\[^\"\]+)\"" $line all dir str] } {
+	dbg "ASCIZ: '$str'"
+	# First, the string length byte
+	set str_len [string length $str]
+	dbg "ASCIZ:$str_len"
+	if { $str_len > 255 } {
+	    error $line "String in .ASCIZ ('$str') too long ($str_len bytes)"
+	    return 0
+	}
+	
+	
+	foreach char [split $str ""] {
+	    
+	    binary scan $char H2 hex_char
+	    
+	    set ::EMITTED ""
+	    emit 0x$hex_char
+	    
+	    set f_addr    [format "%04X" $::ADDR]
+	    set f_emitted [format "%-12s" $::EMITTED]
+	    set line [string trim $original_line]
+	    addlstline $f_addr "(A)" $f_emitted  $original_line
+	    
+	    incr ::ADDR 1
+	}
+
+	# Emit the nul terminator
+	set ::EMITTED ""
+	emit 0
+	
+	dbg "ASCIZ: '$::EMITTED'"
+	set f_addr    [format "%04X" $::ADDR]
+	set f_emitted [format "%-12s" $::EMITTED]
+	set line [string trim $original_line]
+	addlstline $f_addr "(AL)" $f_emitted  $original_line
+
+	incr ::ADDR 1
+
+	return 1
+    } else {
+	error $line "Bad .ASCIZ"
 	return 0
     }
 }
@@ -672,10 +882,30 @@ proc assemble_file {filename} {
 	}
 
 	# Handle creating labels
-	if { [regexp -- "(\[A-Za-z0-9_\]+):(.*)" $line all label line] } {
-	    # We have a label
-	    create_label $label $::ADDR
+	# We handle local labels by storing them in a different form.
+	# If <LG> is the last global label seen
+	# they are transformed from n$ into 'LOCAL_<LG>_n' 
+	if { [regexp -- "^\[ \t\]*(\[A-Za-z0-9_$\]+):(.*)" $line all label line] } {
+	    # We have a label it could be a local label
+	    if { [regexp -- "(\[0-9\]+)\[$\]" $label all number] } {
+		dbg "Local label creation: $label
+"
+		# Local label, make name globally unique
+		set label "LOCAL:$::LAST_GLOBAL_LABEL\:$number"
+		dbg "Renamed as '$label'"
+	    } else {
+		dbg "Global label now $label"
+		set ::LAST_GLOBAL_LABEL $label
+	    }
 
+	    # Labels cannot be numbers
+	    if { [regexp -- "^\[0-9\]+$" $label] } {
+		error $line "Bad label ($label) cannot be number"
+		
+	    }
+	    
+	    create_label $label $::ADDR
+	    dbg "Created '$label' = '$::ADDR'"
 	    if { [string length [string trim $line]] == 0 } {
 		addlstline $::ADDR "(L)" "" "$label:"
 	    }
@@ -840,12 +1070,14 @@ proc assemble_file {filename} {
 	
 	foreach inst_rec $::INST {
 	    dbg "  inst_rec = $inst_rec"
-	    
 	    set mne      [lindex $inst_rec 0]
+	    set low_mne [string tolower $mne]
+	    set insensitive_mne "($mne|$low_mne)"
+
 
 	    # If the line doesn't have the mnemonic in it then we don't bother
 	    # processing further for this instruction
-	    if { [string first $mne $line] == -1 } {
+	    if { [string first $mne [string toupper $line]] == -1 } {
 		continue
 	    }
 	    
@@ -871,14 +1103,17 @@ proc assemble_file {filename} {
 		}
 		
 		# Put the mnemonic in the regexp
-		set def_regexp [format $addrmode_regexp $mne]
+		set def_regexp [format $addrmode_regexp $insensitive_mne]
 		dbg "DEF REGEXP:'$def_regexp'"
 		
 		# See if we have a match
 		set p1 0
 		set p2 0
 		
-		if { [regexp -- $def_regexp $line all p1 p2] } {
+		if { [regexp -- $def_regexp $line all dummy p1 p2] } {
+		    dbg "Line='$line'"
+		    dbg "MATCH p1='$p1' p2='$p2'"
+		    
 		    # No need to convert parameters to instruction as that is done by the
 		    # addressing mode handlers
 #		    set p1 [value_to_dec $p1]
@@ -887,8 +1122,10 @@ proc assemble_file {filename} {
 		    # The regexp has matched, but does the addressing mode
 		    # check procedure say this is valid?
 		    if { [$addrmode_chk_proc $p1 $p2] } {
+			dbg "Check OK"
 		    } else {
 			# The check procedure doesn't like this, keep checking
+			dbg "Check not OK"
 			incr addrmode_index 1
 			continue
 		    }
@@ -913,7 +1150,7 @@ proc assemble_file {filename} {
 			
 			emit "\$$f_opcode"
 			
-			if { $::PASS == 2 } {
+			if { $::PASS != 1 } {
 			    # Convert parameters to values
 			    $addrmode_proc_proc $inst_length $p1 $p2
 			} else {
@@ -944,12 +1181,15 @@ proc assemble_file {filename} {
 		break;
 	    }
 	}
-	if { $::PASS == 2 } {
+	if { $::PASS == $::LAST_PASS } {
 	    if { !$found } {
 		error $line "Instruction not found"
 	    }
 	}
     }
+    set label_sum [calc_label_sum]
+    
+    addlstline "" "(SUM)" "Label Sum: [format "$%04X" $label_sum]" ""
 }
 
 ################################################################################
@@ -1007,12 +1247,24 @@ proc write_hex_file {filename} {
 
 ################################################################################
 
+proc calc_label_sum {} {
+
+    set label_sum 0
+    
+    foreach label $::LABELLIST {
+	set label_value [format "$%04X" $::LABEL($label)]
+	incr label_sum [evaluate_expression $label_value]
+    }
+
+    return $label_sum
+}
+
 proc write_lst_file {filename} {
 
     set f [open $filename w]
 
     puts $f $::LIST_TEXT
-    
+
     foreach label $::LABELLIST {
 	set label_value [format "$%04X" $::LABEL($label)]
 	set f_name [format "%20s" $label]
@@ -1053,16 +1305,19 @@ set ::DBF [open $::DBG_FILENAME w]
 # two passes
 
 
-set ::PASS 1
+for { set ::PASS 1 } {$::PASS <= $::NUMBER_OF_PASSES} {incr ::PASS 1} {
+    
+    set ::HEX_EMITTED ""    
+    set ::LAST_GLOBAL_LABEL "NONE"
+    
+    clear_macros
+    assemble_file $asm_filename
 
-clear_macros
-assemble_file $asm_filename
-
-set ::PASS 2
-set ::HEX_EMITTED ""
-
-clear_macros
-assemble_file $asm_filename
+    # Save the intermediate code for debug
+    set f [open EMITTED_$::PASS.hex w]
+    puts $f $::HEX_EMITTED
+    close $f
+}
 
 write_lst_file $lst_filename
 

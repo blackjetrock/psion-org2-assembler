@@ -7,7 +7,7 @@
 ; ============================
 ; Zero page variable declarations
 
-$org	equ	zpg_free
+;; $org	equ	zpg_free
 
 nbit	equ	zpg_free
 clen	equ	nbit+1
@@ -32,14 +32,14 @@ x3	equ	x2+2
 
 	;; .list
 
-	.asect
+	;; .asect
 
-	org	^X2000		; Make sure code is not in zero page.
+	.org	$0000		; Make sure code is not in zero page.
 
 				; Header for BLDPACK
-	.ascii	"ORG"
-	.word	%prgend-%xx
-	.byte	^xFF
+	;; .ascii	"ORG"
+	;; .word	%prgend-%xx
+	;; .byte	^xFF
 
 xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
 	.byte	^x04		; 32K PACK
@@ -47,7 +47,8 @@ xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
 	.byte	10		; DEVICE NUMBER
 	.byte	0		; DEVICE VERSION NUMBER
 	.byte	10		; PRIORITY NUMBER
-	.word	%root-%xx-2	; ROOT OVERLAY ADDRESS
+	;; .word	%root-%xx-2	; ROOT OVERLAY ADDRESS
+	.word	start
 	.byte	^Xff		; N/C
 	.byte	^Xff		; N/C
 	.byte	^X09
@@ -56,11 +57,13 @@ xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
 	.byte	^X90
 	.byte	^x02
 	.byte	^x80
-	.word	%prgend-%root+2 ; size of code
+	.word	prgend-root+2 ; size of code
 
 ;==========================================================================
-	.over	root
-
+	
+	.org $0000
+root:	
+start:	
 codelen:
 	.word	0000
 bdevice:
@@ -79,25 +82,25 @@ ditem:
 	.ascic	"DICT"
 	.word	dicmain
 install:
-	ldx	#ditem
-	lda	b,0,x
-	add	b,#3
-	clr	a
-	std	utw_s0:
-	ldd	#rtb_bl
+	LDX	#ditem
+	LDAB 0,X
+	ADDB #3
+	CLRA
+	STD	utw_s0
+	LDD	#rtb_bl
 	os	ut$cpyb
-	lda	b,#^XFF
+	LDAB #^XFF
 	os	tl$addi
-	rts
+	RTS
 remove:
-	lda	a,^Xffe9
-	cmp	a,#^X22
+	ldaa ^Xffe9
+	cmpa #^X22
 	bhi	1$
 
 	ldx	#2$
 	pshx
 	ldx	^X835e
-	lda	b,#^X118-^XFD
+	ldab #^X118-^XFD
 	abx
 	pshx
 	ldx	#ditem
@@ -111,22 +114,22 @@ lang:
 	sec
 	rts
 dicmain:
-	clr	a
-	lda	b,bdevice
+	clra
+	ldab    bdevice
 	os	pk$setp
 	bcc	1$
 2$:
 	os	er$mess
 	rts
 1$:
-	ldx	#%prgend-%xx
-	clr	b
+	ldx	#prgend-xx
+	clrb
 	os	pk$sadd
 	ldx	#decode
 	ldd	#8
 	os	pk$read			; read in 8 bytes
 	bcs	2$
-    	ldd	#%prgend+10-%xx
+    	ldd	#prgend+10-xx
 	std	btext
 	addd	decode
 	std	decode
@@ -138,7 +141,7 @@ dicmain:
 	std	ends
 
 	ldx	decode
-	clr	b
+	clrb
 	os	pk$sadd
 	ldx	#decbuf
 	ldd	#60
@@ -149,75 +152,76 @@ rst:
 	.byte	12
 	.ascii	"DICT:"
 	.byte	0
-    	clr	a
-	sta	a,clen:
-	sta	a,flag:
-	sta	a,vchar:
+    	clra
+	staa clen
+	staa flag
+	staa vchar
+	
 ; MAIN LOOP
 dicloop:
-	lda	a,clen:
-	add	a,#5
-	lda	b,dpb_cust:
-	ora	b,#CURS_ON
+	ldaa clen
+	adda #5
+	ldab dpb_cust
+	orab #CURS_ON
 	os	dp$stat
 	os	kb$getk			; get a character
-	sta	b,char:			; save it
-	lda	a,flag:			; set if bottom line has error mess
+	stab  char			; save it
+	ldaa  flag			; set if bottom line has error mess
 	beq	keytst
-	sta	a,vchar:		; no valid word yet
-	ldx	dpb_cpos:
-	lda	a,#D_CB			; clear the bottom line
+	staa vchar		; no valid word yet
+	ldx	dpb_cpos
+	ldaa #D_CB			; clear the bottom line
 	os	dp$emit
 	xgdx
 	os	dp$stat
-	clr	a
-	sta	a,flag:
-	lda	b,char:
+	clra
+	staa flag
+	ldab char
 keytst:
-	cmp	b,#K_AC
+	cmpb    #K_AC
 	bne	noac
-	ldd	dpb_cpos:
-	cmp	a,#5
+	ldd	dpb_cpos
+	cmpa    #5
 	bne	rst			; clear the display
-	and	b,#^C<CURS_ON>		; else leave
+	andb #^CCURS_ON		; else leave
 	os	dp$stat
 	rts
 
 ; Set carry if not alpha
 isalpha:
-	cmp	b,#^a/A/
+	cmpb #^a/A/
 	bcc	2$
 1$:
 	sec
 	rts
 2$:
-	cmp	b,#^a/[/
+	cmpb #^a/[/
 	bcs	10$
-	cmp	b,#^a/a/
+	cmpb #^a/a/
 	bcs	1$
-	cmp	b,#^a/{/
+	cmpb #^a/{/
 	bcc	1$
 10$:
-	ora	b,#^X20
+	orab #^X20
 	clc
 	rts
 ; Not ALL CLEAR
 noac:
 	jsr	isalpha
 	bcc	is_alph
-	cmp	b,#K_DEL
+	cmpb #K_DEL
 	bne	11$
 	jmp	dodel
 11$:
-	cmp	b,#K_UP
+	cmpb #K_UP
 	bne	12$
 	jmp	doup
 12$:
-	cmp	b,#K_DOWN
+	cmpb #K_DOWN
 	bne	13$
 	jmp	dodown
 13$:
-	cmp	b,#K_EXE
+	cmpb #K_EXE
 	bne	ch_err
 	jmp	doexe
 ch_err:
@@ -227,54 +231,54 @@ xdicloop:
 
 ; Alpha has been received
 is_alph:
-	lda	a,clen:
-	cmp	a,#10
+	ldaa clen
+	cmpa #10
 	bcc	ch_err
-	clr	a
-	sta	a,vchar:
-	lda	a,char:
+	clra
+	staa vchar
+	ldaa char
 	os	dp$emit
 	tba
 	ldx	#tbuf
-	lda	b,clen:			; save the character in the buffer
+	ldab clen			; save the character in the buffer
 	abx
-	sta	a,0,x
-	inc	b
-	sta	b,clen:
-	cmp	b,#3
+	staa 0,x
+	incb
+	stab clen
+	cmpb #3
 	bcs	xdicloop
 getst:
 	jsr	getfst			; get/reget first word
 	bra	xdicloop
 ;
 dodel:
-	lda	a,vchar:
+	ldaa vchar
 	beq	10$
-	dec	a
-	sta	a,vchar:
+	deca
+	staa vchar
 	os	ut$disp
 	.byte	32,8,0
-	ldx	dpb_cpos:
-	lda	a,#D_CB			; clear the bottom line
+	ldx	dpb_cpos
+	ldaa #D_CB			; clear the bottom line
 	os	dp$emit
 	xgdx
 	os	dp$stat
 10$:
-	lda	b,clen:
+	ldab clen
 	bne	1$
 	os	bz$bell
 	jmp	dicloop
 1$:
-	dec	b
-	sta	b,clen:
+	decb
+	stab clen
 	bsr	delc
-	lda	b,clen:
-	cmp	b,#3
+	ldab clen
+	cmpb #3
 	bcs	2$
 	jmp	getst
 2$:
-	ldx	dpb_cpos:
-	lda	a,#D_CB			; clear the bottom line
+	ldx	dpb_cpos
+	ldaa #D_CB			; clear the bottom line
 	os	dp$emit
 	xgdx
 	os	dp$stat
@@ -288,10 +292,10 @@ delc:
 ; Get next word if possible
 dodown:
 doexe:
-	lda	a,vchar:
+	ldaa vchar
 	bne	godic
-	lda	a,clen:
-	cmp	a,#3
+	ldaa clen
+	cmpa #3
 	bcs	godic
 	jsr	get_nwrd
 	bcs	getst
@@ -303,10 +307,10 @@ godic:
 
 ; Get previous word
 doup:
-	lda	a,vchar:
+	ldaa vchar
 	bne	godic			; No word displayed
-	lda	a,clen:
-	cmp	a,#3
+	ldaa clen
+	cmpa #3
 	bcs	godic			; word too short
 	bsr	getprv
 	bra	godic
@@ -341,31 +345,31 @@ getfst:
 dall:
 	bcc	allok
 xerr:
-	tst	b
+	tstb
 	beq	dnfd
 derror:
-	psh	b			; general error encountered
+	pshb			; general error encountered
 	os	dp$save
-	pul	b
+	pulb
 	os	er$mess
 	os	dp$rest
 	rts
 
 dnfd:
-	ldx	dpb_cpos:		; word not found
+	ldx	dpb_cpos		; word not found
 	pshx
 	os	ut$disp
 	.byte	D_BL,D_CB
 	.asciz	"NOT FOUND"
-	lda	a,#1
-	sta	a,flag
+	ldaa #1
+	staa flag
 	pulx
 	xgdx
-	dec	a
-	psh	a
-	sub	a,#5
-	sta	a,clen:
-	pul	a
+	deca
+	psha
+	suba #5
+	staa clen
+	pula
 	os	dp$stat
 	rts
 allok:
@@ -373,118 +377,118 @@ allok:
 
 ; Get the first word to match the current word
 firstw:
-	ldx	dpb_cpos:
-	lda	a,#D_CB			; clear the bottom line
+	ldx	dpb_cpos
+	ldaa #D_CB			; clear the bottom line
 	os	dp$emit
 	xgdx
 	os	dp$stat
-	clr	a
-	sta	a,blen:
-	sta	a,ctextx:
-	lda	b,tbuf			; first letter
-	sta	b,buf
-	and	b,#^x1f
-    	dec	b
-	asl	b
-	asl	b
+	clra
+	staa blen
+	staa ctextx
+	ldab tbuf			; first letter
+	stab buf
+	andb #^x1f
+    	decb
+	aslb
+	aslb
 	ldx	bind1
 	abx
-	clr	b
+	clrb
 	os	pk$sadd
 	os	pk$rwrd
-	psh	b			; ??? swap bytes
+	pshb			; ??? swap bytes
 	tab
-	pul	a
-	psh	b
-	and	b,#^x07
-	sta	b,cind2x:
-	pul	b
+	pula
+	pshb
+	andb #^x07
+	stab cind2x
+	pulb
 	lsrd
 	lsrd
 	lsrd
-	std	cind2y:
+	std	cind2y
 	os	pk$rwrd
-	psh	b
+	pshb
 	tab
-	pul	a
-	std	ctexty:
+	pula
+	std	ctexty
 	os	pk$rwrd
 	os	pk$rwrd
-	psh	b
+	pshb
 	tab
-	pul	a
+	pula
 	std	etexty
 
-	ldd	cind2y:
+	ldd	cind2y
  	addd	bind2			; add the base
 	xgdx
-	lda	b,cind2x:
+	ldab cind2x
 	jsr	xbfill
 	bsr	get_five
-	sta	b,buf+1
+	stab buf+1
 	bsr	get_five
-	sta	b,buf+2
+	stab buf+2
 	bsr	get_ten
 3$:
-	lda	b,buf+1
-	cmp	b,tbuf+1
+	ldab buf+1
+	cmpb tbuf+1
 	bne	1$
-	lda	b,buf+2
-	cmp	b,tbuf+2
+	ldab buf+2
+	cmpb tbuf+2
 	beq	indxfnd
 1$:
 	bsr	get_five
-	cmp	b,#^a/{/
+	cmpb #^a/{/
 	bne	2$
 	bsr	get_five
-	sta	b,buf+1
+	stab buf+1
 	bsr	get_five
 2$:
-	sta	b,buf+2
+	stab buf+2
 	bsr	get_ten
-	addd	ctexty:
-	std	ctexty:
-	cmp	a,etexty
+	addd	ctexty
+	std	ctexty
+	cmpa etexty
 	bcs	3$
-	cmp	b,etexty+1
+	cmpb etexty+1
 	beq	notfnd
 	bcs	3$
 notfnd:	
-	clr	b
+	clrb
 	sec
 	rts
 indxfnd:
-	ldd	ctexty:
+	ldd	ctexty
     	addd	btext
 	xgdx
-	lda	b,ctextx:
+	ldab ctextx
 	jsr	xbfill
 1$:
 	bsr	get_nwrd
 	bcs	notfnd
 	jsr	comp				; compare with target word
 	bne	1$
-	clr	a
-	clr	b
+	clra
+	clrb
 	std	wrd_c				; word counter
 	clc
 	rts
 
 get_five:
-	lda	b,#5
+	ldab #5
 	jsr	rdbits
  	tab
-	add	b,#^x60
+	addb #^x60
 	rts
 	
 get_ten:
-	lda	b,#2
+	ldab #2
 	jsr	rdbits
-	psh	a
-	lda	b,#8
+	psha
+	ldab #8
 	jsr	rdbits
 	tab
-	pul	a
+	pula
 x_rts:
 	clc				; clear carry
 	rts
@@ -494,12 +498,12 @@ get_nwrd:
 	ldx	wrd_c
 	inx
 	stx	wrd_c
-	clr	a
-	sta	a,endflg:
-	sta	a,ebufc
-	lda	b,blen:
-	add	b,#3			; add base
-	sta	b,lcnt:
+	clra
+	staa endflg
+	staa ebufc
+	ldab blen
+	addb #3			; add base
+	stab lcnt
 4$:
 	tst	blen
 	bpl	5$
@@ -507,41 +511,41 @@ get_nwrd:
 	rts
 5$:
 	bsr	xget_huff
-	cmp	b,#^x60
+	cmpb #^x60
 	beq	x_rts			; word ended
-	cmp	b,#^a/|/
+	cmpb #^a/|/
 	bne	2$
 	inc	blen			; extra repeated character
 	bra	5$
 2$:
-	cmp	b,#^a/{/
+	cmpb #^a/{/
 	bne	3$
 	dec	blen			; one less repeated character
 	bra	5$
 3$:
 	tba
 	ldx	#buf-1
-	lda	b,lcnt:
-	inc	b
-	sta	b,lcnt:
+	ldab lcnt
+	incb
+	stab lcnt
 	abx
-	sta	a,0,x
+	staa 0,x
 	bra	4$
 
 xget_huff:
-	lda	a,endflg:
+	ldaa endflg
 	beq	1$
 3$:
-	lda	b,ebufc
-	inc	b
-	sta	b,ebufc
+	ldab ebufc
+	incb
+	stab ebufc
 	ldx	#ebuf-1
 	abx
-	lda	b,0,x
+	ldab 0,x
 	rts
 1$:
 	bsr	get_huff
-	cmp	b,#^a/}/		; ending flag
+	cmpb #^a/}/		; ending flag
 	bne	2$
 	bsr	get_end
 	bra	3$
@@ -552,125 +556,125 @@ xget_huff:
 get_huff:
 	ldx	#decbuf
 1$:
-	lda	a,0,x
-	lda	b,1,x
-	psh	b
-	psh	a
+	ldaa 0,x
+	ldab 1,x
+	pshb
+	psha
 	pshx
-	lda	b,#1
+	ldab #1
 	jsr	rdbits
 	pulx
-	pul	a
-	pul	b
+	pula
+	pulb
 	bne	2$
 	tab
 2$:
-	tst	b
+	tstb
 	bmi	3$
 	abx
 	bra	1$
 3$:
-	and	b,#^x7f
+	andb #^x7f
 	rts
 
 ; Get the word ending
 get_end:
-	lda	b,#^x60
-	sta	b,ebuf			; save eow for no ending case
-	lda	b,#2
+	ldab #^x60
+	stab ebuf			; save eow for no ending case
+	ldab #2
 	jsr	rdbits
-	cmp	a,#3
+	cmpa #3
 	beq	1$
-	psh	a
-	lda	b,#8
+	psha
+	ldab #8
 	jsr	rdbits
 	tab
-	pul	a			; now have a 10 bit ending number
+	pula			; now have a 10 bit ending number
 	bsr	getend2
 1$:
-	lda	b,#1
-	sta	b,endflg:
+	ldab #1
+	stab endflg
 	rts
 ; Get the ending into memory
 getend2:
-	sta	b,x2:			; multiply by 2.5
-	std	x1:
+	stab x2			; multiply by 2.5
+	std	x1
 	asld
 	asld
-	addd	x1:
+	addd	x1
 	lsrd
 	addd	ends
 	xgdx
-	clr	b
+	clrb
 	os	pk$sadd
 	ldx	#endbuf
 	ldd	#4
 	os	pk$read
 	clr	x1
-	lda	a,endbuf
-	lda	b,x2:
-	and	b,#1
+	ldaa endbuf
+	ldab x2
+	andb #1
 	beq	2$
-	lda	b,#4
-	sta	b,x1:
-	asl	a
-	asl	a
-	asl	a
-	asl	a
+	ldab #4
+	stab x1
+	asla
+	asla
+	asla
+	asla
 2$:
-	sta	a,x3+1:
+	staa x3+1
 	ldx	#endbuf
-	stx	x2:
-	clr	b
+	stx	x2
+	clrb
 4$:
-	psh	b
+	pshb
 	bsr	xgetend
-	pul	b
-	inc	b
-	ora	a,#^x60
+	pulb
+	incb
+	oraa #^x60
 	ldx	#ebuf-1
 	abx
-	sta	a,0,x
-	cmp	b,#4
+	staa 0,x
+	cmpb #4
 	bne	4$
 3$:
-	lda	a,#^x60
-	sta	a,1,x	
+	ldaa #^x60
+	staa 1,x	
 	rts
 ; get the next character of the ending
 xgetend:
-	clr	a
-	sta	a,x3:			; cwrd
-	lda	b,#5
+	clra
+	staa x3			; cwrd
+	ldab #5
 2$:
-	psh	b
-	lda	b,x1:			; bits
-	cmp	b,#8
+	pshb
+	ldab x1			; bits
+	cmpb #8
 	bne	1$
-	ldx	x2:
+	ldx	x2
 	inx
-	lda	b,0,x
-	stx	x2:
-	sta	b,x3+1:
-	clr	b
+	ldab 0,x
+	stx	x2
+	stab x3+1
+	clrb
 1$:
-	inc	b
-	sta	b,x1:
-	ldd	x3:			; cwrd
+	incb
+	stab x1
+	ldd	x3			; cwrd
 	asld
-	std	x3:
-	pul	b
-	dec	b
+	std	x3
+	pulb
+	decb
 	bne	2$
-	lda	a,x3:
+	ldaa x3
 	rts
 
 ; Display the word
 disp:
-	ldx	dpb_cpos:
+	ldx	dpb_cpos
 	pshx
-	lda	b,lcnt:
-    	cmp	b,#17
+	ldab lcnt
+    	cmpb #17
 	bcc	1$
 	ldx	#buf
 	abx
@@ -680,9 +684,9 @@ disp:
 	bra	2$
 1$:
 	ldd	#4
-	std	utw_s0:
-	inc	a			; bottom line
-	lda	b,lcnt:
+	std	utw_s0
+	inca			; bottom line
+	ldab lcnt
 	ldx	#buf
 	os	dp$view
 	os	kb$uget			; return key to buffer
@@ -693,47 +697,47 @@ disp:
 	rts
 ;
 xbfill:
-	sta	b,nbit:
+	stab nbit
 	pshx
 	xgdx
 	addd	#^x100
-	std	cpos:
+	std	cpos
 	pulx
-	clr	b
+	clrb
 	os	pk$sadd
 	ldx	#loadt
-	stx	nbyt:
+	stx	nbyt
 	ldd	#^x100
 	os	pk$read
-	ldx	nbyt:
-	lda	a,0,x
-    	lda	b,nbit:
+	ldx	nbyt
+	ldaa 0,x
+    	ldab nbit
 	inx
-	stx	nbyt:
+	stx	nbyt
 2$:
-	dec	b
+	decb
 	bmi	1$
-	asl	a
+	asla
 	bra	2$
 1$:
-	sta	a,cwrd+1:
- 	lda	b,#8
-    	sub	b,nbit:
-    	sta	b,nbit:
+	staa cwrd+1
+ 	ldab #8
+    	subb nbit
+    	stab nbit
 	rts
 
 
 bfill:
-	ldx	cpos:
+	ldx	cpos
 	pshx
 	xgdx
 	addd	#^x100
-	std	cpos:
+	std	cpos
 	pulx
-	clr	b
+	clrb
 	os	pk$sadd
 	ldx	#loadt
-	stx	nbyt:
+	stx	nbyt
 	ldd	#^x100
 	os	pk$read
 	rts
@@ -741,59 +745,60 @@ bfill:
 
 ; Get B bits in B reg
 rdbits:
-	clr	a
-	sta	a,cwrd:
+	clra
+	staa cwrd
 rloop:
-	psh	b
-	lda	b,nbit:
+	pshb
+	ldab nbit
 	bne	2$
-	ldx	nbyt:
+	ldx	nbyt
 	cpx	#loade
 	bcs	1$
 	bsr	bfill
-	ldx	nbyt:
+	ldx	nbyt
 1$:
-	lda	b,#8
-	lda	a,0,x
+	ldab #8
+	ldaa 0,x
 	inx
-	stx	nbyt:
-	sta	a,cwrd+1:
+	stx	nbyt
+	staa cwrd+1
 2$:
-	dec	b
-	sta	b,nbit:
-	ldd	cwrd:
+	decb
+	stab nbit
+	ldd	cwrd
 	asld
-	std	cwrd:
-	pul	b
-	dec	b
+	std	cwrd
+	pulb
+	decb
 	bne	rloop
-	lda	a,cwrd:
+	ldaa cwrd
 	rts
 
 ; compares the existing with the target
 comp:
-	lda	a,clen:
-	sub	a,#2
+	ldaa clen
+	suba #2
 	ldx	#buf+3
-	stx	x1:
+	stx	x1
 	ldx	#tbuf+3
-	stx	x2:
+	stx	x2
 2$:
-	dec	a
+	deca
 	beq	1$			; match
-	ldx	x1:
-	lda	b,0,x
+	ldx	x1
+	ldab 0,x
 	inx
-	stx	x1:
-	ldx	x2:
-	cmp	b,0,x
+	stx	x1
+	ldx	x2
+	cmpb 0,x
 	bne	1$
 	inx
-	stx	x2:
+	stx	x2
 	bra	2$
 1$:
 	rts
 
+	
 ;
 ebufc:	.byte	0
 btext:	.word	0
@@ -815,8 +820,7 @@ ebuf:	.blkb	5
 loadt:	.blkb	256
 loade:
 ;
-	.eover
-	.over	prgend
-	.eover
-	.end
-
+codeend:
+prgend:	
+	
+
