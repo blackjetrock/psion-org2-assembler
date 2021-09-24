@@ -34,7 +34,7 @@ x3	equ	x2+2
 
 	;; .asect
 
-	.org	$0000		; Make sure code is not in zero page.
+	.org	$2000		; Make sure code is not in zero page.
 
 				; Header for BLDPACK
 	;; .ascii	"ORG"
@@ -47,8 +47,8 @@ xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
 	.byte	10		; DEVICE NUMBER
 	.byte	0		; DEVICE VERSION NUMBER
 	.byte	10		; PRIORITY NUMBER
-	;; .word	%root-%xx-2	; ROOT OVERLAY ADDRESS
-	.word	start
+        .word	root-xx-2	; ROOT OVERLAY ADDRESS
+	;; .word	start		;
 	.byte	^Xff		; N/C
 	.byte	^Xff		; N/C
 	.byte	^X09
@@ -61,7 +61,6 @@ xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
 
 ;==========================================================================
 	
-	.org $0000
 root:	
 start:	
 codelen:

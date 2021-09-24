@@ -12,8 +12,13 @@
 #        object code generation
 
 set ::PASS 0
-set ::NUMBER_OF_PASSES 8
+set ::NUMBER_OF_PASSES 4
 set ::LAST_PASS         [expr $::NUMBER_OF_PASSES]
+
+set ::EMBED_FLAG   0
+set ::EMBED_COMMENT_START "// ASSEMBLER_EMBEDDED_CODE_START"
+set ::EMBED_COMMENT_END   "// ASSEMBLER_EMBEDDED_CODE_END"
+
 
 set ::LIST_TEXT    ""
 set ::LABELLIST    ""
@@ -277,7 +282,9 @@ proc chk_dir {p1 p2} {
 proc proc_rel {len p1 p2} {
     set p1 [evaluate_expression $p1]
 
-    set r [expr $p1 - $::ADDR]
+    # Note the 2 is actually the instruction length, but as all instructions
+    # using REl addr mode are branches that is always 2
+    set r [expr ($p1 - $::ADDR - 2)]
 
     # Convert to byte
     set r [expr $r & 0xff]
@@ -315,8 +322,9 @@ proc proc_ext {len p1 p2} {
     set p1 [evaluate_expression $p1]
     emitword $p1
 
-    # Fixup address is address of instruction to be fixed
-    add_fixup $::ADDR
+    # Fixup address is address of address to be fixed, ::ADDR is currently
+    # pointing at opcode so add 1
+    add_fixup [expr $::ADDR + 1]
 }
 
 proc proc_imp {len p1 p2} {
@@ -362,7 +370,7 @@ set ::HEX_EMITTED ""
 
 proc emit {b} {
     #    set fb [format "%02X" [value_to_dec $b]]
-    set fb [format "%02X" [evaluate_expression $b]]
+    set fb [format "%02X" [expr [evaluate_expression $b] & 0xFF]]
 
     set ::EMITTED_ADDR $::ADDR
     append ::EMITTED     " $fb"
@@ -379,8 +387,10 @@ proc emitword {w} {
     dbg "Emitword:'$w'"
     set fb [format "%02X" [evaluate_expression [expr $w / 256]]]
     append ::EMITTED " $fb"
+    append ::HEX_EMITTED "$fb"
     set fb [format "%02X" [evaluate_expression [expr $w % 256]]]
     append ::EMITTED " $fb"
+    append ::HEX_EMITTED "$fb"
 }
 
 
@@ -455,7 +465,7 @@ proc evaluate_expression_core {exp} {
 		dbg "Becomes '$label'"
 	    } else {
 		# Not valid, skip it
-		dbg "Not valid ($label), last global ($::LAST_GLOBAL_LABEL)"
+		# dbg "Not valid ($label), last global ($::LAST_GLOBAL_LABEL)"
 		continue
 	    }
 	}
@@ -464,7 +474,7 @@ proc evaluate_expression_core {exp} {
 	# don't have characters next to them. They have to be delimited by something
 	# other than just characters that can be in label names
 
-	dbg "Subst for $label with [set ::LABEL($labellookup)]"
+#	dbg "Subst for $label with [set ::LABEL($labellookup)]"
 	if { [string first $label $exp] != -1 } {
 	    dbg "Found2 $label"
 	    set exp "=$exp="
@@ -839,7 +849,6 @@ proc next_line {} {
 
 proc assemble_file {filename} {
 
-    puts ""
     puts "Assembling $filename  Pass $::PASS"
 
     addlst "Assembling $filename  Pass $::PASS"
@@ -907,7 +916,9 @@ proc assemble_file {filename} {
 	    create_label $label $::ADDR
 	    dbg "Created '$label' = '$::ADDR'"
 	    if { [string length [string trim $line]] == 0 } {
-		addlstline $::ADDR "(L)" "" "$label:"
+		set f_addr    [format "%04X" $::ADDR]
+
+		addlstline $f_addr "(L)" "" "$label:"
 	    }
 	}
 
@@ -1073,7 +1084,6 @@ proc assemble_file {filename} {
 	    set mne      [lindex $inst_rec 0]
 	    set low_mne [string tolower $mne]
 	    set insensitive_mne "($mne|$low_mne)"
-
 
 	    # If the line doesn't have the mnemonic in it then we don't bother
 	    # processing further for this instruction
@@ -1283,18 +1293,49 @@ proc write_lst_file {filename} {
 #
 ################################################################################
 
+# Sign on
+puts ""
+puts "Psion Organiser 6303 Assembler"
+puts ""
+
 # First place to look for include files is the location of the assembler
 set asm_dir [file dirname $argv0]
 
 lappend ::INCLUDEDIR_LIST "."
 lappend ::INCLUDEDIR_LIST $asm_dir
 
-set asm_filename [lindex $argv 0]
-set lst_filename [string map {.asm .lst} $asm_filename]
-set hex_filename [string map {.asm .hex} $asm_filename]
-set mac_filename [string map {.asm .mac} $asm_filename]
 
-set ::DBG_FILENAME [string map {.asm .dbg} $asm_filename]
+set arg_i 0
+
+while { $arg_i < [llength $argv]} {
+    set thisarg [lindex $argv $arg_i]
+    
+    switch [lindex $argv $arg_i] {
+	-f {
+	    incr arg_i 1
+	    set asm_filename [lindex $argv $arg_i]
+	    
+	    puts "File: $asm_filename"
+	    set lst_filename [string map {.asm .lst} $asm_filename]
+	    set hex_filename [string map {.asm .hex} $asm_filename]
+	    set mac_filename [string map {.asm .mac} $asm_filename]
+	    
+	    set ::DBG_FILENAME [string map {.asm .dbg} $asm_filename]
+	}
+
+	# If specified then the hex dta is embedded into a C file using
+	# marker comments to specify where
+	--embed {
+	    set ::EMBED_FLAG 1
+	    incr arg_i 1
+	    set ::EMBED_FILENAME [lindex $argv $arg_i]
+	    puts "Embed file:$::EMBED_FILENAME"
+	}
+    }
+    
+    incr arg_i 1
+}
+
 
 set ::DBF [open $::DBG_FILENAME w]
 
@@ -1304,6 +1345,9 @@ set ::DBF [open $::DBG_FILENAME w]
 #
 # two passes
 
+set time_start [clock seconds]
+
+puts ""
 
 for { set ::PASS 1 } {$::PASS <= $::NUMBER_OF_PASSES} {incr ::PASS 1} {
     
@@ -1325,4 +1369,37 @@ write_hex_file $hex_filename
 
 write_macro_file $mac_filename
 
+# Embed data?
+if { $::EMBED_FLAG } {
+    # Open and read the file
+    set f [open $::EMBED_FILENAME]
+    set embed_text [read $f]
+    close $f
+
+    # Format the code as C array hex
+    set f_hex ""
+    set f_i 0
+    foreach {c1 c2} [split $::HEX_EMITTED ""] {
+	append f_hex "0x$c1$c2,"
+	incr f_i 1
+	if { ($f_i % 16) == 0 } {
+	    append f_hex "\n"
+	}
+    }
+    
+    # Embed the code
+
+    puts "Embedding object code in C file:$::EMBED_FILENAME"
+    
+    regsub "$::EMBED_COMMENT_START\(.*)$::EMBED_COMMENT_END" $embed_text "$::EMBED_COMMENT_START\n$f_hex\n$::EMBED_COMMENT_END" embed_text2
+
+    set g [open $::EMBED_FILENAME w]
+    puts -nonewline $g $embed_text2
+    close $g
+}
+
 close $::DBF
+
+set time_end [clock seconds]
+set elapsed [expr $time_end - $time_start]
+puts "Elapsed time: $elapsed\s"
