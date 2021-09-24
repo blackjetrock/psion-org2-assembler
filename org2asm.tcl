@@ -10,6 +10,27 @@
 #        This has a '%s' that is filled in with instruction mnemonics
 #        and various sub expressions that are the parameters for the
 #        object code generation
+#
+# From technical manual:
+#     As device code can be loaded anywhere  in  memory,  depending  on  the
+# machine type (CM, XP or LA etc.), and on how many devices are loaded, it is
+# mandatory that the code to  be  loaded  is  in  a  relocatable  form.   The
+# operating system provides a service DV$LOAD which will load the relocatable
+# code into the machine and apply the relocation fix-ups.
+# 
+#      The code pointed to by the DEVICE_CODE_ADDRESS_WORD must be in Psion's
+# relocatable  object  code format.  The relocatable object code format is as
+# follows:
+# 
+#      1.  A word containing the number of bytes of code to be loaded.
+#      2.  The block of code to be loaded.
+#      3.  A word containing the checksum of the preceding block of code.
+#      4.  A word containing the number of fix-up addresses.
+#      5.  One word for each fix-up address.
+#      6.  A word containing the checksum of the preceding fix-up table.
+#
+#
+#
 
 set ::PASS 0
 set ::NUMBER_OF_PASSES 4
@@ -1256,6 +1277,22 @@ proc write_hex_file {filename} {
 }
 
 ################################################################################
+#
+# Writes a bin file.
+
+
+proc write_bin_file {filename} {
+
+    set f [open $filename wb]
+
+    # Convert to binary
+    set bin [binary format H* $::HEX_EMITTED]
+    puts -nonewline $f $bin
+    
+    close $f
+}
+
+################################################################################
 
 proc calc_label_sum {} {
 
@@ -1319,6 +1356,7 @@ while { $arg_i < [llength $argv]} {
 	    set lst_filename [string map {.asm .lst} $asm_filename]
 	    set hex_filename [string map {.asm .hex} $asm_filename]
 	    set mac_filename [string map {.asm .mac} $asm_filename]
+	    set bin_filename [string map {.asm .bin} $asm_filename]
 	    
 	    set ::DBG_FILENAME [string map {.asm .dbg} $asm_filename]
 	}
@@ -1366,7 +1404,7 @@ for { set ::PASS 1 } {$::PASS <= $::NUMBER_OF_PASSES} {incr ::PASS 1} {
 write_lst_file $lst_filename
 
 write_hex_file $hex_filename
-
+write_bin_file $bin_filename
 write_macro_file $mac_filename
 
 # Embed data?
