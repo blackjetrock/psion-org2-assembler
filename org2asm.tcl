@@ -2,7 +2,17 @@
 #
 # Psion Organiser II assembler
 #
-
+#
+# Multi pass assembler:
+#
+# Pass 1: All labels zero as some labels may be forward references and not defined
+# Pass 2: Values used for all labels, but zero page/direct addressing modes may
+# be wrong due to zero being used
+# Pass 3: Addressing modes should be correct as expressions now have final values
+#         but code may move due to zero page/direct addressing changes
+# Pass 4: Code fixed so final pass, no further passes will alter code from this pass
+#
+#
 # Define the addressing modes using regular expressions
 # First field is name
 # Next field is default instrcution length (can be over-riddn)
@@ -31,6 +41,60 @@
 #
 #
 #
+# 1.8 Device code
+#  Device code is a program that is run when a pack (or top slot device) is booted. They
+# are booted either when ON/Clear is pressed in the main menu, or when the system
+# service DV$BOOT (SWI $17) is called. See bootable packs. Device code is in
+# a relocatable code format, and its code block has the following format:
+# 
+# Byte:	Meaning:
+#  0/1	Contains 0000. When loaded into memory, the program length is stored here,
+# allowing the organiser to skip through consecutively loaded device code blocks.
+# 2	Contains 00. When loaded into memory, the program pack is stored here, which is 1, 2, or 3 for packs B:, C:, or D: (top slot).
+# 3	Device identification number. Same as in the pack header.
+# 4	Device Version number. Same as in the pack header.
+# 5	Number of vectors. Device code consists of several smaller programs called vectors.
+#          Generally, device code must have at least 3 special vectors, which are detailed below.
+# 6/7+	List of addresses of the vectors. These addresses are normally fixed up addresses pointing to routines in this code block.
+# ??+	This is followed by the device vector routines.
+# Device code is generally stored on a pack in a headerless block.
+#
+#
+# 1.9 Device vectors
+# Device code consists of several smaller programs called vectors. By using the system service
+# DV$VECT (SWI $1B) any vector on any booted device can be called (register A should contain
+# the device number, B the vector number).
+#
+# Generally, a device must have at least 3 special vectors, which are detailed below.
+#
+# Vector:	Purpose:
+#
+#  0	Install vector. Performs device initialisation, for example inserts a menu item.
+# If the carry flag is set on return, the device code will be rejected, i.e. not loaded.
+#  1	Remove vector. Performs removal, for example deletes a menu item. (On return,
+#  carry flag is ignored.) After running this vector, the device code could be safely deleted from memory.
+#  2	Language vector. Is called by the organiser to see if the device is willing to
+#  accept a particular procedure name as an external command. Peripherals like
+#  the Comms link use this vector for all the extra commands. On entry, X points
+#  to the string (with leading byte count) and on exit it should have the
+#  device identification number in register A and the vector number of the vector
+#  that performs the task in register B, ready for a DV$VECT call. Carry should be
+#  clear. If the device will not handle that command name, carry should be set. On a
+#  device which does not implement any extra commands, this vector generally reads SEC, RTS.
+#  Pressing ON/Clear in the main menu (or using service DV$BOOT, SWI $17) will first
+#   call the remove vector of all devices (using service DV$CLER, SWI $18) and remove
+#  all device code from memory. Then all device code is loaded, calling the install
+#  vector in the process.
+#  
+#  If a procedure call is encountered in a program or in the calculator, (the service
+#  DV$LKUP, SWI $19, is called so that) the procedure name is passed to the language
+#  vector of all devices in turn. If the carry flag is set, then none of the devices
+#  accept it and the packs are searched for a normal OPL procedure of that name. If a
+#  device returns with a clear carry flag, then the appropriate vector is immediately
+#  called (registers A and B are already prepared for calling service DV$VECT, SWI $1B).
+
+# Fixups are necessary for any refernces to labels created with a colon, any labels
+# created with an EQU does not ned a fixup
 
 set ::PASS 0
 set ::NUMBER_OF_PASSES 4
@@ -226,12 +290,14 @@ set ::INST {
 #
 # Fixup collection
 #
+# This pro is passed the address (of a 16 bit quantity) that needs a fixup
+# record
 
 set ::FIXUP_TEXT ""
 
 proc add_fixup {a} {
     if { $::PASS == $::LAST_PASS } {
-	set d_a [evaluate_expression $a]
+	set d_a [lindex [evaluate_expression $a] 0]
 #	set d_a [value_to_dec $a]
 	set f_a [format "%04X" $d_a]
 	append ::FIXUP_TEXT "$f_a\n"    
@@ -278,14 +344,14 @@ proc dbg {str} {
 ################################################################################
 #
 # Procs to check each addressing mode is valid
-# primarily for direct and extended modes. Direct has to have addres sless than 256
+# primarily for direct and extended modes. Direct has to have address less than 256
 
 proc chk_nul {p1 p2} {
     return 1
 }
 
 proc chk_dir {p1 p2} {
-    set p1 [evaluate_expression $p1]
+    set p1 [lindex [evaluate_expression $p1] 0]
     dbg "chk_dir '$p1'"
     if { $p1 < 256 } {
 	return 1
@@ -301,7 +367,7 @@ proc chk_dir {p1 p2} {
 # Indexed
 # One argument byte
 proc proc_rel {len p1 p2} {
-    set p1 [evaluate_expression $p1]
+    set p1 [lindex [evaluate_expression $p1] 0]
 
     # Note the 2 is actually the instruction length, but as all instructions
     # using REl addr mode are branches that is always 2
@@ -315,7 +381,10 @@ proc proc_rel {len p1 p2} {
 
 proc proc_imm {len p1 p2} {
     dbg "Proc_imm: '$p1'"
-    set p1 [evaluate_expression $p1]
+#    set value [evaluate_expression $p1]
+    
+#    set p1   [lindex $value 0]
+#    set type [lindex $value 1]
     
     switch $len {
 	2 {
@@ -328,39 +397,35 @@ proc proc_imm {len p1 p2} {
 }
 
 proc proc_dir {len p1 p2} {
-    set p1 [evaluate_expression $p1]
+    set p1 [lindex [evaluate_expression $p1] 0]
     emit $p1
 }
 
 proc proc_idx {len p1 p2} {
-    set p1 [evaluate_expression $p1]
+    set p1 [lindex [evaluate_expression $p1] 0]
     emit $p1
 }
 
 # Extended addressing needs fixup for relocatable code
 proc proc_ext {len p1 p2} {
     dbg "proc_ext '$p1'"
-    set p1 [evaluate_expression $p1]
+    set p1 [lindex [evaluate_expression $p1] 0]
     emitword $p1
-
-    # Fixup address is address of address to be fixed, ::ADDR is currently
-    # pointing at opcode so add 1
-    add_fixup [expr $::ADDR + 1]
 }
 
 proc proc_imp {len p1 p2} {
 }
 
 proc proc_xim {len p1 p2} {
-    set p1 [evaluate_expression $p1]
-    set p2 [evaluate_expression $p2]
+    set p1 [lindex [evaluate_expression $p1] 0]
+    set p2 [lindex [evaluate_expression $p2] 0]
     emit $p1
     emit $p2
 }
 
 proc proc_xxm {len p1 p2} {
-    set p1 [evaluate_expression $p1]
-    set p2 [evaluate_expression $p2]
+    set p1 [lindex [evaluate_expression $p1] 0]
+    set p2 [lindex [evaluate_expression $p2] 0]
     emit $p1
     emit $p2
 }
@@ -384,41 +449,79 @@ proc value_to_dec {str} {
 ################################################################################
 #
 # Emits a byte of object code
+#
+# Keeps track of pack address as these bytes go to pack image
+#
 
 # Text variable
 set ::EMITTED ""
 set ::HEX_EMITTED ""
 
 proc emit {b} {
+    set ::FIXED " "
+    
     #    set fb [format "%02X" [value_to_dec $b]]
-    set fb [format "%02X" [expr [evaluate_expression $b] & 0xFF]]
+    set fb [format "%02X" [expr [lindex [evaluate_expression $b] 0] & 0xFF]]
 
     set ::EMITTED_ADDR $::ADDR
     append ::EMITTED     " $fb"
     append ::HEX_EMITTED "$fb"
+
+    # next pack address
+    incr ::PACK_ADDR 1
 }
+
+# We emit a word
+# The address is needed for the fixup records
 
 proc emitword {w} {
     if { $::PASS == 1 } {
 	append ::EMITTED " 00 00"
 	append ::HEX_EMITTED "0000"
+
+	# Next pack address
+	incr ::PACK_ADDR 2
+
 	return
     }
 
     dbg "Emitword:'$w'"
-    set fb [format "%02X" [evaluate_expression [expr $w / 256]]]
+    set ev    [evaluate_expression $w]
+    dbg "    after eval:'$ev'"
+    set w     [lindex $ev 0]
+    set type  [lindex $ev 1]
+    dbg "    type:$type"
+    
+    # Create fixup record, as a pack address
+    set ::FIXED " "
+    switch $type {
+	COLON {
+	    add_fixup $::PACK_ADDR
+	    set ::FIXED "*"
+	}
+    }
+    
+    set fb [format "%02X" [expr $w / 256]]
     append ::EMITTED " $fb"
     append ::HEX_EMITTED "$fb"
-    set fb [format "%02X" [evaluate_expression [expr $w % 256]]]
+    set fb [format "%02X" [expr $w % 256]]
     append ::EMITTED " $fb"
     append ::HEX_EMITTED "$fb"
+
+    # Next pack address
+    incr ::PACK_ADDR 2
+
 }
 
 
 ################################################################################
 #
 # Creates a new label
-proc create_label {name value} {
+# The type is either COLON EQU depending on how it was created
+
+proc create_label {name value type} {
+    dbg "create_label:$name $value $type"
+    
     if { [lsearch -exact $::LABELLIST $name] == -1 } {
 	# Add a new label
 	#puts "Label $name"
@@ -429,6 +532,7 @@ proc create_label {name value} {
     }
 
     set ::LABEL($name) $value
+    set ::LABEL_TYPE($name) $type
 }
 
 ################################################################################
@@ -451,24 +555,37 @@ proc sz {a b} {
 # ^Cx      converted to ~x
 # ^Adxd    converted to ASCII code of 'x'
 # ^Adxyd   converted to ASCIi code of x and y as two bytes
+#
+# The type of the expression is COLON if any label used is
+# COLON, otherwise EQU
+# The type is used to work out if a fixup is needed.
+#
+# Return value is a list:
+# {value type}
+#
 
 proc evaluate_expression_core {exp} {
     # if this is pass 1 then just return zero
+    # Pass 1 is the pass that may not have labels defined due to forward references.
+    # So we use zero
+    
     if { $::PASS == 1 } {
-	return 0
+	return {0 EQU}
     }
 
     # If the expression is blank then just return blank
     if { [string length $exp] == 0 } {
-	return ""
+	return {"" EQU}
     }
     
     # Turn the expression into Tcl and evaluate it
     dbg "EVALEXP:exp = '$exp'"
+
+    # Default to EQU type (so no fixup generated from immediate constants for example
+    set type EQU
     
     # Force complement to tilde as it stops label substitution
     set exp [string map "^C ~" $exp]
-
     
     dbg "After map = '$exp'"
     
@@ -484,6 +601,9 @@ proc evaluate_expression_core {exp} {
 		set labellookup $label
 		set label "$number\$"
 		dbg "Becomes '$label'"
+
+		# Local labels need fixups
+		set type LOCAL
 	    } else {
 		# Not valid, skip it
 		# dbg "Not valid ($label), last global ($::LAST_GLOBAL_LABEL)"
@@ -498,6 +618,20 @@ proc evaluate_expression_core {exp} {
 #	dbg "Subst for $label with [set ::LABEL($labellookup)]"
 	if { [string first $label $exp] != -1 } {
 	    dbg "Found2 $label"
+
+	    # name changed for local labels, only check if still EQU
+	    switch $type {
+		EQU {
+		    set type $::LABEL_TYPE($label)
+		}
+		LOCAL {
+		    set type COLON
+		}
+	    }
+
+	    dbg "  label type:$type"
+	    
+	    # Delimit expression so we can delimit labels correctly 
 	    set exp "=$exp="
 	    dbg "'$exp'"
 
@@ -556,7 +690,6 @@ proc evaluate_expression_core {exp} {
     set exp [string map "\$ 0x ^x 0x ^X 0x" $exp]
 
     dbg "EVALEXP:after hex conv='$exp'"
-
     dbg "EVALEXP ='[expr $exp]'"
     
     # Evaluate, trap errors
@@ -565,16 +698,14 @@ proc evaluate_expression_core {exp} {
     if { [catch {   set result [expr $exp] } ] } {
 	error $::CURRENT_LINE "Bad expression '$exp'"
     }
-    
-    return $result
+
+    dbg "EVALEXP:$result $type"
+    return [list $result $type]
 }
 
 proc evaluate_expression {exp} {
 
-    set result 0x99
-    
     return [evaluate_expression_core $exp]
-    return $result
 }
 
 
@@ -586,7 +717,7 @@ proc evaluate_expression {exp} {
 proc dir_org {line original_line} {
     # We set up ::ADDR as specified
     if { [regexp -- "(.ORG|org)\[ \t\]+(\[A-Za-z0-9$+*/<>\^-]+)" $line all dir addr] } {
-	set ::ADDR [evaluate_expression $addr]
+	set ::ADDR [lindex [evaluate_expression $addr] 0]
 
 	set f_addr    [format "%04X" $::ADDR]
 	set f_emitted [format "%-12s" ""]
@@ -612,7 +743,7 @@ proc dir_byte {line original_line} {
 	
 	foreach byte [split $bytelist " \t,"] {
 	    set bytelist [string map {" " ""} $bytelist]
-	    set byte [evaluate_expression $byte]
+	    set byte [lindex [evaluate_expression $byte] 0]
 	    
 	    # Emit it
 	    set ::EMITTED ""
@@ -646,7 +777,7 @@ proc dir_word {line original_line} {
 
 	foreach word [split $wordlist " \t,"] {
 	    
-	    set word [evaluate_expression $word]
+	    #set word [lindex [evaluate_expression $word] 0]
 	    
 	    # Emit it
 	    set ::EMITTED ""
@@ -655,7 +786,7 @@ proc dir_word {line original_line} {
 	    set f_addr    [format "%04X" $::ADDR]
 	    set f_emitted [format "%-12s" $::EMITTED]
 	    set line [string trim $original_line]
-	    addlstline $f_addr "(W)" $f_emitted  $original_line
+	    addlstline $f_addr "(W)" "$f_emitted$::FIXED"  $original_line
 	    
 	    incr ::ADDR 2
 	}
@@ -670,10 +801,10 @@ proc dir_word {line original_line} {
 # Set label value
 proc dir_equ {line original_line} {
     if { [regexp -- "(\[A-Za-z0-9_$\]+)\[ \t\]+(.EQU|equ|EQU|.equ)\[ \t\]+(\[A-Za-z0-9$\(\)_<>*/+-\]+)" $line all name dir value] } {
-	set value [evaluate_expression $value]
-	create_label $name $value
+	set value [lindex [evaluate_expression $value] 0]
+	create_label $name $value EQU
 	
-	set f_value [format "%04X        " [evaluate_expression $value]]
+	set f_value [format "%04X        " [lindex [evaluate_expression $value] 0]]
 	set line [string trim $original_line]
 	addlstline "" "(E)" $f_value  $original_line
 
@@ -686,12 +817,12 @@ proc dir_equ {line original_line} {
 
 proc dir_blkb {line original_line} {
     if { [regexp -- "(.BLKB|blkb|BLKB|.blkb)\[ \t\]+(\[A-Za-z0-9$\(\)_<>*/+-\]+)" $line all dir value] } {
-	set value [evaluate_expression $value]
+	set value [lindex [evaluate_expression $value] 0]
 
 	# Make space
 
 	set f_addr    [format "%04X" $::ADDR]	
-	set f_value [format "%04X        " [evaluate_expression $value]]
+	set f_value [format "%04X        " [lindex [evaluate_expression $value] 0]]
 	set line [string trim $original_line]
 	addlstline "$f_addr" "(E)" $f_value  $original_line
 
@@ -934,7 +1065,7 @@ proc assemble_file {filename} {
 		
 	    }
 	    
-	    create_label $label $::ADDR
+	    create_label $label $::ADDR COLON
 	    dbg "Created '$label' = '$::ADDR'"
 	    if { [string length [string trim $line]] == 0 } {
 		set f_addr    [format "%04X" $::ADDR]
@@ -964,6 +1095,8 @@ proc assemble_file {filename} {
 			break;
 		    }
 		}
+
+		dbg "INCLUDE:'$filename'"
 		
 		# Read file and add to a line stream
 		set g [open $filename]
@@ -1190,7 +1323,7 @@ proc assemble_file {filename} {
 			
 			set f_emitted [format "%-12s" $::EMITTED]
 			
-			addlstline $f_addr "($addrmode_i)" $f_emitted   $original_line
+			addlstline $f_addr "($addrmode_i)" "$f_emitted$::FIXED"   $original_line
 			incr ::ADDR  $inst_length
 
 		    } else {
@@ -1300,7 +1433,7 @@ proc calc_label_sum {} {
     
     foreach label $::LABELLIST {
 	set label_value [format "$%04X" $::LABEL($label)]
-	incr label_sum [evaluate_expression $label_value]
+	incr label_sum [lindex [evaluate_expression $label_value] 0]
     }
 
     return $label_sum
@@ -1319,8 +1452,17 @@ proc write_lst_file {filename} {
     }
 
     # Fixup information
+    set nfix   [llength $::FIXUP_TEXT]
+    set f_nfix [format "%04X" $nfix]
+    
     puts $f "\nFixup Information\n"
-    puts $f "$::FIXUP_TEXT\n"
+    puts $f "\n$f_nfix records"
+    puts $f ""
+    set i 0
+    foreach rec $::FIXUP_TEXT {
+	puts $f "[format "%04X" $i]: $rec"
+	incr i 1
+    }
     close $f
 }
 
@@ -1391,6 +1533,8 @@ for { set ::PASS 1 } {$::PASS <= $::NUMBER_OF_PASSES} {incr ::PASS 1} {
     
     set ::HEX_EMITTED ""    
     set ::LAST_GLOBAL_LABEL "NONE"
+    set ::PACK_ADDR 0
+    set ::FIXED " "
     
     clear_macros
     assemble_file $asm_filename
