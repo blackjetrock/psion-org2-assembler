@@ -117,6 +117,7 @@ set ::LABELLIST    ""
 set ::MACROLIST    ""
 set ::OVER_LIST    ""
 set ::CURRENT_OVER ""
+set ::OVER_ORG 0
 
 set ::INCLUDELINES ""
 set ::INCLUDEDIR_LIST ""
@@ -315,7 +316,7 @@ set ::INST {
 proc add_fixup {a} {
     if { $::PASS == $::LAST_PASS } {
 	set d_a [lindex [evaluate_expression $a] 0]
-	set d_a [expr $d_a - $::OVER_ORG_PACK]
+	set d_a [expr $d_a]
 	#	set d_a [value_to_dec $a]
 	set f_a [format "%04X" $d_a]
 	append ::FIXUP_TEXT($::CURRENT_OVER) "$d_a\n"    
@@ -338,8 +339,13 @@ proc addlstline {packaddr addr type object line} {
     } else {
 	set packaddr 0
     }
+    if { [string length $addr] == 0 } {
+	set xaddr "0"
+    } else {
+	set xaddr [expr 0x$addr-$::OVER_ORG]
+    }
     
-    set f_line [format "%04X %-5s %-5s %-4s %-12s %-40s\n" [expr 0x$packaddr - $::OVER_ORG_PACK] $packaddr $addr $type $object  $line]
+    set f_line [format "%04X %-5s %-5s %04X %04X %-4s %-12s %-40s\n" [expr 0x$packaddr - $::OVER_ORG_PACK] $packaddr $addr $xaddr $::OVER_ORG $type $object  $line]
     append ::LIST_TEXT $f_line
 }
 
@@ -399,9 +405,9 @@ proc chk_dir {p1 p2} {
 proc proc_rel {len p1 p2} {
     set p1 [lindex [evaluate_expression $p1] 0]
 
-    # Note the 2 is actually the instruction length, but as all instructions
-    # using REl addr mode are branches that is always 2
-    set r [expr ($p1 - $::ADDR - 2)]
+    # Note the 1 is actually the instruction length minus 1, but as all instructions
+    # using REL addr mode are branches that is always 2
+    set r [expr ($p1 - $::ADDR - 1)]
 
     # Convert to byte
     set r [expr $r & 0xff]
@@ -528,11 +534,17 @@ proc emitword {w} {
     set type  [lindex $ev 1]
     dbg "    type:$type"
     
-    # Create fixup record, as a pack address
+    # Create fixup record, as an address into the code block. This is the same as the current overlay
+    # address minus the start of the current overlay
     set ::FIXED " "
     switch $type {
 	COLON {
-	    add_fixup $::PACK_ADDR
+	    #	    add_fixup $::PACK_ADDR
+	    add_fixup [expr $::ADDR-$::OVER_ORG]
+
+	    # Adjust word so it is fixed up corectly
+	    set w [expr $w - $::OVER_START($::CURRENT_OVER)]
+	    
 	    set ::FIXED "*"
 	}
     }
@@ -628,6 +640,8 @@ proc evaluate_expression_core {exp} {
     
     # Turn label names into references to the label variables
     foreach label $::LABELLIST {
+	set is_local 0
+	
 	# If it is a local label then we check it's valid and then convert it
 	# to its original form
 	set labellookup $label
@@ -635,12 +649,13 @@ proc evaluate_expression_core {exp} {
 	    if { [string compare $last_global $::LAST_GLOBAL_LABEL] == 0 } {
 		# Valid local variable, create local label name
 		dbg "Is valid:($label), last global ($::LAST_GLOBAL_LABEL)"
+
+		#Save the original name for looking things up
 		set labellookup $label
 		set label "$number\$"
 		dbg "Becomes '$label'"
-
-		# Local labels need fixups
-		set type LOCAL
+		set is_local 1
+		
 	    } else {
 		# Not valid, skip it
 		# dbg "Not valid ($label), last global ($::LAST_GLOBAL_LABEL)"
@@ -688,16 +703,12 @@ proc evaluate_expression_core {exp} {
 	#	dbg "Subst for $label with [set ::LABEL($labellookup)]"
 	
 	if { [string first $label $exp] != -1 } {
-	    dbg "Found2 $label"
-	    
-	    # name changed for local labels, only check if still EQU
-	    switch $type {
-		EQU {
-		    set type $::LABEL_TYPE($label)
-		}
-		LOCAL {
-		    set type COLON
-		}
+	    dbg "Found2 $label, type currently=$type"
+
+	    if { $is_local } {
+		set type $::LABEL_TYPE($labellookup)
+	    } else {
+		set type $::LABEL_TYPE($label)
 	    }
 	    
 	    dbg "  label type:$type"
@@ -807,6 +818,9 @@ proc dir_over {line original_line} {
 	set ::CURRENT_OVER   $overname
 
 	set ::OVER_ORG       [expr $::ADDR]
+
+	# Pack address is always incremented and so we add two here to get
+	# the pack address of the first code byte.
 	set ::OVER_ORG_PACK  [expr $::PACK_ADDR]
 	
 	set f_addr    [format "%04X" $::OVER_ORG]
@@ -837,7 +851,7 @@ proc dir_over {line original_line} {
 	}
 
 	# Insert overlay code length
-	set overlen [expr $::OVER_END_PACK($overname) - $::OVER_START_PACK($overname)]
+	set overlen [expr $::OVER_END_PACK($overname) - $::OVER_START_PACK($overname) + 1]
 	
 	# Save pack address
 	set paddr $::PACK_ADDR
@@ -853,9 +867,6 @@ proc dir_over {line original_line} {
 
 	# Do not increment the address, this is hidden data for loading only
 	#incr ::ADDR 2
-
-	# Correct the increment that emitword did, as it isn't needed
-	incr ::PACK_ADDR -2
 
 	# The checksum should only sum data, not the length word
 	set ::OVER_CSUM($overname) 0
@@ -905,7 +916,7 @@ proc dir_eover {line original_line} {
 	set line [string trim $original_line]
 	addlstline $::PACK_ADDR $f_addr "(OE)" $f_emitted  $original_line
 
-	# Set up the end of the overlay
+	# Set up the end of the overlay, the last byte is the last byte of the code
 	set ::OVER_END($::CURRENT_OVER)      [expr $::ADDR - 1]
 	set ::OVER_END_PACK($::CURRENT_OVER) [expr $::PACK_ADDR - 1]
 
@@ -1001,9 +1012,10 @@ proc dir_byte {line original_line} {
 # Word list
 proc dir_word {line original_line} {
     # We create a word
-    #puts "dir_word:'$line'"
-
-    # remove space from line
+    dbg "dir_word:'$line'"
+    dbg "   ::ADDR=$::ADDR"
+    
+    # Remove space from line
 
     if { [regexp -- "(.WORD|.word)\[ \t\]+(.+)" $line all worddir wordlist] } {
 	set wordlist [string trim $wordlist]
@@ -1060,6 +1072,11 @@ proc dir_blkb {line original_line} {
 
 	# Make space
 
+	for {set i 0} {$i < $value} {incr i 1} {
+	    set EMITTED ""
+	    emit 0
+	}
+	
 	set f_addr    [format "%04X" $::ADDR]	
 	set f_value [format "%04X        " [lindex [evaluate_expression $value] 0]]
 	set line [string trim $original_line]
@@ -1283,9 +1300,9 @@ proc assemble_file {filename} {
 	set ::CURRENT_LINE $line
 	
 	set found 0
-
+	dbg "----------"
 	dbg "line=$line"
-
+	dbg "ADDR=[formatword $::ADDR] PACK_ADDR=[formatword $::PACK_ADDR]"
 	# Remove comments
 	if { [regexp -- "(\[^;\]*);.*" $line all strippedline] } {
 	    set line $strippedline
@@ -1315,11 +1332,12 @@ proc assemble_file {filename} {
 	    }
 	    
 	    create_label $label $::ADDR COLON $::PACK_ADDR
-	    dbg "Created '$label' = '$::ADDR'"
+	    dbg "Created (L) '$label' = '$::ADDR'"
 	    if { [string length [string trim $line]] == 0 } {
 		set f_addr    [format "%04X" $::ADDR]
 
 		addlstline $::PACK_ADDR $f_addr "(L)" "" "$label:"
+		continue
 	    }
 	}
 
@@ -1563,6 +1581,11 @@ proc assemble_file {filename} {
 			set paddr $::PACK_ADDR
 			
 			emit [expr 0x$opcode]
+
+			# Add one to the address here so we have ::ADDR set up correctly
+			# for the operand (especially for fixups) when the emitword
+			# is called in the proc_proc below
+			incr ::ADDR 1
 			
 			if { $::PASS != 1 } {
 			    # Convert parameters to values
@@ -1574,7 +1597,9 @@ proc assemble_file {filename} {
 			set f_emitted [format "%-12s" $::EMITTED]
 			
 			addlstline $paddr $f_addr "($addrmode_i)" "$f_emitted$::FIXED"   $original_line
-			incr ::ADDR  $inst_length
+
+			# Increment past operand, we have already incremented past the opcode
+			incr ::ADDR  [expr $inst_length-1]
 
 		    } else {
 			puts "$line  matches"
@@ -1654,8 +1679,14 @@ proc write_hex_file {filename} {
 
     set f [open $filename w]
 
-    puts $f $::HEX_EMITTED
-    
+    set i 0
+    foreach {na nb}  [split $::HEX_EMITTED ""] {
+	puts -nonewline $f [string tolower "$na$nb"]
+	if { [expr ($i % 16) == 15] } {
+	    puts $f ""
+	}
+	incr i 1
+    }
     close $f
 }
 
@@ -1698,16 +1729,30 @@ proc write_lst_file {filename} {
     foreach label $::LABELLIST {
 	set label_value [format "$%04X" $::LABEL($label)]
 	set f_name [format "%20s" $label]
-	puts $f "$f_name: $label_value"
+
+	switch $::LABEL_TYPE($label) {
+	    COLON {
+		set ltype "FIX"
+	    }
+	    EQU {
+		set ltype "   "
+	    }
+	}
+	
+	puts $f "$f_name: $ltype $label_value"
     }
     
     # Overlay list
     foreach ov $::OVER_LIST {
 	set ovlen [expr $::OVER_END($ov)-$::OVER_START($ov)+1]
 	puts $f "Overlay:$ov"
-	puts $f "  Start :[formatword $::OVER_START($ov)]"
-	puts $f "  End   :[formatword $::OVER_END($ov)]"
-	puts $f "  Length:[formatword $ovlen]"
+	puts $f "  Org        : [formatword $::OVER_ORG]"
+	puts $f "  Org Pack   : [formatword $::OVER_ORG_PACK]"
+	puts $f "  Start      : [formatword $::OVER_START($ov)]"
+	puts $f "  End        : [formatword $::OVER_END($ov)]"
+	puts $f "  Length     : [formatword $ovlen]"
+	puts $f "  Pack Start : [formatword $::OVER_START_PACK($ov)]"
+	puts $f "  Pack End   : [formatword $::OVER_END_PACK($ov)]"
 	
 	# Fixup information
 	set nfix   [llength $::FIXUP_TEXT($ov)]
