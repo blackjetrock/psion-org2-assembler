@@ -21,6 +21,12 @@
 #        and various sub expressions that are the parameters for the
 #        object code generation
 #
+# Fixups are created for absolute 16 bit values. How this is done was inferred
+# from a list file for XDICT.SRC. Labels created with EQU are not fixed. labels
+# created using a colon at the start of a line are fixed. Pack address versions
+# of labels (%LABEL) are not fixed. This seems to match the Psion XA assembler.
+#
+#--------------------------------------------------------------------------------
 # From technical manual:
 #     As device code can be loaded anywhere  in  memory,  depending  on  the
 # machine type (CM, XP or LA etc.), and on how many devices are loaded, it is
@@ -94,7 +100,8 @@
 #  called (registers A and B are already prepared for calling service DV$VECT, SWI $1B).
 
 # Fixups are necessary for any refernces to labels created with a colon, any labels
-# created with an EQU does not ned a fixup
+# created with an EQU does not ned a fixup. Fixups are local to the current overlay
+# as they are used when an overlay is loaded
 
 set ::PASS 0
 set ::NUMBER_OF_PASSES 4
@@ -108,9 +115,13 @@ set ::EMBED_COMMENT_END   "// ASSEMBLER_EMBEDDED_CODE_END"
 set ::LIST_TEXT    ""
 set ::LABELLIST    ""
 set ::MACROLIST    ""
+set ::OVER_LIST    ""
+set ::CURRENT_OVER ""
+
 set ::INCLUDELINES ""
 set ::INCLUDEDIR_LIST ""
 set ::LAST_GLOBAL_LABEL "NONE"
+set ::OVER_ORG_PACK 0
 
 set ::LABEL_DELIM "\[^A-Za-z0-9_\]"
 
@@ -118,12 +129,14 @@ set ::DIRECTIVES ".ORG    dir_org    \
                   .WORD   dir_word   \
 		  .EQU	  dir_equ    \	 
                   .BYTE   dir_byte   \
-                  org     dir_org    \
-                  EQU     dir_equ    \
+                   org    dir_org    \
+                   EQU    dir_equ    \
                   .ASCIC  dir_ascic  \
                   .ASCIZ  dir_asciz  \
 		  .ASCII  dir_ascii  \
-		  .BLKB   dir_blkb  \	
+		  .BLKB   dir_blkb   \	
+		  .OVER   dir_over   \	
+		  .EOVER  dir_eover  \	
 "
 
 #    {"REL" 2 "^%s\[ \t\]+(\[A-Z0-9a-z_$^\]+)"                                                                chk_nul  proc_rel }
@@ -204,7 +217,7 @@ set ::INST {
     {CLV  ____ ____ ____ ____ ____ 0A   ____ ____}
     {CMPA ____ 81   91   A1   B1   ____ ____ ____}
     {CMPB ____ C1   D1   E1   F1   ____ ____ ____}
-    {COM  ____ 00   00   63   73   ____ ____ ____}
+    {COM  ____ ____ ____ 63   73   ____ ____ ____}
     {COMA ____ ____ ____ ____ ____ 43   ____ ____}
     {COMB ____ ____ ____ ____ ____ 53   ____ ____}
     {CPX  ____ 8C.3 9C   AC   BC   ____ ____ ____}
@@ -217,7 +230,7 @@ set ::INST {
     {EIM  ____ ____ ____ ____ ____ ____ 75   65  }
     {EORA ____ 88   98   A8   B8   ____ ____ ____}
     {EORB ____ C8   D8   E8   F8   ____ ____ ____}
-    {INC  ____ 00   00   6C   7C   ____ ____ ____}
+    {INC  ____ ____ ____ 6C   7C   ____ ____ ____}
     {INCA ____ ____ ____ ____ ____ 4C   ____ ____}
     {INCB ____ ____ ____ ____ ____ 5C   ____ ____}
     {INS  ____ ____ ____ ____ ____ 31   ____ ____}
@@ -233,8 +246,8 @@ set ::INST {
     {LSRA ____ ____ ____ ____ ____ 44   ____ ____}
     {LSRB ____ ____ ____ ____ ____ 54   ____ ____}
     {LSRD ____ ____ ____ ____ ____ 04   ____ ____}
-    {MUL  ____ 00   00   00   00   3D   ____ ____}
-    {NEG  ____ 00   00   60   70   ____ ____ ____}
+    {MUL  ____ ____ ____ ____ ____ 3D   ____ ____}
+    {NEG  ____ ____ ____ 60   70   ____ ____ ____}
     {NEGA ____ ____ ____ ____ ____ 40   ____ ____}
     {NEGB ____ ____ ____ ____ ____ 50   ____ ____}
     {NOP  ____ ____ ____ ____ ____ 01   ____ ____}
@@ -250,7 +263,7 @@ set ::INST {
     {ROL  ____ ____ ____ 69   79   ____ ____ ____}
     {ROLA ____ ____ ____ ____ ____ 49   ____ ____}
     {ROLB ____ ____ ____ ____ ____ 59   ____ ____}
-    {ROR  ____ 00   00   66   76   ____ ____ ____}
+    {ROR  ____ ____ ____ 66   76   ____ ____ ____}
     {RORA ____ ____ ____ ____ ____ 46   ____ ____}
     {RORB ____ ____ ____ ____ ____ 56   ____ ____}
     {RTI  ____ ____ ____ ____ ____ 3B   ____ ____}
@@ -262,6 +275,7 @@ set ::INST {
     {SEI  ____ ____ ____ ____ ____ 0F   ____ ____}
     {SEV  ____ ____ ____ ____ ____ 0B   ____ ____}
     {SLP  ____ ____ ____ ____ ____ 1A   ____ ____}
+    {STQA ____ ____ ____ ____ B7   ____ ____ ____}
     {STAA ____ ____ 97   A7   B7   ____ ____ ____}
     {STAB ____ ____ D7   E7   F7   ____ ____ ____}
     {STD  ____ ____ DD   ED   FD   ____ ____ ____}
@@ -290,17 +304,21 @@ set ::INST {
 #
 # Fixup collection
 #
-# This pro is passed the address (of a 16 bit quantity) that needs a fixup
-# record
+# This proc is passed the address (of a 16 bit quantity) that needs a fixup
+# record.
+# The address is changed to an overlay offset
+#
+# Fixups are local, so each overlay has a fixup list
+#
 
-set ::FIXUP_TEXT ""
 
 proc add_fixup {a} {
     if { $::PASS == $::LAST_PASS } {
 	set d_a [lindex [evaluate_expression $a] 0]
-#	set d_a [value_to_dec $a]
+	set d_a [expr $d_a - $::OVER_ORG_PACK]
+	#	set d_a [value_to_dec $a]
 	set f_a [format "%04X" $d_a]
-	append ::FIXUP_TEXT "$f_a\n"    
+	append ::FIXUP_TEXT($::CURRENT_OVER) "$d_a\n"    
     }
 }
 
@@ -313,11 +331,18 @@ proc addlst {txt} {
     append ::LIST_TEXT "$txt\n"
 }
 
-proc addlstline {addr type object line} {
-    set f_line [format "%-5s %-4s %-12s %-40s\n" $addr $type $object  $line]
+# packaddr is either an integer or an empty string
+proc addlstline {packaddr addr type object line} {
+    if { [string length $packaddr] != 0 } {
+	set packaddr [format "%04X" $packaddr]
+    } else {
+	set packaddr 0
+    }
+    
+    set f_line [format "%04X %-5s %-5s %-4s %-12s %-40s\n" [expr 0x$packaddr - $::OVER_ORG_PACK] $packaddr $addr $type $object  $line]
     append ::LIST_TEXT $f_line
 }
-    
+
 proc error {line msg} {
     
     dbg "**ERROR***"
@@ -331,6 +356,11 @@ proc error {line msg} {
     addlst "**ERROR***"
     addlst $line
     addlst $msg
+}
+
+# Formats a decimal word value for th elst file
+proc formatword {w} {
+    return [format "\$%04X" $w]
 }
 
 ################################################################################
@@ -381,10 +411,10 @@ proc proc_rel {len p1 p2} {
 
 proc proc_imm {len p1 p2} {
     dbg "Proc_imm: '$p1'"
-#    set value [evaluate_expression $p1]
+    #    set value [evaluate_expression $p1]
     
-#    set p1   [lindex $value 0]
-#    set type [lindex $value 1]
+    #    set p1   [lindex $value 0]
+    #    set type [lindex $value 1]
     
     switch $len {
 	2 {
@@ -397,19 +427,19 @@ proc proc_imm {len p1 p2} {
 }
 
 proc proc_dir {len p1 p2} {
-    set p1 [lindex [evaluate_expression $p1] 0]
+    #set p1 [lindex [evaluate_expression $p1] 0]
     emit $p1
 }
 
 proc proc_idx {len p1 p2} {
-    set p1 [lindex [evaluate_expression $p1] 0]
+    #set p1 [lindex [evaluate_expression $p1] 0]
     emit $p1
 }
 
 # Extended addressing needs fixup for relocatable code
 proc proc_ext {len p1 p2} {
     dbg "proc_ext '$p1'"
-    set p1 [lindex [evaluate_expression $p1] 0]
+    #    set p1 [lindex [evaluate_expression $p1] 0]
     emitword $p1
 }
 
@@ -417,15 +447,15 @@ proc proc_imp {len p1 p2} {
 }
 
 proc proc_xim {len p1 p2} {
-    set p1 [lindex [evaluate_expression $p1] 0]
-    set p2 [lindex [evaluate_expression $p2] 0]
+    #set p1 [lindex [evaluate_expression $p1] 0]
+    #set p2 [lindex [evaluate_expression $p2] 0]
     emit $p1
     emit $p2
 }
 
 proc proc_xxm {len p1 p2} {
-    set p1 [lindex [evaluate_expression $p1] 0]
-    set p2 [lindex [evaluate_expression $p2] 0]
+    #set p1 [lindex [evaluate_expression $p1] 0]
+    #set p2 [lindex [evaluate_expression $p2] 0]
     emit $p1
     emit $p2
 }
@@ -451,7 +481,7 @@ proc value_to_dec {str} {
 # Emits a byte of object code
 #
 # Keeps track of pack address as these bytes go to pack image
-#
+# Also checksums overlay code as it is emitted
 
 # Text variable
 set ::EMITTED ""
@@ -459,10 +489,16 @@ set ::HEX_EMITTED ""
 
 proc emit {b} {
     set ::FIXED " "
-    
-    #    set fb [format "%02X" [value_to_dec $b]]
-    set fb [format "%02X" [expr [lindex [evaluate_expression $b] 0] & 0xFF]]
 
+    set evb [expr [lindex [evaluate_expression $b] 0] & 0xFF]
+    set fb [format "%02X" $evb]
+
+    # Add to overlay checksum
+    if { [string length $::CURRENT_OVER] > 0 } {
+	incr ::OVER_CSUM($::CURRENT_OVER) $evb
+    }
+
+    # Add to object code
     set ::EMITTED_ADDR $::ADDR
     append ::EMITTED     " $fb"
     append ::HEX_EMITTED "$fb"
@@ -519,7 +555,7 @@ proc emitword {w} {
 # Creates a new label
 # The type is either COLON EQU depending on how it was created
 
-proc create_label {name value type} {
+proc create_label {name value type packaddr} {
     dbg "create_label:$name $value $type"
     
     if { [lsearch -exact $::LABELLIST $name] == -1 } {
@@ -533,6 +569,7 @@ proc create_label {name value type} {
 
     set ::LABEL($name) $value
     set ::LABEL_TYPE($name) $type
+    set ::LABEL_PACK_ADDR($name) $packaddr
 }
 
 ################################################################################
@@ -615,19 +652,21 @@ proc evaluate_expression_core {exp} {
 	# don't have characters next to them. They have to be delimited by something
 	# other than just characters that can be in label names
 
-#	dbg "Subst for $label with [set ::LABEL($labellookup)]"
-	if { [string first $label $exp] != -1 } {
-	    dbg "Found2 $label"
+	# We attempt two substitutions, one for labels with a % infront of them
+	# which is replaced with the pack address of the label, and a second
+	# which is a delimited name only, this is replaced with the ORG address
+	# of the label.
 
-	    # name changed for local labels, only check if still EQU
-	    switch $type {
-		EQU {
-		    set type $::LABEL_TYPE($label)
-		}
-		LOCAL {
-		    set type COLON
-		}
-	    }
+	# First the label with % prefix as it's larger
+	
+	#	dbg "Subst for %$label with [set ::LABEL($labellookup)]"
+
+	if { [string first "%$label" $exp] != -1 } {
+	    dbg "Found1 %$label"
+
+	    # A label that uses pack addresses is never fixed up
+	    # Name changed for local labels, only check if still EQU
+	    set type EQU
 
 	    dbg "  label type:$type"
 	    
@@ -639,14 +678,47 @@ proc evaluate_expression_core {exp} {
 	    set label [string map {"$" "SSS"} $label]
 	    dbg "Label escaped:'$label'"
 	    
+	    regsub -all "($::LABEL_DELIM)%$label\($::LABEL_DELIM)" [string map {"$" "SSS"} $exp] "\\1[set ::LABEL($labellookup)]\\2" exp
+	    dbg "'$exp'"
+	    set exp [string trim $exp "="]
+	}
+	#set exp [string map "$label [set ::LABEL($labellookup)]" $exp]
+	
+	
+	#	dbg "Subst for $label with [set ::LABEL($labellookup)]"
+	
+	if { [string first $label $exp] != -1 } {
+	    dbg "Found2 $label"
+	    
+	    # name changed for local labels, only check if still EQU
+	    switch $type {
+		EQU {
+		    set type $::LABEL_TYPE($label)
+		}
+		LOCAL {
+		    set type COLON
+		}
+	    }
+	    
+	    dbg "  label type:$type"
+	    
+	    # Delimit expression so we can delimit labels correctly 
+	    set exp "=$exp="
+	    dbg "'$exp'"
+	    
+	    # If label has '$' in it then we have to escape it
+	    set label [string map {"$" "SSS"} $label]
+	    dbg "Label escaped:'$label'"
+	    
 	    regsub -all "($::LABEL_DELIM)$label\($::LABEL_DELIM)" [string map {"$" "SSS"} $exp] "\\1[set ::LABEL($labellookup)]\\2" exp
 	    dbg "'$exp'"
 	    set exp [string trim $exp "="]
 	}
 	#set exp [string map "$label [set ::LABEL($labellookup)]" $exp]
     }
+    
     dbg "EVALEXP:after labels = '$exp'"
-
+    
     # Now handle the ASCII character expressions
     if { [regexp -- "\\^(a|A)(.)(.+)(.)" $exp all code delim1 ascii delim2] } {
 	dbg "code='$code' del1='$delim1' del2='$delim2' ascii='$ascii'"
@@ -659,12 +731,12 @@ proc evaluate_expression_core {exp} {
 	    dbg "i_delim1 $i_delim1"
 	    dbg "i_ascii  $i_ascii"
 	    dbg "i_delim2 $i_delim2"
-
+	    
 	    
 	    if { $delim1 != $delim2 } {
 		error $original_line "Different delimiters in $code"
 	    }
-
+	    
 	    if { [string length $ascii] > 2 } {
 		error $original_line "Too many characters in $code"
 	    }
@@ -680,7 +752,7 @@ proc evaluate_expression_core {exp} {
 
 	    dbg "insert $i_all"
 	    # insert into expression
- 	    set exp [string replace $exp [lindex $i_all 0] [lindex $i_all 1] $value]
+	    set exp [string replace $exp [lindex $i_all 0] [lindex $i_all 1] $value]
 	    dbg "EXP after ^A: '$exp'"
 	}
     }
@@ -691,7 +763,7 @@ proc evaluate_expression_core {exp} {
 
     dbg "EVALEXP:after hex conv='$exp'"
     dbg "EVALEXP ='[expr $exp]'"
-    
+
     # Evaluate, trap errors
     set result 0
 
@@ -714,6 +786,165 @@ proc evaluate_expression {exp} {
 # Directives
 #
 
+
+# Overlay start
+#
+# Set up the current overlay
+# Store the overlay start
+#
+# We need to insert the overlay length into the object code, but the addresses don't increment for
+# it as it is just for loading the code.
+
+proc dir_over {line original_line} {
+    # We set up ::OVERLAY_ORG to the current address
+    # Also set ::OVERLAY_NAME
+    # We also create a label with the name of the overlay
+
+    dbg ".OVER"
+    
+    if { [regexp -- "(.OVER|over)\[ \t\]+(\[A-Za-z0-9$+*/<>\^-]+)" $line all dir overname] } {
+	# Set up current overlay
+	set ::CURRENT_OVER   $overname
+
+	set ::OVER_ORG       [expr $::ADDR]
+	set ::OVER_ORG_PACK  [expr $::PACK_ADDR]
+	
+	set f_addr    [format "%04X" $::OVER_ORG]
+	set f_emitted [format "%-12s" ""]
+	set line [string trim $original_line]
+	addlstline $::PACK_ADDR $f_addr "(OVER)" $f_emitted  $original_line
+
+	create_label $overname $::ADDR COLON $::PACK_ADDR
+
+	# Add overly to list and set up default values if it doesn't
+	# already exist
+
+	if { [lsearch -exact $::OVER_LIST $overname] == -1 } {
+	    # New overlay
+	    lappend ::OVER_LIST $overname
+	    
+	    # Set up start and end, in ORG address and pack address
+	    set ::OVER_START($overname) $::OVER_ORG
+	    set ::OVER_START_PACK($overname) $::OVER_ORG_PACK
+	    set ::OVER_END($overname) $::OVER_ORG
+	    set ::OVER_END_PACK($overname) $::OVER_ORG_PACK
+	    set ::FIXUP_TEXT($overname) ""
+
+	} else {
+	    # Store latest start addresses
+	    set ::OVER_START($overname) $::OVER_ORG
+	    set ::OVER_START_PACK($overname) $::OVER_ORG_PACK
+	}
+
+	# Insert overlay code length
+	set overlen [expr $::OVER_END_PACK($overname) - $::OVER_START_PACK($overname)]
+	
+	# Save pack address
+	set paddr $::PACK_ADDR
+	
+	# Emit it
+	set ::EMITTED ""
+	emitword $overlen
+	
+	set f_addr    [format "%04X" $::ADDR]
+	set f_emitted [format "%-12s" $::EMITTED]
+	set line [string trim $original_line]
+	addlstline $paddr $f_addr "(OL)" "$f_emitted$::FIXED"  $original_line
+
+	# Do not increment the address, this is hidden data for loading only
+	#incr ::ADDR 2
+
+	# Correct the increment that emitword did, as it isn't needed
+	incr ::PACK_ADDR -2
+
+	# The checksum should only sum data, not the length word
+	set ::OVER_CSUM($overname) 0
+	
+	return 1
+    } else {
+	error $line "Bad .OVER"
+	return 0
+    }
+}
+
+proc emit_and_list_word {w tag original_line} {
+    
+    # Save pack address
+    set paddr $::PACK_ADDR
+    
+    # Emit it
+    set ::EMITTED ""
+    emitword $w
+    
+    set f_addr    [format "%04X" $::ADDR]
+    set f_emitted [format "%-12s" $::EMITTED]
+    set line [string trim $original_line]
+    addlstline $paddr $f_addr "$tag" "$f_emitted$::FIXED"  $original_line
+    
+    incr ::ADDR 2
+}
+
+# End of overlay
+#
+# Closes an overlay
+#
+# Adds to object data:
+#
+#  Checksum of overlay
+#  Number of fixups in overlay
+#  Fixup list
+#  Checksum of fixups
+
+proc dir_eover {line original_line} {
+
+    dbg ".EOVER"
+    
+    if { [regexp -- "(.EOVER|eover)" $line all dir] } {
+	set f_addr    [format "%04X" $::ADDR]
+	set f_emitted [format "%-12s" ""]
+	set line [string trim $original_line]
+	addlstline $::PACK_ADDR $f_addr "(OE)" $f_emitted  $original_line
+
+	# Set up the end of the overlay
+	set ::OVER_END($::CURRENT_OVER)      [expr $::ADDR - 1]
+	set ::OVER_END_PACK($::CURRENT_OVER) [expr $::PACK_ADDR - 1]
+
+	set ov $::CURRENT_OVER
+	
+	# Insert overlay data checksum
+	set overcsum [expr $::OVER_CSUM($ov) & 0xFFFF]
+	emit_and_list_word  $overcsum "(OSUM)" ""
+
+	# Now number of fixups
+	set nfix   [llength $::FIXUP_TEXT($ov)]
+	emit_and_list_word $nfix "(NFX)" ""
+	
+	set fixcsum 0
+	foreach rec $::FIXUP_TEXT($ov) {
+	    incr fixcsum $rec
+	    emit_and_list_word $rec "(FX)" ""
+	}
+
+	# And the fixup list csum
+	emit_and_list_word $fixcsum "(FCSUM)" ""
+
+	return 1
+    } else {
+	error $line "Bad .EOVER"
+	return 0
+    }
+}
+
+#
+# Sets the code origin.
+#
+# The origin determines the addresses the code is assembled for
+# This is the ::ADDR variable. The code also lives at a certain address on the pck,
+# this is the PACK_ADDR variable. These are updated during assembly.
+# Overlays have their own ORG and PACK variables for keeping track of where code is assembled
+# within overlays (ORG can be reset within and overlay)
+#
+#
 proc dir_org {line original_line} {
     # We set up ::ADDR as specified
     if { [regexp -- "(.ORG|org)\[ \t\]+(\[A-Za-z0-9$+*/<>\^-]+)" $line all dir addr] } {
@@ -722,7 +953,7 @@ proc dir_org {line original_line} {
 	set f_addr    [format "%04X" $::ADDR]
 	set f_emitted [format "%-12s" ""]
 	set line [string trim $original_line]
-	addlstline $f_addr "(O)" $f_emitted  $original_line
+	addlstline $::PACK_ADDR $f_addr "(O)" $f_emitted  $original_line
 
 	return 1
     } else {
@@ -744,16 +975,19 @@ proc dir_byte {line original_line} {
 	foreach byte [split $bytelist " \t,"] {
 	    set bytelist [string map {" " ""} $bytelist]
 	    set byte [lindex [evaluate_expression $byte] 0]
+
+	    # Save pack address
+	    set paddr $::PACK_ADDR
 	    
 	    # Emit it
 	    set ::EMITTED ""
 	    emit $byte
-	
+	    
 	    set f_addr    [format "%04X" $::ADDR]
 	    set f_emitted [format "%-12s" $::EMITTED]
 	    set line [string trim $original_line]
-	    addlstline $f_addr "(B)" $f_emitted  $original_line
-	
+	    addlstline $paddr $f_addr "(B)" $f_emitted  $original_line
+	    
 	    incr ::ADDR 1
 	}
 	return 1
@@ -778,6 +1012,9 @@ proc dir_word {line original_line} {
 	foreach word [split $wordlist " \t,"] {
 	    
 	    #set word [lindex [evaluate_expression $word] 0]
+
+	    # Save pack address
+	    set paddr $::PACK_ADDR
 	    
 	    # Emit it
 	    set ::EMITTED ""
@@ -786,7 +1023,7 @@ proc dir_word {line original_line} {
 	    set f_addr    [format "%04X" $::ADDR]
 	    set f_emitted [format "%-12s" $::EMITTED]
 	    set line [string trim $original_line]
-	    addlstline $f_addr "(W)" "$f_emitted$::FIXED"  $original_line
+	    addlstline $paddr $f_addr "(W)" "$f_emitted$::FIXED"  $original_line
 	    
 	    incr ::ADDR 2
 	}
@@ -802,11 +1039,13 @@ proc dir_word {line original_line} {
 proc dir_equ {line original_line} {
     if { [regexp -- "(\[A-Za-z0-9_$\]+)\[ \t\]+(.EQU|equ|EQU|.equ)\[ \t\]+(\[A-Za-z0-9$\(\)_<>*/+-\]+)" $line all name dir value] } {
 	set value [lindex [evaluate_expression $value] 0]
-	create_label $name $value EQU
+
+	# Pack address doesn't make much sense for EQU labels
+	create_label $name $value EQU $value
 	
 	set f_value [format "%04X        " [lindex [evaluate_expression $value] 0]]
 	set line [string trim $original_line]
-	addlstline "" "(E)" $f_value  $original_line
+	addlstline "" "" "(E)" $f_value  $original_line
 
 	return 1
     } else {
@@ -824,10 +1063,10 @@ proc dir_blkb {line original_line} {
 	set f_addr    [format "%04X" $::ADDR]	
 	set f_value [format "%04X        " [lindex [evaluate_expression $value] 0]]
 	set line [string trim $original_line]
-	addlstline "$f_addr" "(E)" $f_value  $original_line
+	addlstline $::PACK_ADDR "$f_addr" "(E)" $f_value  $original_line
 
 	incr ::ADDR $value
-	
+	incr ::PACK_ADDR $value
 	return 1
     } else {
 	error $line "Bad .BLKB"
@@ -849,6 +1088,8 @@ proc dir_ascii {line original_line} {
 	foreach char [split $str ""] {
 	    
 	    binary scan $char H2 hex_char
+
+	    set paddr $::PACK_ADDR
 	    
 	    set ::EMITTED ""
 	    emit 0x$hex_char
@@ -856,7 +1097,7 @@ proc dir_ascii {line original_line} {
 	    set f_addr    [format "%04X" $::ADDR]
 	    set f_emitted [format "%-12s" $::EMITTED]
 	    set line [string trim $original_line]
-	    addlstline $f_addr "(A)" $f_emitted  $original_line
+	    addlstline $paddr $f_addr "(A)" $f_emitted  $original_line
 	    
 	    incr ::ADDR 1
 	}
@@ -877,6 +1118,8 @@ proc dir_ascic {line original_line} {
 	    error $line "String in .ASCIC ('$str') too long ($str_len bytes)"
 	    return 0
 	}
+
+	set paddr $::PACK_ADDR
 	
 	set ::EMITTED ""
 	emit $str_len
@@ -885,13 +1128,15 @@ proc dir_ascic {line original_line} {
 	set f_addr    [format "%04X" $::ADDR]
 	set f_emitted [format "%-12s" $::EMITTED]
 	set line [string trim $original_line]
-	addlstline $f_addr "(AL)" $f_emitted  $original_line
+	addlstline $paddr $f_addr "(AL)" $f_emitted  $original_line
 
 	incr ::ADDR 1
 	
 	foreach char [split $str ""] {
 	    
 	    binary scan $char H2 hex_char
+
+	    set paddr $::PACK_ADDR
 	    
 	    set ::EMITTED ""
 	    emit 0x$hex_char
@@ -899,7 +1144,7 @@ proc dir_ascic {line original_line} {
 	    set f_addr    [format "%04X" $::ADDR]
 	    set f_emitted [format "%-12s" $::EMITTED]
 	    set line [string trim $original_line]
-	    addlstline $f_addr "(A)" $f_emitted  $original_line
+	    addlstline $paddr $f_addr "(A)" $f_emitted  $original_line
 	    
 	    incr ::ADDR 1
 	}
@@ -926,6 +1171,8 @@ proc dir_asciz {line original_line} {
 	foreach char [split $str ""] {
 	    
 	    binary scan $char H2 hex_char
+
+	    set paddr $::PACK_ADDR
 	    
 	    set ::EMITTED ""
 	    emit 0x$hex_char
@@ -933,11 +1180,13 @@ proc dir_asciz {line original_line} {
 	    set f_addr    [format "%04X" $::ADDR]
 	    set f_emitted [format "%-12s" $::EMITTED]
 	    set line [string trim $original_line]
-	    addlstline $f_addr "(A)" $f_emitted  $original_line
+	    addlstline $paddr $f_addr "(A)" $f_emitted  $original_line
 	    
 	    incr ::ADDR 1
 	}
 
+	set paddr $::PACK_ADDR
+	
 	# Emit the nul terminator
 	set ::EMITTED ""
 	emit 0
@@ -946,7 +1195,7 @@ proc dir_asciz {line original_line} {
 	set f_addr    [format "%04X" $::ADDR]
 	set f_emitted [format "%-12s" $::EMITTED]
 	set line [string trim $original_line]
-	addlstline $f_addr "(AL)" $f_emitted  $original_line
+	addlstline $paddr $f_addr "(AL)" $f_emitted  $original_line
 
 	incr ::ADDR 1
 
@@ -1065,12 +1314,12 @@ proc assemble_file {filename} {
 		
 	    }
 	    
-	    create_label $label $::ADDR COLON
+	    create_label $label $::ADDR COLON $::PACK_ADDR
 	    dbg "Created '$label' = '$::ADDR'"
 	    if { [string length [string trim $line]] == 0 } {
 		set f_addr    [format "%04X" $::ADDR]
 
-		addlstline $f_addr "(L)" "" "$label:"
+		addlstline $::PACK_ADDR $f_addr "(L)" "" "$label:"
 	    }
 	}
 
@@ -1280,8 +1529,8 @@ proc assemble_file {filename} {
 		    
 		    # No need to convert parameters to instruction as that is done by the
 		    # addressing mode handlers
-#		    set p1 [value_to_dec $p1]
-#		    set p2 [value_to_dec $p2]
+		    #		    set p1 [value_to_dec $p1]
+		    #		    set p2 [value_to_dec $p2]
 		    
 		    # The regexp has matched, but does the addressing mode
 		    # check procedure say this is valid?
@@ -1311,8 +1560,9 @@ proc assemble_file {filename} {
 			# Use the addr mode to process for the bytes following the
 			# opcode
 			set ::EMITTED ""
+			set paddr $::PACK_ADDR
 			
-			emit "\$$f_opcode"
+			emit [expr 0x$opcode]
 			
 			if { $::PASS != 1 } {
 			    # Convert parameters to values
@@ -1323,7 +1573,7 @@ proc assemble_file {filename} {
 			
 			set f_emitted [format "%-12s" $::EMITTED]
 			
-			addlstline $f_addr "($addrmode_i)" "$f_emitted$::FIXED"   $original_line
+			addlstline $paddr $f_addr "($addrmode_i)" "$f_emitted$::FIXED"   $original_line
 			incr ::ADDR  $inst_length
 
 		    } else {
@@ -1353,7 +1603,7 @@ proc assemble_file {filename} {
     }
     set label_sum [calc_label_sum]
     
-    addlstline "" "(SUM)" "Label Sum: [format "$%04X" $label_sum]" ""
+    addlstline "" "" "(SUM)" "Label Sum: [format "$%04X" $label_sum]" ""
 }
 
 ################################################################################
@@ -1440,29 +1690,40 @@ proc calc_label_sum {} {
 }
 
 proc write_lst_file {filename} {
-
+    
     set f [open $filename w]
-
+    
     puts $f $::LIST_TEXT
-
+    
     foreach label $::LABELLIST {
 	set label_value [format "$%04X" $::LABEL($label)]
 	set f_name [format "%20s" $label]
 	puts $f "$f_name: $label_value"
     }
-
-    # Fixup information
-    set nfix   [llength $::FIXUP_TEXT]
-    set f_nfix [format "%04X" $nfix]
     
-    puts $f "\nFixup Information\n"
-    puts $f "\n$f_nfix records"
-    puts $f ""
-    set i 0
-    foreach rec $::FIXUP_TEXT {
-	puts $f "[format "%04X" $i]: $rec"
-	incr i 1
+    # Overlay list
+    foreach ov $::OVER_LIST {
+	set ovlen [expr $::OVER_END($ov)-$::OVER_START($ov)+1]
+	puts $f "Overlay:$ov"
+	puts $f "  Start :[formatword $::OVER_START($ov)]"
+	puts $f "  End   :[formatword $::OVER_END($ov)]"
+	puts $f "  Length:[formatword $ovlen]"
+	
+	# Fixup information
+	set nfix   [llength $::FIXUP_TEXT($ov)]
+	set f_nfix [format "\$%04X" $nfix]
+	
+	puts $f "\nFixup Information\n"
+	puts $f "\n$f_nfix records"
+	puts $f ""
+	set i 0
+	
+	foreach rec $::FIXUP_TEXT($ov) {
+	    puts $f "[formatword $i]: [formatword $rec]"
+	    incr i 1
+	}
     }
+    
     close $f
 }
 

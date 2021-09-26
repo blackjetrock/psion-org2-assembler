@@ -47,7 +47,7 @@ xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
 	.byte	10		; DEVICE NUMBER
 	.byte	0		; DEVICE VERSION NUMBER
 	.byte	10		; PRIORITY NUMBER
-        .word	root-xx-2	; ROOT OVERLAY ADDRESS
+        .word	%root-%xx-2	; ROOT OVERLAY ADDRESS
 	;; .word	start		;
 	.byte	^Xff		; N/C
 	.byte	^Xff		; N/C
@@ -57,11 +57,11 @@ xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
 	.byte	^X90
 	.byte	^x02
 	.byte	^x80
-	.word	prgend-root+2 ; size of code
+	.word	%prgend-%root+2 ; size of code
 
 ;==========================================================================
 	
-root:	
+        .over   root
 start:	
 codelen:
 	.word	0000
@@ -121,14 +121,14 @@ dicmain:
 	os	er$mess
 	rts
 1$:
-	ldx	#prgend-xx
+	ldx	#%prgend-%xx
 	clrb
 	os	pk$sadd
 	ldx	#decode
 	ldd	#8
 	os	pk$read			; read in 8 bytes
 	bcs	2$
-    	ldd	#prgend+10-xx
+    	ldd	#%prgend+10-%xx
 	std	btext
 	addd	decode
 	std	decode
@@ -361,7 +361,7 @@ dnfd:
 	.byte	D_BL,D_CB
 	.asciz	"NOT FOUND"
 	ldaa #1
-	staa flag
+	stqa flag		;special opcode
 	pulx
 	xgdx
 	deca
@@ -818,8 +818,11 @@ tbuf:	.blkb	12
 ebuf:	.blkb	5
 loadt:	.blkb	256
 loade:
-;
-codeend:
-prgend:	
+				;
+	.eover
+
+	.over  prgend
+	.eover
+;; prgend:				
 	
 
