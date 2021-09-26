@@ -22,4 +22,7 @@ Hexadecimal numbers are $XX
 
 Expressions can be used anywhere.
 
-.lst file has object code, label information and fixup data.
+.lst file has object code, label information, overlay information  and fixup data.
+
+The object code can be embedded in a C file as array data using comments to place the data.
+
