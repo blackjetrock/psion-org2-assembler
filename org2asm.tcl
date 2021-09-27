@@ -201,7 +201,7 @@ set ::INST {
     {BLE  2F   ____ ____ ____ ____ ____ ____ ____}
     {BLS  23   ____ ____ ____ ____ ____ ____ ____}
     {BLT  2D   ____ ____ ____ ____ ____ ____ ____}
-    {BMI  28   ____ ____ ____ ____ ____ ____ ____}
+    {BMI  2B   ____ ____ ____ ____ ____ ____ ____}
     {BNE  26   ____ ____ ____ ____ ____ ____ ____}
     {BPL  2A   ____ ____ ____ ____ ____ ____ ____}
     {BRA  20   ____ ____ ____ ____ ____ ____ ____}
@@ -692,8 +692,11 @@ proc evaluate_expression_core {exp} {
 	    # If label has '$' in it then we have to escape it
 	    set label [string map {"$" "SSS"} $label]
 	    dbg "Label escaped:'$label'"
+	    set labellookup "$labellookup"
 	    
-	    regsub -all "($::LABEL_DELIM)%$label\($::LABEL_DELIM)" [string map {"$" "SSS"} $exp] "\\1[set ::LABEL($labellookup)]\\2" exp
+	    dbg "Label lookup='$labellookup'"
+	    
+	    regsub -all "($::LABEL_DELIM)%$label\($::LABEL_DELIM)" [string map {"$" "SSS"} $exp] "\\1[set ::LABEL_PACK_ADDR($labellookup)]\\2" exp
 	    dbg "'$exp'"
 	    set exp [string trim $exp "="]
 	}
@@ -720,6 +723,7 @@ proc evaluate_expression_core {exp} {
 	    # If label has '$' in it then we have to escape it
 	    set label [string map {"$" "SSS"} $label]
 	    dbg "Label escaped:'$label'"
+	    dbg "Label lookup='$labellookup'"
 	    
 	    regsub -all "($::LABEL_DELIM)$label\($::LABEL_DELIM)" [string map {"$" "SSS"} $exp] "\\1[set ::LABEL($labellookup)]\\2" exp
 	    dbg "'$exp'"
@@ -1681,7 +1685,8 @@ proc write_hex_file {filename} {
 
     set i 0
     foreach {na nb}  [split $::HEX_EMITTED ""] {
-	puts -nonewline $f [string tolower "$na$nb"]
+	set hx [string tolower "$na$nb"]
+	puts -nonewline $f $hx
 	if { [expr ($i % 16) == 15] } {
 	    puts $f ""
 	}
@@ -1727,7 +1732,9 @@ proc write_lst_file {filename} {
     puts $f $::LIST_TEXT
     
     foreach label $::LABELLIST {
-	set label_value [format "$%04X" $::LABEL($label)]
+	set label_value [formatword $::LABEL($label)]
+	set label_pack_value [formatword $::LABEL_PACK_ADDR($label)]
+	
 	set f_name [format "%20s" $label]
 
 	switch $::LABEL_TYPE($label) {
@@ -1739,7 +1746,7 @@ proc write_lst_file {filename} {
 	    }
 	}
 	
-	puts $f "$f_name: $ltype $label_value"
+	puts $f "$f_name: $ltype $label_value %$label_pack_value"
     }
     
     # Overlay list
