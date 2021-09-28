@@ -118,6 +118,7 @@ set ::MACROLIST    ""
 set ::OVER_LIST    ""
 set ::CURRENT_OVER ""
 set ::OVER_ORG 0
+set ::OVER_LEN 0
 
 set ::INCLUDELINES ""
 set ::INCLUDEDIR_LIST ""
@@ -314,13 +315,13 @@ set ::INST {
 
 
 proc add_fixup {a} {
-    if { $::PASS == $::LAST_PASS } {
+#    if { $::PASS == $::LAST_PASS || 1 } {
 	set d_a [lindex [evaluate_expression $a] 0]
 	set d_a [expr $d_a]
 	#	set d_a [value_to_dec $a]
 	set f_a [format "%04X" $d_a]
 	append ::FIXUP_TEXT($::CURRENT_OVER) "$d_a\n"    
-    }
+#    }
 }
 
 ################################################################################
@@ -550,9 +551,21 @@ proc emitword {w} {
     }
     
     set fb [format "%02X" [expr $w / 256]]
+
+    # Add to overlay checksum
+    if { [string length $::CURRENT_OVER] > 0 } {
+	incr ::OVER_CSUM($::CURRENT_OVER) [expr $w / 256]
+    }
+
     append ::EMITTED " $fb"
     append ::HEX_EMITTED "$fb"
     set fb [format "%02X" [expr $w % 256]]
+
+        # Add to overlay checksum
+    if { [string length $::CURRENT_OVER] > 0 } {
+	incr ::OVER_CSUM($::CURRENT_OVER) [expr $w % 256]
+    }
+
     append ::EMITTED " $fb"
     append ::HEX_EMITTED "$fb"
 
@@ -582,6 +595,7 @@ proc create_label {name value type packaddr} {
     set ::LABEL($name) $value
     set ::LABEL_TYPE($name) $type
     set ::LABEL_PACK_ADDR($name) $packaddr
+    dbg "create_label:$name $value $type $packaddr"
 }
 
 ################################################################################
@@ -832,9 +846,11 @@ proc dir_over {line original_line} {
 	set line [string trim $original_line]
 	addlstline $::PACK_ADDR $f_addr "(OVER)" $f_emitted  $original_line
 
-	create_label $overname $::ADDR COLON $::PACK_ADDR
+	# The label created by the .over directive is the address of the first code byte of the
+	# overlay
+	create_label $overname $::ADDR COLON [expr $::OVER_ORG_PACK]
 
-	# Add overly to list and set up default values if it doesn't
+	# Add overlay to list and set up default values if it doesn't
 	# already exist
 
 	if { [lsearch -exact $::OVER_LIST $overname] == -1 } {
@@ -843,35 +859,44 @@ proc dir_over {line original_line} {
 	    
 	    # Set up start and end, in ORG address and pack address
 	    set ::OVER_START($overname) $::OVER_ORG
-	    set ::OVER_START_PACK($overname) $::OVER_ORG_PACK
+	    set ::OVER_START_PACK($overname) $::OVER_ORG_PACK 
 	    set ::OVER_END($overname) $::OVER_ORG
 	    set ::OVER_END_PACK($overname) $::OVER_ORG_PACK
 	    set ::FIXUP_TEXT($overname) ""
+	    dbg "OVER:new $overname $::OVER_ORG  $::OVER_ORG_PACK"
 
 	} else {
 	    # Store latest start addresses
 	    set ::OVER_START($overname) $::OVER_ORG
 	    set ::OVER_START_PACK($overname) $::OVER_ORG_PACK
+	    set ::FIXUP_TEXT($overname) ""
+	    dbg "OVER:upd $overname $::OVER_ORG  $::OVER_ORG_PACK"
 	}
 
 	# Insert overlay code length
 	set overlen [expr $::OVER_END_PACK($overname) - $::OVER_START_PACK($overname) + 1]
+#	set overlen $::OVER_LEN
+	set overlen [expr $::OVER_END($overname)-$::OVER_START($overname)+1]
 	
-	# Save pack address
-	set paddr $::PACK_ADDR
-	
-	# Emit it
-	set ::EMITTED ""
-	emitword $overlen
-	
-	set f_addr    [format "%04X" $::ADDR]
-	set f_emitted [format "%-12s" $::EMITTED]
-	set line [string trim $original_line]
-	addlstline $paddr $f_addr "(OL)" "$f_emitted$::FIXED"  $original_line
+	# If overlay is of zero length then we don't put anything in the object code
 
-	# Do not increment the address, this is hidden data for loading only
-	#incr ::ADDR 2
-
+	if { $overlen > 0 } {
+	    # Save pack address
+	    set paddr $::PACK_ADDR
+	    
+	    # Emit it
+	    set ::EMITTED ""
+	    emitword $overlen
+	    
+	    set f_addr    [format "%04X" $::ADDR]
+	    set f_emitted [format "%-12s" $::EMITTED]
+	    set line [string trim $original_line]
+	    addlstline $paddr $f_addr "(OL)" "$f_emitted$::FIXED"  $original_line
+	    
+	    # Do not increment the address, this is hidden data for loading only
+	    #incr ::ADDR 2
+	}
+	
 	# The checksum should only sum data, not the length word
 	set ::OVER_CSUM($overname) 0
 	
@@ -926,23 +951,30 @@ proc dir_eover {line original_line} {
 
 	set ov $::CURRENT_OVER
 	
-	# Insert overlay data checksum
-	set overcsum [expr $::OVER_CSUM($ov) & 0xFFFF]
-	emit_and_list_word  $overcsum "(OSUM)" ""
-
-	# Now number of fixups
-	set nfix   [llength $::FIXUP_TEXT($ov)]
-	emit_and_list_word $nfix "(NFX)" ""
+	set overlen [expr $::OVER_END_PACK($ov) - $::OVER_START_PACK($ov) + 1]
+	set overlen [expr $::ADDR - $::OVER_ORG]
+	#set ::OVER_LEN $overlen
 	
-	set fixcsum 0
-	foreach rec $::FIXUP_TEXT($ov) {
-	    incr fixcsum $rec
-	    emit_and_list_word $rec "(FX)" ""
+	# Only put data in object stream if overlay is not of zero length
+	if { $overlen > 0 } {
+	    # Insert overlay data checksum
+	    set overcsum [expr $::OVER_CSUM($ov) & 0xFFFF]
+	    emit_and_list_word  $overcsum "(OSUM)" ""
+	    
+	    # Now number of fixups
+	    set nfix   [llength $::FIXUP_TEXT($ov)]
+	    emit_and_list_word $nfix "(NFX)" ""
+	    
+	    set fixcsum 0
+	    foreach rec $::FIXUP_TEXT($ov) {
+		incr fixcsum $rec
+		emit_and_list_word $rec "(FX)" ""
+	    }
+	    
+	    # And the fixup list csum
+	    emit_and_list_word $fixcsum "(FCSUM)" ""
 	}
-
-	# And the fixup list csum
-	emit_and_list_word $fixcsum "(FCSUM)" ""
-
+	
 	return 1
     } else {
 	error $line "Bad .EOVER"
@@ -1087,7 +1119,7 @@ proc dir_blkb {line original_line} {
 	addlstline $::PACK_ADDR "$f_addr" "(E)" $f_value  $original_line
 
 	incr ::ADDR $value
-	incr ::PACK_ADDR $value
+#	incr ::PACK_ADDR $value
 	return 1
     } else {
 	error $line "Bad .BLKB"

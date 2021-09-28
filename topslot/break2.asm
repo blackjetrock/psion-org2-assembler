@@ -47,7 +47,7 @@ xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
 	.byte	10		; DEVICE NUMBER
 	.byte	0		; DEVICE VERSION NUMBER
 	.byte	10		; PRIORITY NUMBER
-        .word	%root-%xx-2	; ROOT OVERLAY ADDRESS
+        .word	%root-%xx	; ROOT OVERLAY ADDRESS
 	;; .word	start		;
 	.byte	^Xff		; N/C
 	.byte	^Xff		; N/C
@@ -57,7 +57,7 @@ xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
 	.byte	^X90
 	.byte	^x02
 	.byte	^x80
-	.word	%prgend-%root+2 ; size of code
+	.word	%prgend-%root   ; size of code
 
 ;==========================================================================
 	
@@ -78,7 +78,7 @@ vectable:
 	.word	remove		;remove
 	.word	lang	   	;language
 ditem:
-	.ascic	"DICT"
+	.ascic	"XDICT"
 	.word	dicmain
 install:
 	LDX	#ditem
