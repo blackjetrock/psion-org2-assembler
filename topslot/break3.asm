@@ -92,13 +92,13 @@ ilitm:
 	.word   dicmain
 opaaitm:	
 	.ascic  "OUTPICOAA"
-	.word   opico
-op0itm:	
+	.word   opaa
+op00itm:	
 	.ascic  "OUTPICO00"
-	.word   opico
+	.word   op00
 opffitm:	
 	.ascic  "OUTPICOFF"
-	.word   opico
+	.word   opff
 ipitm:	
 	.ascic  "INPICO"
 	.word   dicmain
@@ -164,7 +164,7 @@ outpico:
         LDAA    #$FF	
         STAA    POB_DDR2             ; make port 2 output
         PULA                          ; get data back
-        STAA    POB_PORT2            ; 0 on data bus
+        STAA    POB_PORT2            ; data on data bus
  
         OIM     #OE,POB_PORT6           ; SET SOE_B HIGH
         AIM     #^CCS3,POB_PORT6      ; SELECT THE SLOT AGAIN
@@ -187,7 +187,7 @@ opaa:	ldaa    #$AA
 	CLC
 	RTS
 
-op0:	ldaa    #$00
+op00:	ldaa    #$00
 	JSR     outpico
 	CLC
 	RTS
