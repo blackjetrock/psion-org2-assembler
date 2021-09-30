@@ -159,7 +159,7 @@ set ::ADDMODE {
 
 # Search order for addressing modes to ensure more complicated formats first
 
-set ::ADDRMODE_ORDER {3 0 1 2 4 5 6 7}
+set ::ADDRMODE_ORDER {3 0 6 7 1 2 4 5}
 
 # Define the instructions
 #

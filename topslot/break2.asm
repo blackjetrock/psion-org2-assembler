@@ -361,7 +361,7 @@ dnfd:
 	.byte	D_BL,D_CB
 	.asciz	"NOT FOUND"
 	ldaa #1
-	stqa flag		;special opcode
+	staa flag		;special opcode to match XDICT.SRC
 	pulx
 	xgdx
 	deca
