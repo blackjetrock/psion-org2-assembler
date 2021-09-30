@@ -90,8 +90,14 @@ olitm:
 ilitm:	
 	.ascic  "INLAT"
 	.word   dicmain
-opitm:	
-	.ascic  "OUTPICO"
+opaaitm:	
+	.ascic  "OUTPICOAA"
+	.word   opico
+op0itm:	
+	.ascic  "OUTPICO00"
+	.word   opico
+opffitm:	
+	.ascic  "OUTPICOFF"
 	.word   opico
 ipitm:	
 	.ascic  "INPICO"
@@ -102,7 +108,11 @@ install:
         JSR     insitm
 	LDX     #ilitm
 	JSR     insitm
-	LDX     #opitm
+	LDX     #opaaitm
+	JSR     insitm
+	LDX     #op00itm
+	JSR     insitm
+	LDX     #opffitm
 	JSR     insitm
 	LDX     #ipitm
 	JSR     insitm
@@ -172,7 +182,17 @@ outpico:
 
 	RTS
 
-opico:	ldaa    #$AA
+opaa:	ldaa    #$AA
+	JSR     outpico
+	CLC
+	RTS
+
+op0:	ldaa    #$00
+	JSR     outpico
+	CLC
+	RTS
+
+opff:	ldaa    #$FF
 	JSR     outpico
 	CLC
 	RTS
