@@ -287,6 +287,9 @@ latin:
 	os kb$test
 	TSTB
 	BEQ   latin
+
+	;; Flush the keypress
+	os kb$getk
 	
 	CLC
 	RTS
