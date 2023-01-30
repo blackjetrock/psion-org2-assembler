@@ -1,0 +1,6 @@
+mult%:(M%,N%)
+LOCAL MC$(3)
+MC$=CHR$($3d)
+MC$=MC$+CHR$($18)
+MC$=MC$+CHR$($39)
+RETURN USR(ADDR(MC$)+1,M%*256+N%)

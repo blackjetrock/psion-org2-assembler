@@ -1275,7 +1275,7 @@ proc next_line {} {
 	return $result
     }
 
-    # The get lines from included files
+    # Then get lines from included files
     if { [llength $::INCLUDELINES] != 0 } {
 	set result [lindex $::INCLUDELINES 0]
 	set ::INCLUDELINES [lrange $::INCLUDELINES 1 end]
@@ -1391,7 +1391,7 @@ proc assemble_file {filename} {
 	    if { [regexp -- "(.INCLUDE)\[ \t\]+(.+)" $line all dir filename] } {
 		dbg "Include $filename"
 
-		# Try to find include file in all directories inthe include dir list
+		# Try to find include file in all directories in the include dir list
 		foreach directory $::INCLUDEDIR_LIST {
 		    if { [file exists $directory/$filename] } {
 			set filename $directory/$filename
@@ -1729,6 +1729,46 @@ proc write_hex_file {filename} {
 
 ################################################################################
 #
+# Writes a file with the hex data encoded as OPL statements
+# This OPL encodes the machine code and runs it
+#
+
+proc write_opl_file {filename} {
+
+    set procname [file rootname $filename]
+    set procname [string range $procname 0 7]
+
+    set codelen [string length $::HEX_EMITTED]
+    set codelen [expr $codelen / 2]
+    
+    puts "Proc name;$procname"
+    
+    set f [open $filename w]
+
+    puts $f "$procname\:"
+    puts $f "LOCAL MC\$($codelen),M%,N%"
+    
+
+    set p ""
+    set i 1
+    foreach {na nb}  [split $::HEX_EMITTED ""] {
+	set hx [string tolower "$na$nb"]
+	puts $f "MC\$=$p\CHR\$(\$$hx)"
+	set p "MC$+"
+	incr i 1
+    }
+
+    
+    puts $f "INPUT M%"
+    puts $f "INPUT N%"  
+    
+    puts $f "PRINT USR(ADDR(MC$)+1,M%*256+N%)"		
+    close $f
+
+}
+
+################################################################################
+#
 # Writes a bin file.
 
 
@@ -1844,6 +1884,7 @@ while { $arg_i < [llength $argv]} {
 	    set hex_filename [string map {.asm .hex} $asm_filename]
 	    set mac_filename [string map {.asm .mac} $asm_filename]
 	    set bin_filename [string map {.asm .bin} $asm_filename]
+	    set opl_filename [string map {.asm .opl} $asm_filename]
 	    
 	    set ::DBG_FILENAME [string map {.asm .dbg} $asm_filename]
 	}
@@ -1890,11 +1931,12 @@ for { set ::PASS 1 } {$::PASS <= $::NUMBER_OF_PASSES} {incr ::PASS 1} {
     close $f
 }
 
-write_lst_file $lst_filename
+write_lst_file   $lst_filename
 
-write_hex_file $hex_filename
-write_bin_file $bin_filename
+write_hex_file   $hex_filename
+write_bin_file   $bin_filename
 write_macro_file $mac_filename
+write_opl_file   $opl_filename
 
 # Embed data?
 if { $::EMBED_FLAG } {
