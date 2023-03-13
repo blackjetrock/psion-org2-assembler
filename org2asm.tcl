@@ -544,8 +544,9 @@ proc emitword {w} {
 	    add_fixup [expr $::ADDR-$::OVER_ORG]
 
 	    # Adjust word so it is fixed up corectly
-	    set w [expr $w - $::OVER_START($::CURRENT_OVER)]
-	    
+	    if { [info exists ::OVER_START(::CURRENT_OVER)] } {
+		set w [expr $w - $::OVER_START($::CURRENT_OVER)]
+	    }
 	    set ::FIXED "*"
 	}
     }
@@ -1732,8 +1733,11 @@ proc write_hex_file {filename} {
 # Writes a file with the hex data encoded as OPL statements
 # This OPL encodes the machine code and runs it
 #
+# OPL accepts arguments from the user and prints the result of the machine
+# code being executed.
+#
 
-proc write_opl_file {filename} {
+proc write_opl_file_1 {filename} {
 
     set procname [file rootname $filename]
     set procname [string range $procname 0 7]
@@ -1763,6 +1767,80 @@ proc write_opl_file {filename} {
     puts $f "INPUT N%"  
     
     puts $f "PRINT USR(ADDR(MC$)+1,M%*256+N%)"		
+    close $f
+
+}
+
+################################################################################
+#
+# Writes a file with the hex data encoded as OPL statements
+# This OPL encodes the machine code and runs it
+#
+# OPL accepts arguments and returns result. Can be run from Calc app
+#
+
+proc write_opl_file_2 {filename} {
+
+    set procname [file rootname $filename]
+    set procname [string range $procname 0 7]
+
+    set codelen [string length $::HEX_EMITTED]
+    set codelen [expr $codelen / 2]
+    
+    puts "Proc name;$procname"
+    
+    set f [open $filename w]
+
+    puts $f "$procname\%\:(M%,N%)"
+    puts $f "LOCAL MC\$($codelen)"
+
+    set p ""
+    set i 1
+    foreach {na nb}  [split $::HEX_EMITTED ""] {
+	set hx [string tolower "$na$nb"]
+	puts $f "MC\$=$p\CHR\$(\$$hx)"
+	set p "MC$+"
+	incr i 1
+    }
+
+    puts $f "RETURN USR(ADDR(MC$)+1,M%*256+N%)"		
+    close $f
+
+}
+
+################################################################################
+#
+# Writes a file with the hex data encoded as OPL statements
+# This OPL encodes the machine code and runs it
+#
+# OPL accepts no arguments and returns result. Can be run from Calc app
+#
+
+proc write_opl_file_3 {filename} {
+
+    set procname [file rootname $filename]
+    set procname [string range $procname 0 7]
+
+    set codelen [string length $::HEX_EMITTED]
+    set codelen [expr $codelen / 2]
+    
+    puts "Proc name;$procname"
+    
+    set f [open $filename w]
+
+    puts $f "$procname:"
+    puts $f "LOCAL MC\$($codelen)"
+
+    set p ""
+    set i 1
+    foreach {na nb}  [split $::HEX_EMITTED ""] {
+	set hx [string tolower "$na$nb"]
+	puts $f "MC\$=$p\CHR\$(\$$hx)"
+	set p "MC$+"
+	incr i 1
+    }
+
+    puts $f "RETURN USR(ADDR(MC$)+1,0)"		
     close $f
 
 }
@@ -1936,7 +2014,9 @@ write_lst_file   $lst_filename
 write_hex_file   $hex_filename
 write_bin_file   $bin_filename
 write_macro_file $mac_filename
-write_opl_file   $opl_filename
+write_opl_file_1   "$opl_filename\_1"
+write_opl_file_2   "$opl_filename\_2"
+write_opl_file_3   "$opl_filename\_3"
 
 # Embed data?
 if { $::EMBED_FLAG } {

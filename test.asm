@@ -24,10 +24,12 @@
                 LEND:
                         RTS                     ; EXIT ROUTINE
                 CEND:
-                        .WORD   $4E9            ; CHECKSUM OF CODE BLOCK
-                        .WORD   (FIXEN-FIXST)/2 ; NUMBER OF FIXUPS
+        .WORD   $4E9            ; CHECKSUM OF CODE BLOCK
+	
+        ;.WORD   (FIXEN-FIXST)/2 ; NUMBER OF FIXUPS
+	
                 FIXST:
-                        .WORD   FIX1+1          ; ADDRESS IN CODE BLOCK
+        ;                .WORD   FIX1+1          ; ADDRESS IN CODE BLOCK
                 FIXEN:
                         .WORD   $E              ; CHECKSUM OF FIXUPS
 
