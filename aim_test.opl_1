@@ -1,0 +1,16 @@
+aim_test:
+LOCAL MC$(11),M%,N%
+MC$=CHR$($71)
+MC$=MC$+CHR$($40)
+MC$=MC$+CHR$($17)
+MC$=MC$+CHR$($3f)
+MC$=MC$+CHR$($17)
+MC$=MC$+CHR$($71)
+MC$=MC$+CHR$($bf)
+MC$=MC$+CHR$($17)
+MC$=MC$+CHR$($72)
+MC$=MC$+CHR$($08)
+MC$=MC$+CHR$($17)
+INPUT M%
+INPUT N%
+PRINT USR(ADDR(MC$)+1,M%*256+N%)

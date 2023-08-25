@@ -650,7 +650,7 @@ proc evaluate_expression_core {exp} {
     
     # Force complement to tilde as it stops label substitution
     set exp [string map "^C ~" $exp]
-    
+
     dbg "After map = '$exp'"
     
     # Turn label names into references to the label variables
@@ -784,6 +784,41 @@ proc evaluate_expression_core {exp} {
 	    # insert into expression
 	    set exp [string replace $exp [lindex $i_all 0] [lindex $i_all 1] $value]
 	    dbg "EXP after ^A: '$exp'"
+	}
+    }
+
+    # Now handle bit number masks
+    if { [regexp -- "\\^(b|B)(.)(.+)(.)" $exp all code delim1 bitno delim2] } {
+	dbg "code='$code' del1='$delim1' del2='$delim2' bitno='$bitno'"
+	
+	# We have a bit number mask expression
+	# Get indices of expression
+	if { [regexp -indices -- "\\^(b|B)(.)(.+)(.)" $exp i_all i_code i_delim1 i_bitno i_delim2] } {
+	    # Some checks
+	    dbg "i_all    $i_all"
+	    dbg "i_code   $i_code"
+	    dbg "i_delim1 $i_delim1"
+	    dbg "i_bitno  $i_bitno"
+	    dbg "i_delim2 $i_delim2"
+	    
+	    if { $delim1 != $delim2 } {
+		error $original_line "Different delimiters in $code"
+	    }
+	    
+	    if { [string length $bitno] > 2 } {
+		error $original_line "Too big a bit number in $code"
+	    }
+
+	    # Convert characters and replace original expression with bit number mask expression
+	    set value "(1<<$bitno)"
+
+	    dbg "bit number mask: $bitno => $value"
+
+	    dbg "insert $i_all"
+	    
+	    # insert into expression
+	    set exp [string replace $exp [lindex $i_all 0] [lindex $i_all 1] $value]
+	    dbg "EXP after ^B: '$exp'"
 	}
     }
 
@@ -1424,7 +1459,7 @@ proc assemble_file {filename} {
 	set expanded 0
 	
 	foreach macro $::MACROLIST {
-	    if { [string first $macro $line] != -1 } {
+	    if { [string first $macro $line] != -1 } {  
 		dbg "Found macro $macro"
 		dbg "RE=$macro\[ \t\]+($::MACROPAREXP($macro))"
 		
