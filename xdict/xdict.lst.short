@@ -1,0 +1,875 @@
+FFFFFFFFFFFFF943 0000  0000  FFFFFFFFFFFFF945 06BB (A)   4F          	.ascii	"ORG"                           
+FFFFFFFFFFFFF944 0001  0001  FFFFFFFFFFFFF946 06BB (A)   52          	.ascii	"ORG"                           
+FFFFFFFFFFFFF945 0002  0002  FFFFFFFFFFFFF947 06BB (A)   47          	.ascii	"ORG"                           
+FFFFFFFFFFFFF946 0003  0003  FFFFFFFFFFFFF948 06BB (W)   06 B7        	.word	%prgend-%xx                      
+FFFFFFFFFFFFF948 0005  0005  FFFFFFFFFFFFF94A 06BB (B)   FF          	.byte	^xFF                             
+FFFFFFFFFFFFF949 0006  0006  FFFFFFFFFFFFF94B 06BB (B)   46          xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
+FFFFFFFFFFFFF94A 0007  0007  FFFFFFFFFFFFF94C 06BB (B)   04          	.byte	^x04		; 32K PACK                 
+FFFFFFFFFFFFF94B 0008  0008  FFFFFFFFFFFFF94D 06BB (B)   01          	.byte	1		; DEVICE AND CODE             
+FFFFFFFFFFFFF94C 0009  0009  FFFFFFFFFFFFF94E 06BB (B)   0A          	.byte	10		; DEVICE NUMBER              
+FFFFFFFFFFFFF94D 000A  000A  FFFFFFFFFFFFF94F 06BB (B)   00          	.byte	0		; DEVICE VERSION NUMBER       
+FFFFFFFFFFFFF94E 000B  000B  FFFFFFFFFFFFF950 06BB (B)   0A          	.byte	10		; PRIORITY NUMBER            
+FFFFFFFFFFFFF94F 000C  000C  FFFFFFFFFFFFF951 06BB (W)   00 17        	.word	%root-%xx-2	; ROOT OVERLAY ADDRESS
+FFFFFFFFFFFFF951 000E  000E  FFFFFFFFFFFFF953 06BB (B)   FF          	.byte	^Xff		; N/C                      
+FFFFFFFFFFFFF952 000F  000F  FFFFFFFFFFFFF954 06BB (B)   FF          	.byte	^Xff		; N/C                      
+FFFFFFFFFFFFF953 0010  0010  FFFFFFFFFFFFF955 06BB (B)   09          	.byte	^X09                             
+FFFFFFFFFFFFF954 0011  0011  FFFFFFFFFFFFF956 06BB (B)   81          	.byte	^X81                             
+FFFFFFFFFFFFF955 0012  0012  FFFFFFFFFFFFF957 06BB (A)   4D          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFF956 0013  0013  FFFFFFFFFFFFF958 06BB (A)   41          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFF957 0014  0014  FFFFFFFFFFFFF959 06BB (A)   49          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFF958 0015  0015  FFFFFFFFFFFFF95A 06BB (A)   4E          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFF959 0016  0016  FFFFFFFFFFFFF95B 06BB (A)   20          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFF95A 0017  0017  FFFFFFFFFFFFF95C 06BB (A)   20          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFF95B 0018  0018  FFFFFFFFFFFFF95D 06BB (A)   20          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFF95C 0019  0019  FFFFFFFFFFFFF95E 06BB (A)   20          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFF95D 001A  001A  FFFFFFFFFFFFF95F 06BB (B)   90          	.byte	^X90                             
+FFFFFFFFFFFFF95E 001B  001B  FFFFFFFFFFFFF960 06BB (B)   02          	.byte	^x02                             
+FFFFFFFFFFFFF95F 001C  001C  FFFFFFFFFFFFF961 06BB (B)   80          	.byte	^x80                             
+FFFFFFFFFFFFF960 001D  001D  FFFFFFFFFFFFF962 06BB (W)   06 A0        	.word	%prgend-%root+2 ; size of code   
+0000 001F  001F  0000 001F (OVER)              	.over	root                             
+0000 001F  001F  0000 001F (OL)  05 E8        	.over	root                             
+0002 0021  001F  0000 001F (L)               codelen:                                
+0002 0021  001F  0000 001F (W)   00 00        	.word	0000                             
+0004 0023  0021  0002 001F (L)               bdevice:                                
+0004 0023  0021  0002 001F (B)   00          	.byte	00                               
+0005 0024  0022  0003 001F (L)               devnum:                                 
+0005 0024  0022  0003 001F (B)   0A          	.byte	10                               
+0006 0025  0023  0004 001F (L)               vernum:                                 
+0006 0025  0023  0004 001F (B)   00          	.byte	0                                
+0007 0026  0024  0005 001F (L)               maxvec:                                 
+0007 0026  0024  0005 001F (B)   03          	.byte	3                                
+0008 0027  0025  0006 001F (L)               vectable:                               
+0008 0027  0025  0006 001F (W)   00 32      * 	.word	install		;install                
+000A 0029  0027  0008 001F (W)   00 46      * 	.word	remove		;remove                  
+000C 002B  0029  000A 001F (W)   00 63      * 	.word	lang	   	;language               
+000E 002D  002B  000C 001F (L)               ditem:                                  
+000E 002D  002B  000C 001F (AL)  04          	.ascic	"DICT"                          
+000F 002E  002C  000D 001F (A)   44          	.ascic	"DICT"                          
+0010 002F  002D  000E 001F (A)   49          	.ascic	"DICT"                          
+0011 0030  002E  000F 001F (A)   43          	.ascic	"DICT"                          
+0012 0031  002F  0010 001F (A)   54          	.ascic	"DICT"                          
+0013 0032  0030  0011 001F (W)   00 65      * 	.word	dicmain                          
+0015 0034  0032  0013 001F (L)               install:                                
+0015 0034  0032  0013 001F (1)   CE 00 2B   * 	ldx	#ditem                             
+0018 0037  0035  0016 001F (3)   E6 00        	ldab    0,x                            
+001A 0039  0037  0018 001F (1)   CB 03                addb  #3                        
+001C 003B  0039  001A 001F (5)   4F           	clra                                   
+001D 003C  003A  001B 001F (2)   DD 41        	std	utw_s0                             
+001F 003E  003C  001D 001F (1)   CC 21 87     	ldd	#rtb_bl                            
+0022 0041  003F  0020 001F (B)   3F          	.byte	^X3F,ut$cpyb                     
+0023 0042  0040  0021 001F (B)   6D          	.byte	^X3F,ut$cpyb                     
+0024 0043  0041  0022 001F (1)   C6 FF        	ldab    #^XFF                          
+0026 0045  0043  0024 001F (B)   3F          	.byte	^X3F,tl$addi                     
+0027 0046  0044  0025 001F (B)   65          	.byte	^X3F,tl$addi                     
+0028 0047  0045  0026 001F (5)   39           	rts                                    
+0029 0048  0046  0027 001F (L)               remove:                                 
+0029 0048  0046  0027 001F (4)   B6 FF E9     	ldaa    ^Xffe9                         
+002C 004B  0049  002A 001F (1)   81 22        	cmpa    #^X22                          
+002E 004D  004B  002C 001F (0)   22 0F        bhi	1$                                  
+0030 004F  004D  002E 001F (1)   CE 00 61   * 	ldx	#2$                                
+0033 0052  0050  0031 001F (5)   3C           	pshx                                   
+0034 0053  0051  0032 001F (4)   FE 83 5E     	ldx	^X835e                             
+0037 0056  0054  0035 001F (1)   C6 1B        	ldab    #^X118-^XFD                    
+0039 0058  0056  0037 001F (5)   3A           abx                                     
+003A 0059  0057  0038 001F (5)   3C           	pshx                                   
+003B 005A  0058  0039 001F (1)   CE 00 2B   * 	ldx	#ditem                             
+003E 005D  005B  003C 001F (5)   39              	rts                                 
+003F 005E  005C  003D 001F (1)   CE 00 2B   * 1$:	ldx	#ditem                          
+0042 0061  005F  0040 001F (B)   3F          	.byte	^X3F,tl$deli                     
+0043 0062  0060  0041 001F (B)   67          	.byte	^X3F,tl$deli                     
+0044 0063  0061  0042 001F (5)   0C           2$:	clc                                 
+0045 0064  0062  0043 001F (5)   39           	rts                                    
+0046 0065  0063  0044 001F (L)               lang:                                   
+0046 0065  0063  0044 001F (5)   0D           	sec                                    
+0047 0066  0064  0045 001F (5)   39           	rts                                    
+0048 0067  0065  0046 001F (L)               dicmain:                                
+0048 0067  0065  0046 001F (5)   4F           	clra                                   
+0049 0068  0066  0047 001F (2)   D6 21        	ldab    bdevice                        
+004B 006A  0068  0049 001F (B)   3F          	.byte	^X3F,pk$setp                     
+004C 006B  0069  004A 001F (B)   62          	.byte	^X3F,pk$setp                     
+004D 006C  006A  004B 001F (0)   24 03        bcc	1$                                  
+004F 006E  006C  004D 001F (L)               LOCAL:dicmain:2:                        
+004F 006E  006C  004D 001F (B)   3F          	.byte	^X3F,er$mess                     
+0050 006F  006D  004E 001F (B)   20          	.byte	^X3F,er$mess                     
+0051 0070  006E  004F 001F (5)   39           	rts                                    
+0052 0071  006F  0050 001F (L)               LOCAL:dicmain:1:                        
+0052 0071  006F  0050 001F (1)   CE 06 B7     	ldx	#%prgend-%xx                       
+0055 0074  0072  0053 001F (5)   5F           	clrb                                   
+0056 0075  0073  0054 001F (B)   3F          	.byte	^X3F,pk$sadd                     
+0057 0076  0074  0055 001F (B)   60          	.byte	^X3F,pk$sadd                     
+0058 0077  0075  0056 001F (1)   CE 04 77   * 	ldx	#decode                            
+005B 007A  0078  0059 001F (1)   CC 00 08     	ldd	#8                                 
+005E 007D  007B  005C 001F (B)   3F          	.byte	^X3F,pk$read                     
+005F 007E  007C  005D 001F (B)   5E          	.byte	^X3F,pk$read                     
+0060 007F  007D  005E 001F (0)   25 ED        bcs	2$                                  
+0062 0081  007F  0060 001F (1)   CC 06 C1         	ldd	#%prgend+10-%xx                
+0065 0084  0082  0063 001F (4)   FD 04 6F   * 	std     btext                          
+0068 0087  0085  0066 001F (4)   F3 04 77   * 	addd	decode                            
+006B 008A  0088  0069 001F (4)   FD 04 77   * 	std	decode                             
+006E 008D  008B  006C 001F (4)   F3 04 79   * 	addd    bind1                          
+0071 0090  008E  006F 001F (4)   FD 04 79   * 	std     bind1                          
+0074 0093  0091  0072 001F (4)   F3 04 7B   * 	addd    bind2                          
+0077 0096  0094  0075 001F (4)   FD 04 7B   * 	std     bind2                          
+007A 0099  0097  0078 001F (4)   F3 04 7D   * 	addd	ends                              
+007D 009C  009A  007B 001F (4)   FD 04 7D   * 	std	ends                               
+0080 009F  009D  007E 001F (4)   FE 04 77   * 	ldx	decode                             
+0083 00A2  00A0  0081 001F (5)   5F           	clrb                                   
+0084 00A3  00A1  0082 001F (B)   3F          	.byte	^X3F,pk$sadd                     
+0085 00A4  00A2  0083 001F (B)   60          	.byte	^X3F,pk$sadd                     
+0086 00A5  00A3  0084 001F (1)   CE 04 83   * 	ldx	#decbuf                            
+0089 00A8  00A6  0087 001F (1)   CC 00 3C     	ldd	#60                                
+008C 00AB  00A9  008A 001F (B)   3F          	.byte	^X3F,pk$read                     
+008D 00AC  00AA  008B 001F (B)   5E          	.byte	^X3F,pk$read                     
+008E 00AD  00AB  008C 001F (0)   25 BF        bcs	2$                                  
+0090 00AF  00AD  008E 001F (L)               rst:                                    
+0090 00AF  00AD  008E 001F (B)   3F          	.byte	^X3F,ut$disp                     
+0091 00B0  00AE  008F 001F (B)   6F          	.byte	^X3F,ut$disp                     
+0092 00B1  00AF  0090 001F (B)   0C          	.byte	12                               
+0093 00B2  00B0  0091 001F (A)   44          	.ascii	"DICT:"                         
+0094 00B3  00B1  0092 001F (A)   49          	.ascii	"DICT:"                         
+0095 00B4  00B2  0093 001F (A)   43          	.ascii	"DICT:"                         
+0096 00B5  00B3  0094 001F (A)   54          	.ascii	"DICT:"                         
+0097 00B6  00B4  0095 001F (A)   3A          	.ascii	"DICT:"                         
+0098 00B7  00B5  0096 001F (B)   00          	.byte	0                                
+0099 00B8  00B6  0097 001F (5)   4F               	clra                               
+009A 00B9  00B7  0098 001F (2)   97 E1        	staa   clen                            
+009C 00BB  00B9  009A 001F (2)   97 E2        	staa   flag                            
+009E 00BD  00BB  009C 001F (2)   97 E4        	staa   vchar                           
+00A0 00BF  00BD  009E 001F (L)               dicloop:                                
+00A0 00BF  00BD  009E 001F (2)   96 E1        	ldaa   clen                            
+00A2 00C1  00BF  00A0 001F (2)   D6 63        	ldab   dpb_cust                        
+00A4 00C3  00C1  00A2 001F (1)   CA 80        	orab    #CURS_ON                       
+00A6 00C5  00C3  00A4 001F (B)   3F          	.byte	^X3F,dp$stat                     
+00A7 00C6  00C4  00A5 001F (B)   14          	.byte	^X3F,dp$stat                     
+00A8 00C7  00C5  00A6 001F (B)   3F          	.byte	^X3F,kb$getk                     
+00A9 00C8  00C6  00A7 001F (B)   48          	.byte	^X3F,kb$getk                     
+00AA 00C9  00C7  00A8 001F (2)   D7 E3        	stab    char			; save it               
+00AC 00CB  00C9  00AA 001F (2)   96 E2        	ldaa    flag			; set if bottom line has error mess
+00AE 00CD  00CB  00AC 001F (0)   27 10        beq	keytst                              
+00B0 00CF  00CD  00AE 001F (2)   97 E4        	staa    vchar		; no valid word yet     
+00B2 00D1  00CF  00B0 001F (2)   DE 62        	ldx	dpb_cpos                           
+00B4 00D3  00D1  00B2 001F (1)   86 0F        	ldaa    #D_CB			; clear the bottom line
+00B6 00D5  00D3  00B4 001F (B)   3F          	.byte	^X3F,dp$emit                     
+00B7 00D6  00D4  00B5 001F (B)   10          	.byte	^X3F,dp$emit                     
+00B8 00D7  00D5  00B6 001F (5)   18           	xgdx                                   
+00B9 00D8  00D6  00B7 001F (B)   3F          	.byte	^X3F,dp$stat                     
+00BA 00D9  00D7  00B8 001F (B)   14          	.byte	^X3F,dp$stat                     
+00BB 00DA  00D8  00B9 001F (5)   4F           	clra                                   
+00BC 00DB  00D9  00BA 001F (2)   97 E2        	staa    flag                           
+00BE 00DD  00DB  00BC 001F (2)   D6 E3        	ldab    char                           
+00C0 00DF  00DD  00BE 001F (L)               keytst:                                 
+00C0 00DF  00DD  00BE 001F (1)   C1 01        	cmpb    #K_AC                          
+00C2 00E1  00DF  00C0 001F (0)   26 21        bne	noac                                
+00C4 00E3  00E1  00C2 001F (2)   DC 62        	ldd	dpb_cpos                           
+00C6 00E5  00E3  00C4 001F (1)   81 05        	cmpa    #5                             
+00C8 00E7  00E5  00C6 001F (0)   26 C6        bne	rst			; clear the display           
+00CA 00E9  00E7  00C8 001F (1)   C4 7F                andb    #^CCURS_ON		; else leave
+00CC 00EB  00E9  00CA 001F (B)   3F          	.byte	^X3F,dp$stat                     
+00CD 00EC  00EA  00CB 001F (B)   14          	.byte	^X3F,dp$stat                     
+00CE 00ED  00EB  00CC 001F (5)   39           	rts                                    
+00CF 00EE  00EC  00CD 001F (L)               isalpha:                                
+00CF 00EE  00EC  00CD 001F (1)   C1 41        	cmpb     #^a/A/                        
+00D1 00F0  00EE  00CF 001F (0)   24 02        bcc	2$                                  
+00D3 00F2  00F0  00D1 001F (L)               LOCAL:isalpha:1:                        
+00D3 00F2  00F0  00D1 001F (5)   0D           	sec                                    
+00D4 00F3  00F1  00D2 001F (5)   39           	rts                                    
+00D5 00F4  00F2  00D3 001F (L)               LOCAL:isalpha:2:                        
+00D5 00F4  00F2  00D3 001F (1)   C1 5B        	cmpb     #^a/[/                        
+00D7 00F6  00F4  00D5 001F (0)   25 08        bcs	10$                                 
+00D9 00F8  00F6  00D7 001F (1)   C1 61        	cmpb     #^a/a/                        
+00DB 00FA  00F8  00D9 001F (0)   25 F6        bcs	1$                                  
+00DD 00FC  00FA  00DB 001F (1)   C1 7B        	cmpb     #^a/{/                        
+00DF 00FE  00FC  00DD 001F (0)   24 F2        bcc	1$                                  
+00E1 0100  00FE  00DF 001F (L)               LOCAL:isalpha:10:                       
+00E1 0100  00FE  00DF 001F (1)   CA 20        	orab     #^X20                         
+00E3 0102  0100  00E1 001F (5)   0C           	clc                                    
+00E4 0103  0101  00E2 001F (5)   39           	rts                                    
+00E5 0104  0102  00E3 001F (L)               noac:                                   
+00E5 0104  0102  00E3 001F (2)   9D EC        	jsr	isalpha                            
+00E7 0106  0104  00E5 001F (0)   24 1E        bcc	is_alph                             
+00E9 0108  0106  00E7 001F (1)   C1 08        	cmpb    #K_DEL                         
+00EB 010A  0108  00E9 001F (0)   26 03        bne	11$                                 
+00ED 010C  010A  00EB 001F (4)   7E 01 46   * 	jmp	dodel                              
+00F0 010F  010D  00EE 001F (L)               LOCAL:noac:11:                          
+00F0 010F  010D  00EE 001F (1)   C1 03        	cmpb    #K_UP                          
+00F2 0111  010F  00F0 001F (0)   26 03        bne	12$                                 
+00F4 0113  0111  00F2 001F (4)   7E 01 98   * 	jmp	doup                               
+00F7 0116  0114  00F5 001F (L)               LOCAL:noac:12:                          
+00F7 0116  0114  00F5 001F (1)   C1 04        	cmpb    #K_DOWN                        
+00F9 0118  0116  00F7 001F (0)   26 03        bne	13$                                 
+00FB 011A  0118  00F9 001F (4)   7E 01 83   * 	jmp	dodown                             
+00FE 011D  011B  00FC 001F (L)               LOCAL:noac:13:                          
+00FE 011D  011B  00FC 001F (1)   C1 0D        	cmpb    #K_EXE                         
+0100 011F  011D  00FE 001F (0)   26 03        bne	ch_err                              
+0102 0121  011F  0100 001F (4)   7E 01 83   * 	jmp	doexe                              
+0105 0124  0122  0103 001F (L)               ch_err:                                 
+0105 0124  0122  0103 001F (L)               xdicloop:                               
+0105 0124  0122  0103 001F (0)   20 99        bra	dicloop                             
+0107 0126  0124  0105 001F (L)               is_alph:                                
+0107 0126  0124  0105 001F (2)   96 E1        	ldaa    clen                           
+0109 0128  0126  0107 001F (1)   81 0A        	cmpa     #10                           
+010B 012A  0128  0109 001F (0)   24 F8        bcc	ch_err                              
+010D 012C  012A  010B 001F (5)   4F           	clra                                   
+010E 012D  012B  010C 001F (2)   97 E4        	staa    vchar                          
+0110 012F  012D  010E 001F (2)   96 E3        	ldaa    char                           
+0112 0131  012F  0110 001F (B)   3F          	.byte	^X3F,dp$emit                     
+0113 0132  0130  0111 001F (B)   10          	.byte	^X3F,dp$emit                     
+0114 0133  0131  0112 001F (5)   17           	tba                                    
+0115 0134  0132  0113 001F (1)   CE 04 F6   * 	ldx	#tbuf                              
+0118 0137  0135  0116 001F (2)   D6 E1        	ldab    clen			; save the character in the buffer
+011A 0139  0137  0118 001F (5)   3A           abx                                     
+011B 013A  0138  0119 001F (3)   A7 00        	staa    0,x                            
+011D 013C  013A  011B 001F (5)   5C           	incb                                   
+011E 013D  013B  011C 001F (2)   D7 E1        	stab    clen                           
+0120 013F  013D  011E 001F (1)   C1 03        	cmpb     #3                            
+0122 0141  013F  0120 001F (0)   25 E1        bcs	xdicloop                            
+0124 0143  0141  0122 001F (L)               getst:                                  
+0124 0143  0141  0122 001F (4)   BD 01 CA   * 	jsr	getfst			; get/reget first word    
+0127 0146  0144  0125 001F (0)   20 DC        bra	xdicloop                            
+0129 0148  0146  0127 001F (L)               dodel:                                  
+0129 0148  0146  0127 001F (2)   96 E4        	ldaa    vchar                          
+012B 014A  0148  0129 001F (0)   27 11        beq	10$                                 
+012D 014C  014A  012B 001F (5)   4A           	deca                                   
+012E 014D  014B  012C 001F (2)   97 E4        	staa    vchar                          
+0130 014F  014D  012E 001F (B)   3F          	.byte	^X3F,ut$disp                     
+0131 0150  014E  012F 001F (B)   6F          	.byte	^X3F,ut$disp                     
+0132 0151  014F  0130 001F (B)   20          	.byte	32,8,0                           
+0133 0152  0150  0131 001F (B)   08          	.byte	32,8,0                           
+0134 0153  0151  0132 001F (B)   00          	.byte	32,8,0                           
+0135 0154  0152  0133 001F (2)   DE 62        	ldx	dpb_cpos                           
+0137 0156  0154  0135 001F (1)   86 0F        	ldaa    #D_CB			; clear the bottom line
+0139 0158  0156  0137 001F (B)   3F          	.byte	^X3F,dp$emit                     
+013A 0159  0157  0138 001F (B)   10          	.byte	^X3F,dp$emit                     
+013B 015A  0158  0139 001F (5)   18           	xgdx                                   
+013C 015B  0159  013A 001F (B)   3F          	.byte	^X3F,dp$stat                     
+013D 015C  015A  013B 001F (B)   14          	.byte	^X3F,dp$stat                     
+013E 015D  015B  013C 001F (L)               LOCAL:dodel:10:                         
+013E 015D  015B  013C 001F (2)   D6 E1        	ldab    clen                           
+0140 015F  015D  013E 001F (0)   26 03        bne	1$                                  
+0142 0161  015F  0140 001F (4)   7E 00 BD   * 	jmp	dicloop                            
+0145 0164  0162  0143 001F (L)               LOCAL:dodel:1:                          
+0145 0164  0162  0143 001F (5)   5A           	decb                                   
+0146 0165  0163  0144 001F (2)   D7 E1        	stab    clen                           
+0148 0167  0165  0146 001F (0)   8D 15        bsr	delc                                
+014A 0169  0167  0148 001F (2)   D6 E1        	ldab    clen                           
+014C 016B  0169  014A 001F (1)   C1 03        	cmpb    #3                             
+014E 016D  016B  014C 001F (0)   25 03        bcs	2$                                  
+0150 016F  016D  014E 001F (4)   7E 01 41   * 	jmp	getst                              
+0153 0172  0170  0151 001F (L)               LOCAL:dodel:2:                          
+0153 0172  0170  0151 001F (2)   DE 62        	ldx	dpb_cpos                           
+0155 0174  0172  0153 001F (1)   86 0F        	ldaa    #D_CB			; clear the bottom line
+0157 0176  0174  0155 001F (B)   3F          	.byte	^X3F,dp$emit                     
+0158 0177  0175  0156 001F (B)   10          	.byte	^X3F,dp$emit                     
+0159 0178  0176  0157 001F (5)   18           	xgdx                                   
+015A 0179  0177  0158 001F (B)   3F          	.byte	^X3F,dp$stat                     
+015B 017A  0178  0159 001F (B)   14          	.byte	^X3F,dp$stat                     
+015C 017B  0179  015A 001F (4)   7E 00 BD   * 	jmp	dicloop                            
+015F 017E  017C  015D 001F (L)               delc:                                   
+015F 017E  017C  015D 001F (B)   3F          	.byte	^X3F,ut$disp                     
+0160 017F  017D  015E 001F (B)   6F          	.byte	^X3F,ut$disp                     
+0161 0180  017E  015F 001F (B)   08          	.byte	D_BS,32,D_BS,0                   
+0162 0181  017F  0160 001F (B)   20          	.byte	D_BS,32,D_BS,0                   
+0163 0182  0180  0161 001F (B)   08          	.byte	D_BS,32,D_BS,0                   
+0164 0183  0181  0162 001F (B)   00          	.byte	D_BS,32,D_BS,0                   
+0165 0184  0182  0163 001F (5)   39           	rts                                    
+0166 0185  0183  0164 001F (L)               dodown:                                 
+0166 0185  0183  0164 001F (L)               doexe:                                  
+0166 0185  0183  0164 001F (2)   96 E4        	ldaa    vchar                          
+0168 0187  0185  0166 001F (0)   26 0E        bne	godic                               
+016A 0189  0187  0168 001F (2)   96 E1        	ldaa    clen                           
+016C 018B  0189  016A 001F (1)   81 03        	cmpa    #3                             
+016E 018D  018B  016C 001F (0)   25 08        bcs	godic                               
+0170 018F  018D  016E 001F (4)   BD 02 B4   * 	jsr	get_nwrd                           
+0173 0192  0190  0171 001F (0)   25 AF        bcs	getst                               
+0175 0194  0192  0173 001F (4)   BD 03 B2   *  	jsr	disp                              
+0178 0197  0195  0176 001F (L)               godic:                                  
+0178 0197  0195  0176 001F (4)   7E 00 BD   * 	jmp	dicloop                            
+017B 019A  0198  0179 001F (L)               doup:                                   
+017B 019A  0198  0179 001F (2)   96 E4        	ldaa    vchar                          
+017D 019C  019A  017B 001F (0)   26 F9        bne	godic			; No word displayed         
+017F 019E  019C  017D 001F (2)   96 E1        	ldaa    clen                           
+0181 01A0  019E  017F 001F (1)   81 03        	cmpa    #3                             
+0183 01A2  01A0  0181 001F (0)   25 F3        bcs	godic			; word too short            
+0185 01A4  01A2  0183 001F (0)   8D 02        bsr	getprv                              
+0187 01A6  01A4  0185 001F (0)   20 EF        bra	godic                               
+0189 01A8  01A6  0187 001F (L)               getprv:                                 
+0189 01A8  01A6  0187 001F (4)   FE 04 73   * 	ldx	wrd_c                              
+018C 01AB  01A9  018A 001F (0)   26 01        bne	1$                                  
+018E 01AD  01AB  018C 001F (5)   39           	rts                                    
+018F 01AE  01AC  018D 001F (L)               LOCAL:getprv:1:                         
+018F 01AE  01AC  018D 001F (5)   09           	dex                                    
+0190 01AF  01AD  018E 001F (4)   FF 04 75   * 	stx	twrd_c                             
+0193 01B2  01B0  0191 001F (4)   BD 01 FD   * 	jsr	firstw			;get the first word again 
+0196 01B5  01B3  0194 001F (L)               LOCAL:getprv:2:                         
+0196 01B5  01B3  0194 001F (4)   FE 04 75   * 	ldx	twrd_c                             
+0199 01B8  01B6  0197 001F (4)   BC 04 73   * 	cpx	wrd_c                              
+019C 01BB  01B9  019A 001F (0)   27 07        beq	3$                                  
+019E 01BD  01BB  019C 001F (4)   BD 02 B4   * 	jsr	get_nwrd                           
+01A1 01C0  01BE  019F 001F (0)   25 0D        bcs	xerr                                
+01A3 01C2  01C0  01A1 001F (0)   20 F1        bra	2$                                  
+01A5 01C4  01C2  01A3 001F (L)               LOCAL:getprv:3:                         
+01A5 01C4  01C2  01A3 001F (4)   7E 03 B2   * 	jmp	disp                               
+01A8 01C7  01C5  01A6 001F (L)               getnxt:                                 
+01A8 01C7  01C5  01A6 001F (4)   BD 02 B4   * 	jsr	get_nwrd		; get next word          
+01AB 01CA  01C8  01A9 001F (0)   20 03        bra	dall                                
+01AD 01CC  01CA  01AB 001F (L)               getfst:                                 
+01AD 01CC  01CA  01AB 001F (4)   BD 01 FD   * 	jsr	firstw			; get first word          
+01B0 01CF  01CD  01AE 001F (L)               dall:                                   
+01B0 01CF  01CD  01AE 001F (L)               xerr:                                   
+01B0 01CF  01CD  01AE 001F (5)   5D           	tstb                                   
+01B1 01D0  01CE  01AF 001F (0)   27 09        beq	dnfd                                
+01B3 01D2  01D0  01B1 001F (L)               derror:                                 
+01B3 01D2  01D0  01B1 001F (5)   37           	pshb			; general error encountered     
+01B4 01D3  01D1  01B2 001F (B)   3F          	.byte	^X3F,dp$save                     
+01B5 01D4  01D2  01B3 001F (B)   13          	.byte	^X3F,dp$save                     
+01B6 01D5  01D3  01B4 001F (5)   33           	pulb                                   
+01B7 01D6  01D4  01B5 001F (B)   3F          	.byte	^X3F,er$mess                     
+01B8 01D7  01D5  01B6 001F (B)   20          	.byte	^X3F,er$mess                     
+01B9 01D8  01D6  01B7 001F (B)   3F          	.byte	^X3F,dp$rest                     
+01BA 01D9  01D7  01B8 001F (B)   12          	.byte	^X3F,dp$rest                     
+01BB 01DA  01D8  01B9 001F (5)   39           	rts                                    
+01BC 01DB  01D9  01BA 001F (L)               dnfd:                                   
+01BC 01DB  01D9  01BA 001F (2)   DE 62        	ldx	dpb_cpos		; word not found         
+01BE 01DD  01DB  01BC 001F (5)   3C           	pshx                                   
+01BF 01DE  01DC  01BD 001F (B)   3F          	.byte	^X3F,ut$disp                     
+01C0 01DF  01DD  01BE 001F (B)   6F          	.byte	^X3F,ut$disp                     
+01C1 01E0  01DE  01BF 001F (B)   10          	.byte	D_BL,D_CB                        
+01C2 01E1  01DF  01C0 001F (B)   0F          	.byte	D_BL,D_CB                        
+01C3 01E2  01E0  01C1 001F (A)   4E          	.asciz	"NOT FOUND"                     
+01C4 01E3  01E1  01C2 001F (A)   4F          	.asciz	"NOT FOUND"                     
+01C5 01E4  01E2  01C3 001F (A)   54          	.asciz	"NOT FOUND"                     
+01C6 01E5  01E3  01C4 001F (A)   20          	.asciz	"NOT FOUND"                     
+01C7 01E6  01E4  01C5 001F (A)   46          	.asciz	"NOT FOUND"                     
+01C8 01E7  01E5  01C6 001F (A)   4F          	.asciz	"NOT FOUND"                     
+01C9 01E8  01E6  01C7 001F (A)   55          	.asciz	"NOT FOUND"                     
+01CA 01E9  01E7  01C8 001F (A)   4E          	.asciz	"NOT FOUND"                     
+01CB 01EA  01E8  01C9 001F (A)   44          	.asciz	"NOT FOUND"                     
+01CC 01EB  01E9  01CA 001F (AL)  00          	.asciz	"NOT FOUND"                     
+01CD 01EC  01EA  01CB 001F (1)   86 01        	ldaa    #1                             
+01CF 01EE  01EC  01CD 001F (2)   97 E2        	staa    flag                           
+01D1 01F0  01EE  01CF 001F (5)   38           	pulx                                   
+01D2 01F1  01EF  01D0 001F (5)   18           	xgdx                                   
+01D3 01F2  01F0  01D1 001F (5)   4A           	deca                                   
+01D4 01F3  01F1  01D2 001F (5)   36           	psha                                   
+01D5 01F4  01F2  01D3 001F (1)   80 05        	suba    #5                             
+01D7 01F6  01F4  01D5 001F (2)   97 E1        	staa    clen                           
+01D9 01F8  01F6  01D7 001F (5)   32           	pula                                   
+01DA 01F9  01F7  01D8 001F (B)   3F          	.byte	^X3F,dp$stat                     
+01DB 01FA  01F8  01D9 001F (B)   14          	.byte	^X3F,dp$stat                     
+01DC 01FB  01F9  01DA 001F (5)   39           	rts                                    
+01DD 01FC  01FA  01DB 001F (L)               allok:                                  
+01DD 01FC  01FA  01DB 001F (4)   7E 03 B2   * 	jmp	disp                               
+01E0 01FF  01FD  01DE 001F (L)               firstw:                                 
+01E0 01FF  01FD  01DE 001F (2)   DE 62        	ldx	dpb_cpos                           
+01E2 0201  01FF  01E0 001F (1)   86 0F        	ldaa    #D_CB			; clear the bottom line
+01E4 0203  0201  01E2 001F (B)   3F          	.byte	^X3F,dp$emit                     
+01E5 0204  0202  01E3 001F (B)   10          	.byte	^X3F,dp$emit                     
+01E6 0205  0203  01E4 001F (5)   18           	xgdx                                   
+01E7 0206  0204  01E5 001F (B)   3F          	.byte	^X3F,dp$stat                     
+01E8 0207  0205  01E6 001F (B)   14          	.byte	^X3F,dp$stat                     
+01E9 0208  0206  01E7 001F (5)   4F           	clra                                   
+01EA 0209  0207  01E8 001F (2)   97 F2        	staa    blen                           
+01EC 020B  0209  01EA 001F (2)   97 EB        	staa    ctextx                         
+01EE 020D  020B  01EC 001F (4)   F6 04 F6   * 	ldab    tbuf			; first letter          
+01F1 0210  020E  01EF 001F (4)   F7 04 C0   * 	stab    buf                            
+01F4 0213  0211  01F2 001F (1)   C4 1F        	andb    #^x1f                          
+01F6 0215  0213  01F4 001F (5)   5A               	decb                               
+01F7 0216  0214  01F5 001F (5)   58           aslb                                    
+01F8 0217  0215  01F6 001F (5)   58           aslb                                    
+01F9 0218  0216  01F7 001F (5)   3A           abx                                     
+01FA 0219  0217  01F8 001F (5)   5F           	clrb                                   
+01FB 021A  0218  01F9 001F (B)   3F          	.byte	^X3F,pk$sadd                     
+01FC 021B  0219  01FA 001F (B)   60          	.byte	^X3F,pk$sadd                     
+01FD 021C  021A  01FB 001F (B)   3F          	.byte	^X3F,pk$rwrd                     
+01FE 021D  021B  01FC 001F (B)   5F          	.byte	^X3F,pk$rwrd                     
+01FF 021E  021C  01FD 001F (5)   37           	pshb			; ??? swap bytes                
+0200 021F  021D  01FE 001F (5)   16           	tab                                    
+0201 0220  021E  01FF 001F (5)   32           	pula                                   
+0202 0221  021F  0200 001F (5)   37           	pshb                                   
+0203 0222  0220  0201 001F (1)   C4 07        	andb    #^x07                          
+0205 0224  0222  0203 001F (2)   D7 EE        	stab    cind2x                         
+0207 0226  0224  0205 001F (5)   33           	pulb                                   
+0208 0227  0225  0206 001F (5)   04           	lsrd                                   
+0209 0228  0226  0207 001F (5)   04           	lsrd                                   
+020A 0229  0227  0208 001F (5)   04           	lsrd                                   
+020B 022A  0228  0209 001F (2)   DD EF        	std	cind2y                             
+020D 022C  022A  020B 001F (B)   3F          	.byte	^X3F,pk$rwrd                     
+020E 022D  022B  020C 001F (B)   5F          	.byte	^X3F,pk$rwrd                     
+020F 022E  022C  020D 001F (5)   37           	pshb                                   
+0210 022F  022D  020E 001F (5)   16           	tab                                    
+0211 0230  022E  020F 001F (5)   32           	pula                                   
+0212 0231  022F  0210 001F (2)   DD EC        	std	ctexty                             
+0214 0233  0231  0212 001F (B)   3F          	.byte	^X3F,pk$rwrd                     
+0215 0234  0232  0213 001F (B)   5F          	.byte	^X3F,pk$rwrd                     
+0216 0235  0233  0214 001F (B)   3F          	.byte	^X3F,pk$rwrd                     
+0217 0236  0234  0215 001F (B)   5F          	.byte	^X3F,pk$rwrd                     
+0218 0237  0235  0216 001F (5)   37           	pshb                                   
+0219 0238  0236  0217 001F (5)   16           	tab                                    
+021A 0239  0237  0218 001F (5)   32           	pula                                   
+021B 023A  0238  0219 001F (4)   FD 04 71   * 	std	etexty                             
+021E 023D  023B  021C 001F (2)   DC EF        	ldd	cind2y                             
+0220 023F  023D  021E 001F (5)   18           	xgdx                                   
+0221 0240  023E  021F 001F (2)   D6 EE        	ldab    cind2x                         
+0223 0242  0240  0221 001F (4)   BD 03 DC   * 	jsr	xbfill                             
+0226 0245  0243  0224 001F (0)   8D 57        	bsr	get_five                           
+0228 0247  0245  0226 001F (4)   F7 04 C1   * 	stab    buf+1                          
+022B 024A  0248  0229 001F (0)   8D 52        	bsr	get_five                           
+022D 024C  024A  022B 001F (4)   F7 04 C2   * 	stab    buf+2                          
+0230 024F  024D  022E 001F (0)   8D 56        	bsr	get_ten                            
+0232 0251  024F  0230 001F (L)               LOCAL:firstw:3:                         
+0232 0251  024F  0230 001F (4)   F6 04 C1   * 	ldab    buf+1                          
+0235 0254  0252  0233 001F (4)   F1 04 F7   * 	cmpb    tbuf+1                         
+0238 0257  0255  0236 001F (0)   26 08        	bne	1$                                 
+023A 0259  0257  0238 001F (4)   F6 04 C2   * 	ldab    buf+2                          
+023D 025C  025A  023B 001F (4)   F1 04 F8   * 	cmpb    tbuf+2                         
+0240 025F  025D  023E 001F (0)   27 22        	beq	indxfnd                            
+0242 0261  025F  0240 001F (L)               LOCAL:firstw:1:                         
+0242 0261  025F  0240 001F (0)   8D 3B        	bsr	get_five                           
+0244 0263  0261  0242 001F (1)   C1 7B        	cmpb    #^a/{/                         
+0246 0265  0263  0244 001F (0)   26 07        	bne	2$                                 
+0248 0267  0265  0246 001F (0)   8D 35        	bsr	get_five                           
+024A 0269  0267  0248 001F (4)   F7 04 C1   * 	stab	buf+1                             
+024D 026C  026A  024B 001F (0)   8D 30        	bsr	get_five                           
+024F 026E  026C  024D 001F (L)               LOCAL:firstw:2:                         
+024F 026E  026C  024D 001F (4)   F7 04 C2   * 	stab	buf+2                             
+0252 0271  026F  0250 001F (0)   8D 34        	bsr	get_ten                            
+0254 0273  0271  0252 001F (2)   D3 EC        	addd	ctexty                            
+0256 0275  0273  0254 001F (2)   DD EC        	std	ctexty                             
+0258 0277  0275  0256 001F (0)   25 D8        	bcs	3$                                 
+025A 0279  0277  0258 001F (4)   F1 04 72   * 	cmpb	etexty+1                          
+025D 027C  027A  025B 001F (0)   27 02        	beq	notfnd                             
+025F 027E  027C  025D 001F (0)   25 D1        	bcs	3$                                 
+0261 0280  027E  025F 001F (L)               notfnd:                                 
+0261 0280  027E  025F 001F (5)   5F           	clrb                                   
+0262 0281  027F  0260 001F (5)   0D           	sec                                    
+0263 0282  0280  0261 001F (5)   39           	rts                                    
+0264 0283  0281  0262 001F (L)               indxfnd:                                
+0264 0283  0281  0262 001F (2)   DC EC        	ldd	ctexty                             
+0266 0285  0283  0264 001F (4)   F3 04 6F   * 	addd    btext                          
+0269 0288  0286  0267 001F (5)   18           	xgdx                                   
+026A 0289  0287  0268 001F (2)   D6 EB        	ldab	ctextx                            
+026C 028B  0289  026A 001F (4)   BD 03 DC   * 	jsr	xbfill                             
+026F 028E  028C  026D 001F (L)               LOCAL:indxfnd:1:                        
+026F 028E  028C  026D 001F (0)   8D 26        	bsr	get_nwrd                           
+0271 0290  028E  026F 001F (0)   25 EE        	bcs	notfnd                             
+0273 0292  0290  0271 001F (4)   BD 04 4A   * 	jsr	comp				; compare with target word 
+0276 0295  0293  0274 001F (0)   26 F7        	bne	1$                                 
+0278 0297  0295  0276 001F (5)   4F           	clra                                   
+0279 0298  0296  0277 001F (5)   5F           	clrb                                   
+027A 0299  0297  0278 001F (4)   FD 04 73   * 	std	wrd_c				; word counter            
+027D 029C  029A  027B 001F (5)   0C           	clc                                    
+027E 029D  029B  027C 001F (5)   39           	rts                                    
+027F 029E  029C  027D 001F (L)               get_five:                               
+027F 029E  029C  027D 001F (1)   C6 05        	ldab	#5                                
+0281 02A0  029E  027F 001F (4)   BD 04 23   * 	jsr	rdbits                             
+0284 02A3  02A1  0282 001F (5)   16            	tab                                   
+0285 02A4  02A2  0283 001F (1)   CB 60        	addb	#^x60                             
+0287 02A6  02A4  0285 001F (5)   39           	rts                                    
+0288 02A7  02A5  0286 001F (L)               get_ten:                                
+0288 02A7  02A5  0286 001F (1)   C6 02        	ldab	#2                                
+028A 02A9  02A7  0288 001F (4)   BD 04 23   * 	jsr	rdbits                             
+028D 02AC  02AA  028B 001F (5)   36           	psha                                   
+028E 02AD  02AB  028C 001F (1)   C6 08        	ldab	#8                                
+0290 02AF  02AD  028E 001F (4)   BD 04 23   * 	jsr	rdbits                             
+0293 02B2  02B0  0291 001F (5)   16           	tab                                    
+0294 02B3  02B1  0292 001F (5)   32           	pula                                   
+0295 02B4  02B2  0293 001F (L)               x_rts:                                  
+0295 02B4  02B2  0293 001F (5)   0C           	clc				; clear carry                   
+0296 02B5  02B3  0294 001F (5)   39           	rts                                    
+0297 02B6  02B4  0295 001F (L)               get_nwrd:                               
+0297 02B6  02B4  0295 001F (4)   FE 04 73   * 	ldx	wrd_c                              
+029A 02B9  02B7  0298 001F (5)   08           	inx                                    
+029B 02BA  02B8  0299 001F (4)   FF 04 73   * 	stx	wrd_c                              
+029E 02BD  02BB  029C 001F (5)   4F           	clra                                   
+029F 02BE  02BC  029D 001F (2)   97 F3        	staa	endflg                            
+02A1 02C0  02BE  029F 001F (4)   B7 04 6E   * 	staa	ebufc                             
+02A4 02C3  02C1  02A2 001F (2)   D6 F2        	ldab	blen                              
+02A6 02C5  02C3  02A4 001F (1)   CB 03        	addb	#3			; add base                   
+02A8 02C7  02C5  02A6 001F (2)   D7 F1        	stab	lcnt                              
+02AA 02C9  02C7  02A8 001F (L)               LOCAL:get_nwrd:4:                       
+02AA 02C9  02C7  02A8 001F (0)   2A 02        	bpl	5$                                 
+02AC 02CB  02C9  02AA 001F (5)   0D           	sec                                    
+02AD 02CC  02CA  02AB 001F (5)   39           	rts                                    
+02AE 02CD  02CB  02AC 001F (L)               LOCAL:get_nwrd:5:                       
+02AE 02CD  02CB  02AC 001F (0)   8D 1E        	bsr	xget_huff                          
+02B0 02CF  02CD  02AE 001F (1)   C1 60        	cmpb	#^x60                             
+02B2 02D1  02CF  02B0 001F (0)   27 E1        	beq	x_rts			; word ended               
+02B4 02D3  02D1  02B2 001F (1)   C1 7C        	cmpb	#^a/|/                            
+02B6 02D5  02D3  02B4 001F (0)   26 02        	bne	2$                                 
+02B8 02D7  02D5  02B6 001F (0)   20 F4        	bra	5$                                 
+02BA 02D9  02D7  02B8 001F (L)               LOCAL:get_nwrd:2:                       
+02BA 02D9  02D7  02B8 001F (1)   C1 7B        	cmpb	#^a/{/                            
+02BC 02DB  02D9  02BA 001F (0)   26 02        	bne	3$                                 
+02BE 02DD  02DB  02BC 001F (0)   20 EE        	bra	5$                                 
+02C0 02DF  02DD  02BE 001F (L)               LOCAL:get_nwrd:3:                       
+02C0 02DF  02DD  02BE 001F (5)   17           	tba                                    
+02C1 02E0  02DE  02BF 001F (1)   CE 04 BF   * 	ldx	#buf-1                             
+02C4 02E3  02E1  02C2 001F (2)   D6 F1        	ldab	lcnt                              
+02C6 02E5  02E3  02C4 001F (5)   5C           	incb                                   
+02C7 02E6  02E4  02C5 001F (2)   D7 F1        	stab	lcnt                              
+02C9 02E8  02E6  02C7 001F (5)   3A           abx                                     
+02CA 02E9  02E7  02C8 001F (3)   A7 00        	staa	0,x                               
+02CC 02EB  02E9  02CA 001F (0)   20 DC        	bra	4$                                 
+02CE 02ED  02EB  02CC 001F (L)               xget_huff:                              
+02CE 02ED  02EB  02CC 001F (2)   96 F3        	ldaa	endflg                            
+02D0 02EF  02ED  02CE 001F (0)   27 0E        	beq	1$                                 
+02D2 02F1  02EF  02D0 001F (L)               LOCAL:xget_huff:3:                      
+02D2 02F1  02EF  02D0 001F (4)   F6 04 6E   * 	ldab	ebufc                             
+02D5 02F4  02F2  02D3 001F (5)   5C           	incb                                   
+02D6 02F5  02F3  02D4 001F (4)   F7 04 6E   * 	stab	ebufc                             
+02D9 02F8  02F6  02D7 001F (1)   CE 05 01   * 	ldx	#ebuf-1                            
+02DC 02FB  02F9  02DA 001F (5)   3A           	abx                                    
+02DD 02FC  02FA  02DB 001F (3)   E6 00        	ldab	0,x                               
+02DF 02FE  02FC  02DD 001F (5)   39           	rts                                    
+02E0 02FF  02FD  02DE 001F (L)               LOCAL:xget_huff:1:                      
+02E0 02FF  02FD  02DE 001F (0)   8D 09        	bsr	get_huff                           
+02E2 0301  02FF  02E0 001F (1)   C1 7D        	cmpb	#^a/}/		; ending flag             
+02E4 0303  0301  02E2 001F (0)   26 04        	bne	2$                                 
+02E6 0305  0303  02E4 001F (0)   8D 21        	bsr	get_end                            
+02E8 0307  0305  02E6 001F (0)   20 E8        	bra	3$                                 
+02EA 0309  0307  02E8 001F (L)               LOCAL:xget_huff:2:                      
+02EA 0309  0307  02E8 001F (5)   39           	rts                                    
+02EB 030A  0308  02E9 001F (L)               get_huff:                               
+02EB 030A  0308  02E9 001F (1)   CE 04 83   * 	ldx	#decbuf                            
+02EE 030D  030B  02EC 001F (L)               LOCAL:get_huff:1:                       
+02EE 030D  030B  02EC 001F (3)   A6 00        	ldaa	0,x                               
+02F0 030F  030D  02EE 001F (3)   E6 01        	ldab	1,x                               
+02F2 0311  030F  02F0 001F (5)   37           	pshb                                   
+02F3 0312  0310  02F1 001F (5)   36           	psha                                   
+02F4 0313  0311  02F2 001F (5)   3C           	pshx                                   
+02F5 0314  0312  02F3 001F (1)   C6 01        	ldab	#1                                
+02F7 0316  0314  02F5 001F (4)   BD 04 23   * 	jsr	rdbits                             
+02FA 0319  0317  02F8 001F (5)   38           	pulx                                   
+02FB 031A  0318  02F9 001F (5)   32           	pula                                   
+02FC 031B  0319  02FA 001F (5)   33           	pulb                                   
+02FD 031C  031A  02FB 001F (0)   26 01        	bne	2$                                 
+02FF 031E  031C  02FD 001F (5)   16           	tab                                    
+0300 031F  031D  02FE 001F (L)               LOCAL:get_huff:2:                       
+0300 031F  031D  02FE 001F (5)   5D           	tstb                                   
+0301 0320  031E  02FF 001F (0)   2B 03        	bmi	3$                                 
+0303 0322  0320  0301 001F (5)   3A           	abx                                    
+0304 0323  0321  0302 001F (0)   20 E8        	bra	1$                                 
+0306 0325  0323  0304 001F (L)               LOCAL:get_huff:3:                       
+0306 0325  0323  0304 001F (1)   C4 7F        	andb	#^x7f                             
+0308 0327  0325  0306 001F (5)   39           	rts                                    
+0309 0328  0326  0307 001F (L)               get_end:                                
+0309 0328  0326  0307 001F (1)   C6 60        	ldab	#^x60                             
+030B 032A  0328  0309 001F (4)   F7 05 02   * 	stab	ebuf			; save eow for no ending case
+030E 032D  032B  030C 001F (1)   C6 02        	ldab	#2                                
+0310 032F  032D  030E 001F (4)   BD 04 23   * 	jsr	rdbits                             
+0313 0332  0330  0311 001F (1)   81 03        	cmpa	#3                                
+0315 0334  0332  0313 001F (0)   27 0A        	beq	1$                                 
+0317 0336  0334  0315 001F (5)   36           	psha                                   
+0318 0337  0335  0316 001F (1)   C6 08        	ldab	#8                                
+031A 0339  0337  0318 001F (4)   BD 04 23   * 	jsr	rdbits                             
+031D 033C  033A  031B 001F (5)   16           	tab                                    
+031E 033D  033B  031C 001F (5)   32           	pula			; now have a 10 bit ending number
+031F 033E  033C  031D 001F (0)   8D 05        	bsr	getend2                            
+0321 0340  033E  031F 001F (L)               LOCAL:get_end:1:                        
+0321 0340  033E  031F 001F (1)   C6 01        	ldab	#1                                
+0323 0342  0340  0321 001F (2)   D7 F3        	stab	endflg                            
+0325 0344  0342  0323 001F (5)   39           	rts                                    
+0326 0345  0343  0324 001F (L)               getend2:                                
+0326 0345  0343  0324 001F (2)   D7 F6        	stab	x2			; multiply by 2.5            
+0328 0347  0345  0326 001F (2)   DD F4        	std	x1                                 
+032A 0349  0347  0328 001F (5)   05           	asld                                   
+032B 034A  0348  0329 001F (5)   05           	asld                                   
+032C 034B  0349  032A 001F (2)   D3 F4        	addd	x1                                
+032E 034D  034B  032C 001F (5)   04           	lsrd                                   
+032F 034E  034C  032D 001F (4)   F3 04 7D   * 	addd	ends                              
+0332 0351  034F  0330 001F (5)   18           	xgdx                                   
+0333 0352  0350  0331 001F (5)   5F           	clrb                                   
+0334 0353  0351  0332 001F (B)   3F          	.byte	^X3F,pk$sadd                     
+0335 0354  0352  0333 001F (B)   60          	.byte	^X3F,pk$sadd                     
+0336 0355  0353  0334 001F (1)   CE 04 7F   * 	ldx	#endbuf                            
+0339 0358  0356  0337 001F (1)   CC 00 04     	ldd	#4                                 
+033C 035B  0359  033A 001F (B)   3F          	.byte	^X3F,pk$read                     
+033D 035C  035A  033B 001F (B)   5E          	.byte	^X3F,pk$read                     
+033E 035D  035B  033C 001F (4)   7F 00 F4     	clr	x1                                 
+0341 0360  035E  033F 001F (4)   B6 04 7F   * 	ldaa	endbuf                            
+0344 0363  0361  0342 001F (2)   D6 F6        	ldab	x2                                
+0346 0365  0363  0344 001F (1)   C4 01        	andb	#1                                
+0348 0367  0365  0346 001F (0)   27 08        	beq	2$                                 
+034A 0369  0367  0348 001F (1)   C6 04        	ldab	#4                                
+034C 036B  0369  034A 001F (2)   D7 F4        	stab	x1                                
+034E 036D  036B  034C 001F (5)   48           	asla                                   
+034F 036E  036C  034D 001F (5)   48           	asla                                   
+0350 036F  036D  034E 001F (5)   48           	asla                                   
+0351 0370  036E  034F 001F (5)   48           	asla                                   
+0352 0371  036F  0350 001F (L)               LOCAL:getend2:2:                        
+0352 0371  036F  0350 001F (2)   97 F9        	staa	x3+1                              
+0354 0373  0371  0352 001F (1)   CE 04 7F   * 	ldx	#endbuf                            
+0357 0376  0374  0355 001F (2)   DF F6        	stx	x2                                 
+0359 0378  0376  0357 001F (5)   5F           	clrb                                   
+035A 0379  0377  0358 001F (L)               LOCAL:getend2:4:                        
+035A 0379  0377  0358 001F (5)   37           	pshb                                   
+035B 037A  0378  0359 001F (0)   8D 13        	bsr	xgetend                            
+035D 037C  037A  035B 001F (5)   33           	pulb                                   
+035E 037D  037B  035C 001F (5)   5C           	incb                                   
+035F 037E  037C  035D 001F (1)   8A 60        	oraa	#^x60                             
+0361 0380  037E  035F 001F (1)   CE 05 01   * 	ldx	#ebuf-1                            
+0364 0383  0381  0362 001F (5)   3A           	abx                                    
+0365 0384  0382  0363 001F (3)   A7 00        	staa	0,x                               
+0367 0386  0384  0365 001F (1)   C1 04        	cmpb	#4                                
+0369 0388  0386  0367 001F (0)   26 EF        	bne	4$                                 
+036B 038A  0388  0369 001F (L)               LOCAL:getend2:3:                        
+036B 038A  0388  0369 001F (1)   86 60        	ldaa	#^x60                             
+036D 038C  038A  036B 001F (3)   A7 01        	staa	1,x	                              
+036F 038E  038C  036D 001F (5)   39           	rts                                    
+0370 038F  038D  036E 001F (L)               xgetend:                                
+0370 038F  038D  036E 001F (5)   4F           	clra                                   
+0371 0390  038E  036F 001F (2)   97 F8        	staa	x3			; cwrd                       
+0373 0392  0390  0371 001F (1)   C6 05        	ldab	#5                                
+0375 0394  0392  0373 001F (L)               LOCAL:xgetend:2:                        
+0375 0394  0392  0373 001F (5)   37           	pshb                                   
+0376 0395  0393  0374 001F (2)   D6 F4        	ldab	x1			; bits                       
+0378 0397  0395  0376 001F (1)   C1 08        	cmpb	#8                                
+037A 0399  0397  0378 001F (0)   26 0A        	bne	1$                                 
+037C 039B  0399  037A 001F (2)   DE F6        	ldx	x2                                 
+037E 039D  039B  037C 001F (5)   08           	inx                                    
+037F 039E  039C  037D 001F (3)   E6 00        	ldab	0,x                               
+0381 03A0  039E  037F 001F (2)   DF F6        	stx	x2                                 
+0383 03A2  03A0  0381 001F (2)   D7 F9        	stab	x3+1                              
+0385 03A4  03A2  0383 001F (5)   5F           	clrb                                   
+0386 03A5  03A3  0384 001F (L)               LOCAL:xgetend:1:                        
+0386 03A5  03A3  0384 001F (5)   5C           	incb                                   
+0387 03A6  03A4  0385 001F (2)   D7 F4        	stab	x1                                
+0389 03A8  03A6  0387 001F (2)   DC F8        	ldd	x3			; cwrd                        
+038B 03AA  03A8  0389 001F (5)   05           	asld                                   
+038C 03AB  03A9  038A 001F (2)   DD F8        	std	x3                                 
+038E 03AD  03AB  038C 001F (5)   33           	pulb                                   
+038F 03AE  03AC  038D 001F (5)   5A           	decb                                   
+0390 03AF  03AD  038E 001F (0)   26 E3        	bne	2$                                 
+0392 03B1  03AF  0390 001F (2)   96 F8        	ldaa	x3                                
+0394 03B3  03B1  0392 001F (5)   39           	rts                                    
+0395 03B4  03B2  0393 001F (L)               disp:                                   
+0395 03B4  03B2  0393 001F (2)   DE 62        	ldx	dpb_cpos                           
+0397 03B6  03B4  0395 001F (5)   3C           	pshx                                   
+0398 03B7  03B5  0396 001F (2)   D6 F1        	ldab    lcnt                           
+039A 03B9  03B7  0398 001F (1)   C1 11            	cmpb    #17                        
+039C 03BB  03B9  039A 001F (0)   24 0D        	bcc	1$                                 
+039E 03BD  03BB  039C 001F (1)   CE 04 C0   * 	ldx	#buf                               
+03A1 03C0  03BE  039F 001F (5)   3A           	abx                                    
+03A2 03C1  03BF  03A0 001F (3)   6F 00        	clr	0,x                                
+03A4 03C3  03C1  03A2 001F (1)   CC 04 BF   * 	ldd	#dbuf                              
+03A7 03C6  03C4  03A5 001F (B)   3F          	.byte	^X3F,ut$ddsp                     
+03A8 03C7  03C5  03A6 001F (B)   6E          	.byte	^X3F,ut$ddsp                     
+03A9 03C8  03C6  03A7 001F (0)   20 0F        	bra	2$                                 
+03AB 03CA  03C8  03A9 001F (L)               LOCAL:disp:1:                           
+03AB 03CA  03C8  03A9 001F (1)   CC 00 04     	ldd	#4                                 
+03AE 03CD  03CB  03AC 001F (2)   DD 41        	std	utw_s0                             
+03B0 03CF  03CD  03AE 001F (5)   4C           	inca			; bottom line                   
+03B1 03D0  03CE  03AF 001F (2)   D6 F1        	ldab    lcnt                           
+03B3 03D2  03D0  03B1 001F (1)   CE 04 C0   * 	ldx	#buf                               
+03B6 03D5  03D3  03B4 001F (B)   3F          	.byte	^X3F,dp$view                     
+03B7 03D6  03D4  03B5 001F (B)   15          	.byte	^X3F,dp$view                     
+03B8 03D7  03D5  03B6 001F (B)   3F          	.byte	^X3F,kb$uget                     
+03B9 03D8  03D6  03B7 001F (B)   4C          	.byte	^X3F,kb$uget                     
+03BA 03D9  03D7  03B8 001F (L)               LOCAL:disp:2:                           
+03BA 03D9  03D7  03B8 001F (5)   38           	pulx                                   
+03BB 03DA  03D8  03B9 001F (5)   18           	xgdx                                   
+03BC 03DB  03D9  03BA 001F (B)   3F          	.byte	^X3F,dp$stat                     
+03BD 03DC  03DA  03BB 001F (B)   14          	.byte	^X3F,dp$stat                     
+03BE 03DD  03DB  03BC 001F (5)   39           	rts                                    
+03BF 03DE  03DC  03BD 001F (L)               xbfill:                                 
+03BF 03DE  03DC  03BD 001F (2)   D7 E0        	stab    nbit                           
+03C1 03E0  03DE  03BF 001F (5)   3C           	pshx                                   
+03C2 03E1  03DF  03C0 001F (5)   18           	xgdx                                   
+03C3 03E2  03E0  03C1 001F (1)   C3 01 00     	addd	#^x100                            
+03C6 03E5  03E3  03C4 001F (2)   DD E7        	std	cpos                               
+03C8 03E7  03E5  03C6 001F (5)   38           	pulx                                   
+03C9 03E8  03E6  03C7 001F (5)   5F           	clrb                                   
+03CA 03E9  03E7  03C8 001F (B)   3F          	.byte	^X3F,pk$sadd                     
+03CB 03EA  03E8  03C9 001F (B)   60          	.byte	^X3F,pk$sadd                     
+03CC 03EB  03E9  03CA 001F (1)   CE 05 07   * 	ldx	#loadt                             
+03CF 03EE  03EC  03CD 001F (2)   DF E5        	stx	nbyt                               
+03D1 03F0  03EE  03CF 001F (1)   CC 01 00     	ldd	#^x100                             
+03D4 03F3  03F1  03D2 001F (B)   3F          	.byte	^X3F,pk$read                     
+03D5 03F4  03F2  03D3 001F (B)   5E          	.byte	^X3F,pk$read                     
+03D6 03F5  03F3  03D4 001F (2)   DE E5        	ldx	nbyt                               
+03D8 03F7  03F5  03D6 001F (3)   A6 00        	ldaa	0,x                               
+03DA 03F9  03F7  03D8 001F (2)   D6 E0            	ldab	nbit                          
+03DC 03FB  03F9  03DA 001F (5)   08           	inx                                    
+03DD 03FC  03FA  03DB 001F (2)   DF E5        	stx	nbyt                               
+03DF 03FE  03FC  03DD 001F (L)               LOCAL:xbfill:2:                         
+03DF 03FE  03FC  03DD 001F (5)   5A           	decb                                   
+03E0 03FF  03FD  03DE 001F (0)   2B 03        	bmi	1$                                 
+03E2 0401  03FF  03E0 001F (5)   48           	asla                                   
+03E3 0402  0400  03E1 001F (0)   20 FA        	bra	2$                                 
+03E5 0404  0402  03E3 001F (L)               LOCAL:xbfill:1:                         
+03E5 0404  0402  03E3 001F (2)   97 EA        	staa	cwrd+1                            
+03E7 0406  0404  03E5 001F (1)   C6 08         	ldab	#8                               
+03E9 0408  0406  03E7 001F (2)   D0 E0            	subb	nbit                          
+03EB 040A  0408  03E9 001F (2)   D7 E0            	stab	nbit                          
+03ED 040C  040A  03EB 001F (5)   39           	rts                                    
+03EE 040D  040B  03EC 001F (L)               bfill:                                  
+03EE 040D  040B  03EC 001F (2)   DE E7        	ldx	cpos                               
+03F0 040F  040D  03EE 001F (5)   3C           	pshx                                   
+03F1 0410  040E  03EF 001F (5)   18           	xgdx                                   
+03F2 0411  040F  03F0 001F (1)   C3 01 00     	addd	#^x100                            
+03F5 0414  0412  03F3 001F (2)   DD E7        	std	cpos                               
+03F7 0416  0414  03F5 001F (5)   38           	pulx                                   
+03F8 0417  0415  03F6 001F (5)   5F           	clrb                                   
+03F9 0418  0416  03F7 001F (B)   3F          	.byte	^X3F,pk$sadd                     
+03FA 0419  0417  03F8 001F (B)   60          	.byte	^X3F,pk$sadd                     
+03FB 041A  0418  03F9 001F (1)   CE 05 07   * 	ldx	#loadt                             
+03FE 041D  041B  03FC 001F (2)   DF E5        	stx	nbyt                               
+0400 041F  041D  03FE 001F (1)   CC 01 00     	ldd	#^x100                             
+0403 0422  0420  0401 001F (B)   3F          	.byte	^X3F,pk$read                     
+0404 0423  0421  0402 001F (B)   5E          	.byte	^X3F,pk$read                     
+0405 0424  0422  0403 001F (5)   39           	rts                                    
+0406 0425  0423  0404 001F (L)               rdbits:                                 
+0406 0425  0423  0404 001F (5)   4F           	clra                                   
+0407 0426  0424  0405 001F (2)   97 E9        	staa	cwrd                              
+0409 0428  0426  0407 001F (L)               rloop:                                  
+0409 0428  0426  0407 001F (5)   37           	pshb                                   
+040A 0429  0427  0408 001F (2)   D6 E0        	ldab	nbit                              
+040C 042B  0429  040A 001F (0)   26 12        	bne	2$                                 
+040E 042D  042B  040C 001F (2)   DE E5        	ldx	nbyt                               
+0410 042F  042D  040E 001F (1)   8C 06 07   * 	cpx	#loade                             
+0413 0432  0430  0411 001F (0)   25 02        	bcs	1$                                 
+0415 0434  0432  0413 001F (2)   DE E5        	ldx	nbyt                               
+0417 0436  0434  0415 001F (L)               LOCAL:rloop:1:                          
+0417 0436  0434  0415 001F (1)   C6 08        	ldab	#8                                
+0419 0438  0436  0417 001F (3)   A6 00        	ldaa	0,x                               
+041B 043A  0438  0419 001F (5)   08           	inx                                    
+041C 043B  0439  041A 001F (2)   DF E5        	stx	nbyt                               
+041E 043D  043B  041C 001F (2)   97 EA        	staa	cwrd+1                            
+0420 043F  043D  041E 001F (L)               LOCAL:rloop:2:                          
+0420 043F  043D  041E 001F (5)   5A           	decb                                   
+0421 0440  043E  041F 001F (2)   D7 E0        	stab	nbit                              
+0423 0442  0440  0421 001F (2)   DC E9        	ldd	cwrd                               
+0425 0444  0442  0423 001F (5)   05           asld                                    
+0426 0445  0443  0424 001F (2)   DD E9        	std	cwrd                               
+0428 0447  0445  0426 001F (5)   33           	pulb                                   
+0429 0448  0446  0427 001F (5)   5A           	decb                                   
+042A 0449  0447  0428 001F (0)   26 DD        bne	rloop                               
+042C 044B  0449  042A 001F (5)   39           	rts                                    
+042D 044C  044A  042B 001F (L)               comp:                                   
+042D 044C  044A  042B 001F (2)   96 E1        	ldaa	clen                              
+042F 044E  044C  042D 001F (1)   80 02        	suba	#2                                
+0431 0450  044E  042F 001F (1)   CE 04 C3   * 	ldx	#buf+3                             
+0434 0453  0451  0432 001F (2)   DF F4        	stx	x1                                 
+0436 0455  0453  0434 001F (1)   CE 04 F9   * 	ldx	#tbuf+3                            
+0439 0458  0456  0437 001F (2)   DF F6        	stx	x2                                 
+043B 045A  0458  0439 001F (L)               LOCAL:comp:2:                           
+043B 045A  0458  0439 001F (5)   4A           	deca                                   
+043C 045B  0459  043A 001F (0)   27 12        beq	1$			; match                        
+043E 045D  045B  043C 001F (2)   DE F4        	ldx	x1                                 
+0440 045F  045D  043E 001F (3)   E6 00        	ldab	0,x                               
+0442 0461  045F  0440 001F (5)   08           	inx                                    
+0443 0462  0460  0441 001F (2)   DF F4        	stx	x1                                 
+0445 0464  0462  0443 001F (2)   DE F6        	ldx	x2                                 
+0447 0466  0464  0445 001F (3)   E1 00        	cmpb	0,x                               
+0449 0468  0466  0447 001F (0)   26 05        bne	1$                                  
+044B 046A  0468  0449 001F (5)   08           	inx                                    
+044C 046B  0469  044A 001F (2)   DF F6        	stx	x2                                 
+044E 046D  046B  044C 001F (0)   20 EB        bra	2$                                  
+0450 046F  046D  044E 001F (L)               LOCAL:comp:1:                           
+0450 046F  046D  044E 001F (5)   39           	rts                                    
+0451 0470  046E  044F 001F (B)   00          ebufc:	.byte	0                          
+0452 0471  046F  0450 001F (W)   00 00        btext:	.word	0                          
+0454 0473  0471  0452 001F (W)   00 00        etexty:	.word	0                         
+0456 0475  0473  0454 001F (W)   00 00        wrd_c:	.word	0                          
+0458 0477  0475  0456 001F (W)   00 00        twrd_c:	.word	0                         
+045A 0479  0477  0458 001F (W)   00 00        decode:	.word	0                         
+045C 047B  0479  045A 001F (W)   00 00        bind1:	.word	0                          
+045E 047D  047B  045C 001F (W)   00 00        bind2:	.word	0                          
+0460 047F  047D  045E 001F (W)   00 00        ends:	.word	0                           
+04A2 04C1  04BF  04A0 001F (B)   0F          dbuf:	.byte	D_CB                        
+05EA 0609  0607  05E8 001F (L)               loade:                                  
+05EA 0609  0607  05E8 001F (OE)              	.eover                                 
+05EA 0609  0607  05E8 001F (OSUM)  CF C0                                                
+05EC 060B  0609  05EA 001F (NFX)  00 57                                                
+05EE 060D  060B  05EC 001F (FX)  00 06                                                
+05F0 060F  060D  05EE 001F (FX)  00 08                                                
+05F2 0611  060F  05F0 001F (FX)  00 0A                                                
+05F4 0613  0611  05F2 001F (FX)  00 11                                                
+05F6 0615  0613  05F4 001F (FX)  00 14                                                
+05F8 0617  0615  05F6 001F (FX)  00 2F                                                
+05FA 0619  0617  05F8 001F (FX)  00 3A                                                
+05FC 061B  0619  05FA 001F (FX)  00 3E                                                
+05FE 061D  061B  05FC 001F (FX)  00 57                                                
+0600 061F  061D  05FE 001F (FX)  00 64                                                
+0602 0621  061F  0600 001F (FX)  00 67                                                
+0604 0623  0621  0602 001F (FX)  00 6A                                                
+0606 0625  0623  0604 001F (FX)  00 6D                                                
+0608 0627  0625  0606 001F (FX)  00 70                                                
+060A 0629  0627  0608 001F (FX)  00 73                                                
+060C 062B  0629  060A 001F (FX)  00 76                                                
+060E 062D  062B  060C 001F (FX)  00 79                                                
+0610 062F  062D  060E 001F (FX)  00 7C                                                
+0612 0631  062F  0610 001F (FX)  00 7F                                                
+0614 0633  0631  0612 001F (FX)  00 85                                                
+0616 0635  0633  0614 001F (FX)  00 EC                                                
+0618 0637  0635  0616 001F (FX)  00 F3                                                
+061A 0639  0637  0618 001F (FX)  00 FA                                                
+061C 063B  0639  061A 001F (FX)  01 01                                                
+061E 063D  063B  061C 001F (FX)  01 14                                                
+0620 063F  063D  061E 001F (FX)  01 23                                                
+0622 0641  063F  0620 001F (FX)  01 41                                                
+0624 0643  0641  0622 001F (FX)  01 4F                                                
+0626 0645  0643  0624 001F (FX)  01 5B                                                
+0628 0647  0645  0626 001F (FX)  01 6F                                                
+062A 0649  0647  0628 001F (FX)  01 74                                                
+062C 064B  0649  062A 001F (FX)  01 77                                                
+062E 064D  064B  062C 001F (FX)  01 88                                                
+0630 064F  064D  062E 001F (FX)  01 8F                                                
+0632 0651  064F  0630 001F (FX)  01 92                                                
+0634 0653  0651  0632 001F (FX)  01 95                                                
+0636 0655  0653  0634 001F (FX)  01 98                                                
+0638 0657  0655  0636 001F (FX)  01 9D                                                
+063A 0659  0657  0638 001F (FX)  01 A4                                                
+063C 065B  0659  063A 001F (FX)  01 A7                                                
+063E 065D  065B  063C 001F (FX)  01 AC                                                
+0640 065F  065D  063E 001F (FX)  01 DC                                                
+0642 0661  065F  0640 001F (FX)  01 ED                                                
+0644 0663  0661  0642 001F (FX)  01 F0                                                
+0646 0665  0663  0644 001F (FX)  02 1A                                                
+0648 0667  0665  0646 001F (FX)  02 22                                                
+064A 0669  0667  0648 001F (FX)  02 27                                                
+064C 066B  0669  064A 001F (FX)  02 2C                                                
+064E 066D  066B  064C 001F (FX)  02 31                                                
+0650 066F  066D  064E 001F (FX)  02 34                                                
+0652 0671  066F  0650 001F (FX)  02 39                                                
+0654 0673  0671  0652 001F (FX)  02 3C                                                
+0656 0675  0673  0654 001F (FX)  02 49                                                
+0658 0677  0675  0656 001F (FX)  02 4E                                                
+065A 0679  0677  0658 001F (FX)  02 59                                                
+065C 067B  0679  065A 001F (FX)  02 65                                                
+065E 067D  067B  065C 001F (FX)  02 6B                                                
+0660 067F  067D  065E 001F (FX)  02 72                                                
+0662 0681  067F  0660 001F (FX)  02 79                                                
+0664 0683  0681  0662 001F (FX)  02 80                                                
+0666 0685  0683  0664 001F (FX)  02 89                                                
+0668 0687  0685  0666 001F (FX)  02 8F                                                
+066A 0689  0687  0668 001F (FX)  02 96                                                
+066C 068B  0689  066A 001F (FX)  02 9A                                                
+066E 068D  068B  066C 001F (FX)  02 A0                                                
+0670 068F  068D  066E 001F (FX)  02 C0                                                
+0672 0691  068F  0670 001F (FX)  02 D1                                                
+0674 0693  0691  0672 001F (FX)  02 D5                                                
+0676 0695  0693  0674 001F (FX)  02 D8                                                
+0678 0697  0695  0676 001F (FX)  02 EA                                                
+067A 0699  0697  0678 001F (FX)  02 F6                                                
+067C 069B  0699  067A 001F (FX)  03 0A                                                
+067E 069D  069B  067C 001F (FX)  03 0F                                                
+0680 069F  069D  067E 001F (FX)  03 19                                                
+0682 06A1  069F  0680 001F (FX)  03 2E                                                
+0684 06A3  06A1  0682 001F (FX)  03 35                                                
+0686 06A5  06A3  0684 001F (FX)  03 40                                                
+0688 06A7  06A5  0686 001F (FX)  03 53                                                
+068A 06A9  06A7  0688 001F (FX)  03 60                                                
+068C 06AB  06A9  068A 001F (FX)  03 9D                                                
+068E 06AD  06AB  068C 001F (FX)  03 A3                                                
+0690 06AF  06AD  068E 001F (FX)  03 B2                                                
+0692 06B1  06AF  0690 001F (FX)  03 CB                                                
+0694 06B3  06B1  0692 001F (FX)  03 FA                                                
+0696 06B5  06B3  0694 001F (FX)  04 0F                                                
+0698 06B7  06B5  0696 001F (FX)  04 30                                                
+069A 06B9  06B7  0698 001F (FX)  04 35                                                
+069C 06BB  06B9  069A 001F (FCSUM)  A3 F5                                                
+0000 06BD  06BB  0000 06BB (OVER)              	.over	prgend                           
+0000 06BD  06BB  0000 06BB (OE)              	.eover                                 
+FFFFFFFFFFFFF943 0           0000 06BB (SUM) Label Sum: $1FEE38                                         
+
