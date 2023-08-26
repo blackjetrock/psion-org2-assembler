@@ -49,6 +49,9 @@ xxxxx.lst
 xxxxx.lst.short
 
     The same output as the .lst file but without the overlay information and label definitions.
+
+xxxxx.opl_n
+    OPL files that have the object code embedded in them in various ways.
     
 Embedding Object Code
 =====================
