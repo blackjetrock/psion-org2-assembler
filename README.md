@@ -52,8 +52,11 @@ The object code can be embedded in a C file as array data using comments to plac
 Examples
 ========
 
-The file syntax_test.asm has examples of the syntax of the assembler.
+syntax_test.asm
+Examples of the syntax of the assembler.
 
+topslot/break3.asm
+This is the code that I used to drive the top slot adapter PCB I made. Being able to assemble this code is the reason I wrote this assembler. This file uses the overlay mechanism that the organiser uses to effectively have position independent code. There's not a lot of information about the overly format so I had to reverse engineer some of it. The .lst file has a lot of information about overlays and the fixup records.
 
 Test Code
 =========
