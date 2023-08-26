@@ -42,8 +42,11 @@ Macros are supported.
 Output Files
 ============
 
-.lst file has object code, label information, overlay information  and fixup data.
-
+.lst 
+    Has object code, label information, overlay information  and fixup data.
+.lst.short
+    The same output as the .lst file but without the overlay information and label definitions. This is just your code output
+    
 Embedding Object Code
 =====================
 
