@@ -1,0 +1,371 @@
+FFFFFFFFFFFFFC36 0000  2000  FFFFFFFFFFFFFC38 23C8 (O)               	.org	$2000		; Make sure code is not in zero page.
+FFFFFFFFFFFFFC36 0000  2000  FFFFFFFFFFFFFC38 23C8 (B)   46          xx:	.byte	^x46		; PACK BOOTABLE, WRITE AND COPY PROTECTED
+FFFFFFFFFFFFFC37 0001  2001  FFFFFFFFFFFFFC39 23C8 (B)   04          	.byte	^x04		; 32K PACK                 
+FFFFFFFFFFFFFC38 0002  2002  FFFFFFFFFFFFFC3A 23C8 (B)   01          	.byte	1		; DEVICE AND CODE             
+FFFFFFFFFFFFFC39 0003  2003  FFFFFFFFFFFFFC3B 23C8 (B)   0A          	.byte	10		; DEVICE NUMBER              
+FFFFFFFFFFFFFC3A 0004  2004  FFFFFFFFFFFFFC3C 23C8 (B)   00          	.byte	0		; DEVICE VERSION NUMBER       
+FFFFFFFFFFFFFC3B 0005  2005  FFFFFFFFFFFFFC3D 23C8 (B)   0A          	.byte	10		; PRIORITY NUMBER                     
+FFFFFFFFFFFFFC3C 0006  2006  FFFFFFFFFFFFFC3E 23C8 (W)   00 19                .word	%root-%xx	; ROOT OVERLAY ADDRESS
+FFFFFFFFFFFFFC3E 0008  2008  FFFFFFFFFFFFFC40 23C8 (B)   FF          	.byte	^Xff		; N/C                      
+FFFFFFFFFFFFFC3F 0009  2009  FFFFFFFFFFFFFC41 23C8 (B)   FF          	.byte	^Xff		; N/C                      
+FFFFFFFFFFFFFC40 000A  200A  FFFFFFFFFFFFFC42 23C8 (B)   09          	.byte	^X09                             
+FFFFFFFFFFFFFC41 000B  200B  FFFFFFFFFFFFFC43 23C8 (B)   81          	.byte	^X81                             
+FFFFFFFFFFFFFC42 000C  200C  FFFFFFFFFFFFFC44 23C8 (A)   4D          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFFC43 000D  200D  FFFFFFFFFFFFFC45 23C8 (A)   41          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFFC44 000E  200E  FFFFFFFFFFFFFC46 23C8 (A)   49          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFFC45 000F  200F  FFFFFFFFFFFFFC47 23C8 (A)   4E          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFFC46 0010  2010  FFFFFFFFFFFFFC48 23C8 (A)   20          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFFC47 0011  2011  FFFFFFFFFFFFFC49 23C8 (A)   20          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFFC48 0012  2012  FFFFFFFFFFFFFC4A 23C8 (A)   20          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFFC49 0013  2013  FFFFFFFFFFFFFC4B 23C8 (A)   20          	.ascii	"MAIN    "                      
+FFFFFFFFFFFFFC4A 0014  2014  FFFFFFFFFFFFFC4C 23C8 (B)   90          	.byte	^X90                             
+FFFFFFFFFFFFFC4B 0015  2015  FFFFFFFFFFFFFC4D 23C8 (B)   02          	.byte	^x02                             
+FFFFFFFFFFFFFC4C 0016  2016  FFFFFFFFFFFFFC4E 23C8 (B)   80          	.byte	^x80                             
+FFFFFFFFFFFFFC4D 0017  2017  FFFFFFFFFFFFFC4F 23C8 (W)   03 B1        	.word	%prgend-%root   ; size of code   
+0000 0019  2019  0000 2019 (OVER)                      .over   root                    
+0000 0019  2019  0000 2019 (OL)  03 55                .over   root                    
+0002 001B  2019  0000 2019 (L)               start:                                  
+0002 001B  2019  0000 2019 (L)               codelen:                                
+0002 001B  2019  0000 2019 (W)   00 00        	.word	0000                             
+0004 001D  201B  0002 2019 (L)               bdevice:                                
+0004 001D  201B  0002 2019 (B)   00          	.byte	00                               
+0005 001E  201C  0003 2019 (L)               devnum:                                 
+0005 001E  201C  0003 2019 (B)   0A          	.byte	10                               
+0006 001F  201D  0004 2019 (L)               vernum:                                 
+0006 001F  201D  0004 2019 (B)   00          	.byte	0                                
+0007 0020  201E  0005 2019 (L)               maxvec:                                 
+0007 0020  201E  0005 2019 (B)   03          	.byte	3                                
+0008 0021  201F  0006 2019 (L)               vectable:                               
+0008 0021  201F  0006 2019 (W)   20 7B      * 	.word	install		;install                
+000A 0023  2021  0008 2019 (W)   20 BD      * 	.word	remove		;remove                  
+000C 0025  2023  000A 2019 (W)   20 E7      * 	.word	lang	   	;language               
+000E 0027  2025  000C 2019 (L)               olitmaa:                                
+000E 0027  2025  000C 2019 (AL)  08           	.ascic  "LATOUTAA"                    
+000F 0028  2026  000D 2019 (A)   4C           	.ascic  "LATOUTAA"                    
+0010 0029  2027  000E 2019 (A)   41           	.ascic  "LATOUTAA"                    
+0011 002A  2028  000F 2019 (A)   54           	.ascic  "LATOUTAA"                    
+0012 002B  2029  0010 2019 (A)   4F           	.ascic  "LATOUTAA"                    
+0013 002C  202A  0011 2019 (A)   55           	.ascic  "LATOUTAA"                    
+0014 002D  202B  0012 2019 (A)   54           	.ascic  "LATOUTAA"                    
+0015 002E  202C  0013 2019 (A)   41           	.ascic  "LATOUTAA"                    
+0016 002F  202D  0014 2019 (A)   41           	.ascic  "LATOUTAA"                    
+0017 0030  202E  0015 2019 (W)   21 C0      *  	.word   lataa                         
+0019 0032  2030  0017 2019 (L)               olitm00:                                
+0019 0032  2030  0017 2019 (AL)  08           	.ascic  "LATOUT00"                    
+001A 0033  2031  0018 2019 (A)   4C           	.ascic  "LATOUT00"                    
+001B 0034  2032  0019 2019 (A)   41           	.ascic  "LATOUT00"                    
+001C 0035  2033  001A 2019 (A)   54           	.ascic  "LATOUT00"                    
+001D 0036  2034  001B 2019 (A)   4F           	.ascic  "LATOUT00"                    
+001E 0037  2035  001C 2019 (A)   55           	.ascic  "LATOUT00"                    
+001F 0038  2036  001D 2019 (A)   54           	.ascic  "LATOUT00"                    
+0020 0039  2037  001E 2019 (A)   30           	.ascic  "LATOUT00"                    
+0021 003A  2038  001F 2019 (A)   30           	.ascic  "LATOUT00"                    
+0022 003B  2039  0020 2019 (W)   21 C7      *  	.word   lat00                         
+0024 003D  203B  0022 2019 (L)               olitmff:                                
+0024 003D  203B  0022 2019 (AL)  08           	.ascic  "LATOUTFF"                    
+0025 003E  203C  0023 2019 (A)   4C           	.ascic  "LATOUTFF"                    
+0026 003F  203D  0024 2019 (A)   41           	.ascic  "LATOUTFF"                    
+0027 0040  203E  0025 2019 (A)   54           	.ascic  "LATOUTFF"                    
+0028 0041  203F  0026 2019 (A)   4F           	.ascic  "LATOUTFF"                    
+0029 0042  2040  0027 2019 (A)   55           	.ascic  "LATOUTFF"                    
+002A 0043  2041  0028 2019 (A)   54           	.ascic  "LATOUTFF"                    
+002B 0044  2042  0029 2019 (A)   46           	.ascic  "LATOUTFF"                    
+002C 0045  2043  002A 2019 (A)   46           	.ascic  "LATOUTFF"                    
+002D 0046  2044  002B 2019 (W)   21 CE      *  	.word   latff                         
+002F 0048  2046  002D 2019 (L)               ilitm:                                  
+002F 0048  2046  002D 2019 (AL)  05          	.ascic  "LATIN"                        
+0030 0049  2047  002E 2019 (A)   4C          	.ascic  "LATIN"                        
+0031 004A  2048  002F 2019 (A)   41          	.ascic  "LATIN"                        
+0032 004B  2049  0030 2019 (A)   54          	.ascic  "LATIN"                        
+0033 004C  204A  0031 2019 (A)   49          	.ascic  "LATIN"                        
+0034 004D  204B  0032 2019 (A)   4E          	.ascic  "LATIN"                        
+0035 004E  204C  0033 2019 (W)   21 5E      * 	.word   latin                          
+0037 0050  204E  0035 2019 (L)               opaaitm:                                
+0037 0050  204E  0035 2019 (AL)  09          	.ascic  "PICOOUTAA"                    
+0038 0051  204F  0036 2019 (A)   50          	.ascic  "PICOOUTAA"                    
+0039 0052  2050  0037 2019 (A)   49          	.ascic  "PICOOUTAA"                    
+003A 0053  2051  0038 2019 (A)   43          	.ascic  "PICOOUTAA"                    
+003B 0054  2052  0039 2019 (A)   4F          	.ascic  "PICOOUTAA"                    
+003C 0055  2053  003A 2019 (A)   4F          	.ascic  "PICOOUTAA"                    
+003D 0056  2054  003B 2019 (A)   55          	.ascic  "PICOOUTAA"                    
+003E 0057  2055  003C 2019 (A)   54          	.ascic  "PICOOUTAA"                    
+003F 0058  2056  003D 2019 (A)   41          	.ascic  "PICOOUTAA"                    
+0040 0059  2057  003E 2019 (A)   41          	.ascic  "PICOOUTAA"                    
+0041 005A  2058  003F 2019 (W)   21 1E      * 	.word   opaa                           
+0043 005C  205A  0041 2019 (L)               op00itm:                                
+0043 005C  205A  0041 2019 (AL)  09          	.ascic  "PICOOUT00"                    
+0044 005D  205B  0042 2019 (A)   50          	.ascic  "PICOOUT00"                    
+0045 005E  205C  0043 2019 (A)   49          	.ascic  "PICOOUT00"                    
+0046 005F  205D  0044 2019 (A)   43          	.ascic  "PICOOUT00"                    
+0047 0060  205E  0045 2019 (A)   4F          	.ascic  "PICOOUT00"                    
+0048 0061  205F  0046 2019 (A)   4F          	.ascic  "PICOOUT00"                    
+0049 0062  2060  0047 2019 (A)   55          	.ascic  "PICOOUT00"                    
+004A 0063  2061  0048 2019 (A)   54          	.ascic  "PICOOUT00"                    
+004B 0064  2062  0049 2019 (A)   30          	.ascic  "PICOOUT00"                    
+004C 0065  2063  004A 2019 (A)   30          	.ascic  "PICOOUT00"                    
+004D 0066  2064  004B 2019 (W)   21 7D      * 	.word   op00                           
+004F 0068  2066  004D 2019 (L)               opffitm:                                
+004F 0068  2066  004D 2019 (AL)  09          	.ascic  "PICOOUTFF"                    
+0050 0069  2067  004E 2019 (A)   50          	.ascic  "PICOOUTFF"                    
+0051 006A  2068  004F 2019 (A)   49          	.ascic  "PICOOUTFF"                    
+0052 006B  2069  0050 2019 (A)   43          	.ascic  "PICOOUTFF"                    
+0053 006C  206A  0051 2019 (A)   4F          	.ascic  "PICOOUTFF"                    
+0054 006D  206B  0052 2019 (A)   4F          	.ascic  "PICOOUTFF"                    
+0055 006E  206C  0053 2019 (A)   55          	.ascic  "PICOOUTFF"                    
+0056 006F  206D  0054 2019 (A)   54          	.ascic  "PICOOUTFF"                    
+0057 0070  206E  0055 2019 (A)   46          	.ascic  "PICOOUTFF"                    
+0058 0071  206F  0056 2019 (A)   46          	.ascic  "PICOOUTFF"                    
+0059 0072  2070  0057 2019 (W)   21 84      * 	.word   opff                           
+005B 0074  2072  0059 2019 (L)               ipitm:                                  
+005B 0074  2072  0059 2019 (AL)  06          	.ascic  "PICOIN"                       
+005C 0075  2073  005A 2019 (A)   50          	.ascic  "PICOIN"                       
+005D 0076  2074  005B 2019 (A)   49          	.ascic  "PICOIN"                       
+005E 0077  2075  005C 2019 (A)   43          	.ascic  "PICOIN"                       
+005F 0078  2076  005D 2019 (A)   4F          	.ascic  "PICOIN"                       
+0060 0079  2077  005E 2019 (A)   49          	.ascic  "PICOIN"                       
+0061 007A  2078  005F 2019 (A)   4E          	.ascic  "PICOIN"                       
+0062 007B  2079  0060 2019 (W)   21 7D      * 	.word   op00                           
+0064 007D  207B  0062 2019 (L)               install:                                
+0064 007D  207B  0062 2019 (1)   CE 20 25   * 	 LDX	#olitmaa       ;Copy menu item to buffer ready to insert in menu
+0067 0080  207E  0065 2019 (4)   BD 20 AC   *          JSR     insitm                 
+006A 0083  2081  0068 2019 (1)   CE 20 30   * 	 LDX	#olitm00	;Copy menu item to buffer ready to insert in menu
+006D 0086  2084  006B 2019 (4)   BD 20 AC   *          JSR     insitm                 
+0070 0089  2087  006E 2019 (1)   CE 20 3B   * 	 LDX	#olitmff	;Copy menu item to buffer ready to insert in menu
+0073 008C  208A  0071 2019 (4)   BD 20 AC   *          JSR     insitm                 
+0076 008F  208D  0074 2019 (1)   CE 20 46   * 	LDX     #ilitm                         
+0079 0092  2090  0077 2019 (4)   BD 20 AC   * 	JSR     insitm                         
+007C 0095  2093  007A 2019 (1)   CE 20 4E   * 	LDX     #opaaitm                       
+007F 0098  2096  007D 2019 (4)   BD 20 AC   * 	JSR     insitm                         
+0082 009B  2099  0080 2019 (1)   CE 20 5A   * 	LDX     #op00itm                       
+0085 009E  209C  0083 2019 (4)   BD 20 AC   * 	JSR     insitm                         
+0088 00A1  209F  0086 2019 (1)   CE 20 66   * 	LDX     #opffitm                       
+008B 00A4  20A2  0089 2019 (4)   BD 20 AC   * 	JSR     insitm                         
+008E 00A7  20A5  008C 2019 (1)   CE 20 72   * 	LDX     #ipitm                         
+0091 00AA  20A8  008F 2019 (4)   BD 20 AC   * 	JSR     insitm                         
+0094 00AD  20AB  0092 2019 (5)   39           	RTS                                    
+0095 00AE  20AC  0093 2019 (L)               insitm:                                 
+0095 00AE  20AC  0093 2019 (3)   E6 00        	LDAB    0,X		;Get length               
+0097 00B0  20AE  0095 2019 (1)   CB 03        	ADDB    #3			;Add 3 bytes              
+0099 00B2  20B0  0097 2019 (5)   4F           	CLRA                                   
+009A 00B3  20B1  0098 2019 (2)   DD 41        	STD	utw_s0		;                          
+009C 00B5  20B3  009A 2019 (1)   CC 21 87     	LDD	#rtb_bl                            
+009F 00B8  20B6  009D 2019 (B)   3F          	.byte	^X3F,ut$cpyb                     
+00A0 00B9  20B7  009E 2019 (B)   6D          	.byte	^X3F,ut$cpyb                     
+00A1 00BA  20B8  009F 2019 (1)   C6 FF        	LDAB    #^XFF		;Before OFF             
+00A3 00BC  20BA  00A1 2019 (B)   3F          	.byte	^X3F,tl$addi                     
+00A4 00BD  20BB  00A2 2019 (B)   65          	.byte	^X3F,tl$addi                     
+00A5 00BE  20BC  00A3 2019 (5)   39           	RTS                                    
+00A6 00BF  20BD  00A4 2019 (L)               remove:                                 
+00A6 00BF  20BD  00A4 2019 (1)   CE 20 25   * 	LDX	#olitmaa       ;Copy menu item to buffer ready to insert in menu
+00A9 00C2  20C0  00A7 2019 (B)   3F          	.byte	^X3F,tl$deli                     
+00AA 00C3  20C1  00A8 2019 (B)   67          	.byte	^X3F,tl$deli                     
+00AB 00C4  20C2  00A9 2019 (1)   CE 20 30   * 	LDX	#olitm00	;Copy menu item to buffer ready to insert in menu
+00AE 00C7  20C5  00AC 2019 (B)   3F          	.byte	^X3F,tl$deli                     
+00AF 00C8  20C6  00AD 2019 (B)   67          	.byte	^X3F,tl$deli                     
+00B0 00C9  20C7  00AE 2019 (1)   CE 20 3B   * 	LDX	#olitmff	;Copy menu item to buffer ready to insert in menu
+00B3 00CC  20CA  00B1 2019 (B)   3F          	.byte	^X3F,tl$deli                     
+00B4 00CD  20CB  00B2 2019 (B)   67          	.byte	^X3F,tl$deli                     
+00B5 00CE  20CC  00B3 2019 (1)   CE 20 46   * 	LDX     #ilitm                         
+00B8 00D1  20CF  00B6 2019 (B)   3F          	.byte	^X3F,tl$deli                     
+00B9 00D2  20D0  00B7 2019 (B)   67          	.byte	^X3F,tl$deli                     
+00BA 00D3  20D1  00B8 2019 (1)   CE 20 4E   * 	LDX     #opaaitm                       
+00BD 00D6  20D4  00BB 2019 (B)   3F          	.byte	^X3F,tl$deli                     
+00BE 00D7  20D5  00BC 2019 (B)   67          	.byte	^X3F,tl$deli                     
+00BF 00D8  20D6  00BD 2019 (1)   CE 20 5A   * 	LDX     #op00itm                       
+00C2 00DB  20D9  00C0 2019 (B)   3F          	.byte	^X3F,tl$deli                     
+00C3 00DC  20DA  00C1 2019 (B)   67          	.byte	^X3F,tl$deli                     
+00C4 00DD  20DB  00C2 2019 (1)   CE 20 66   * 	LDX     #opffitm                       
+00C7 00E0  20DE  00C5 2019 (B)   3F          	.byte	^X3F,tl$deli                     
+00C8 00E1  20DF  00C6 2019 (B)   67          	.byte	^X3F,tl$deli                     
+00C9 00E2  20E0  00C7 2019 (1)   CE 20 72   * 	LDX     #ipitm                         
+00CC 00E5  20E3  00CA 2019 (B)   3F          	.byte	^X3F,tl$deli                     
+00CD 00E6  20E4  00CB 2019 (B)   67          	.byte	^X3F,tl$deli                     
+00CE 00E7  20E5  00CC 2019 (5)   0C           	clc                                    
+00CF 00E8  20E6  00CD 2019 (5)   39           	rts                                    
+00D0 00E9  20E7  00CE 2019 (L)               lang:                                   
+00D0 00E9  20E7  00CE 2019 (5)   0D           	sec                                    
+00D1 00EA  20E8  00CF 2019 (5)   39           	rts                                    
+00D2 00EB  20E9  00D0 2019 (L)               outpico:                                
+00D2 00EB  20E9  00D0 2019 (5)   36           	PSHA			; Save data for later           
+00D3 00EC  20EA  00D1 2019 (5)   4F           	CLRA                                   
+00D4 00ED  20EB  00D2 2019 (1)   C6 03                LDAB    #PAKD                   
+00D6 00EF  20ED  00D4 2019 (B)   3F          	.byte	^X3F,pk$setp                     
+00D7 00F0  20EE  00D5 2019 (B)   62          	.byte	^X3F,pk$setp                     
+00D8 00F1  20EF  00D6 2019 (6)   72 40 17             OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+00DB 00F4  20F2  00D9 2019 (1)   86 FF                LDAA    #$FF	                   
+00DD 00F6  20F4  00DB 2019 (2)   97 01                STAA    POB_DDR2             ; make port 2 output
+00DF 00F8  20F6  00DD 2019 (5)   32                   PULA                          ; get data back
+00E0 00F9  20F7  00DE 2019 (2)   97 03                STAA    POB_PORT2            ; data on data bus
+00E2 00FB  20F9  00E0 2019 (6)   72 08 17             OIM     #OE,POB_PORT6           ; SET SOE_B HIGH
+00E5 00FE  20FC  00E3 2019 (6)   71 FD 17     	AIM     #^CMR,POB_PORT6           ; SMR LOW
+00E8 0101  20FF  00E6 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6	; SELECT THE SLOT AGAIN
+00EB 0104  2102  00E9 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6	; SELECT THE SLOT AGAIN
+00EE 0107  2105  00EC 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6	; SELECT THE SLOT AGAIN
+00F1 010A  2108  00EF 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6	; SELECT THE SLOT AGAIN
+00F4 010D  210B  00F2 2019 (6)   72 40 17     	OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+00F7 0110  210E  00F5 2019 (6)   72 40 17     	OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+00FA 0113  2111  00F8 2019 (6)   72 40 17     	OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+00FD 0116  2114  00FB 2019 (4)   7F 00 01     	CLR     POB_DDR2                ; make port 2 inputs again
+0100 0119  2117  00FE 2019 (6)   71 F7 17             AIM     #^COE,POB_PORT6       ; SET SOE_B LOW
+0103 011C  211A  0101 2019 (6)   72 40 17             OIM     #CS3,POB_PORT6      ; DESELECT THE SLOT AGAIN
+0106 011F  211D  0104 2019 (5)   39           	RTS                                    
+0107 0120  211E  0105 2019 (1)   86 AA        opaa:	ldaa    #$AA                      
+0109 0122  2120  0107 2019 (4)   BD 20 E9   * 	JSR     outpico                        
+010C 0125  2123  010A 2019 (5)   0C           	CLC                                    
+010D 0126  2124  010B 2019 (5)   39           	RTS                                    
+010E 0127  2125  010C 2019 (L)               readil:                                 
+010E 0127  2125  010C 2019 (5)   4F           	CLRA                                   
+010F 0128  2126  010D 2019 (1)   C6 03                LDAB    #PAKD                   
+0111 012A  2128  010F 2019 (B)   3F          	.byte	^X3F,pk$setp                     
+0112 012B  2129  0110 2019 (B)   62          	.byte	^X3F,pk$setp                     
+0113 012C  212A  0111 2019 (6)   72 40 17             OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+0116 012F  212D  0114 2019 (1)   86 FF                LDAA    #$FF	                   
+0118 0131  212F  0116 2019 (4)   7F 00 01             CLR     POB_DDR2             ; make port 2 inputs
+011B 0134  2132  0119 2019 (6)   71 F7 17             AIM     #^COE,POB_PORT6           ; SET SOE_B LOW
+011E 0137  2135  011C 2019 (6)   72 02 17     	OIM     #MR,POB_PORT6           ; SMR HIGH
+0121 013A  2138  011F 2019 (6)   71 FE 17     	AIM     #^CCLK, POB_PORT6       ; CLK low
+0124 013D  213B  0122 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6	; SELECT THE SLOT AGAIN
+0127 0140  213E  0125 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6	; SELECT THE SLOT AGAIN
+012A 0143  2141  0128 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6	; SELECT THE SLOT AGAIN
+012D 0146  2144  012B 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6	; SELECT THE SLOT AGAIN
+0130 0149  2147  012E 2019 (2)   96 03        	LDAA    POB_PORT2                      
+0132 014B  2149  0130 2019 (5)   36           	PSHA                                   
+0133 014C  214A  0131 2019 (6)   72 40 17     	OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+0136 014F  214D  0134 2019 (6)   72 40 17     	OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+0139 0152  2150  0137 2019 (6)   72 40 17     	OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+013C 0155  2153  013A 2019 (4)   7F 00 01     	CLR     POB_DDR2                ; make port 2 inputs again
+013F 0158  2156  013D 2019 (6)   71 F7 17             AIM     #^COE,POB_PORT6       ; SET SOE_B LOW
+0142 015B  2159  0140 2019 (6)   72 40 17             OIM     #CS3,POB_PORT6      ; DESELECT THE SLOT AGAIN
+0145 015E  215C  0143 2019 (5)   32           	PULA                                   
+0146 015F  215D  0144 2019 (5)   39           	RTS                                    
+0147 0160  215E  0145 2019 (L)               latin:                                  
+0147 0160  215E  0145 2019 (1)   CE 00 00     	LDX     #0              ; No cursor, pos 0
+014A 0163  2161  0148 2019 (B)   3F          	.byte	^X3F,dp$stat                     
+014B 0164  2162  0149 2019 (B)   14          	.byte	^X3F,dp$stat                     
+014C 0165  2163  014A 2019 (1)   86 AA                LDAA    #^xAA                   
+014E 0167  2165  014C 2019 (4)   BD 21 25   * 	JSR     readil                         
+0151 016A  2168  014F 2019 (5)   36           	PSHA                    ;Push it on to stack
+0152 016B  2169  0150 2019 (B)   3F          	.byte	^X3F,ut$disp                     
+0153 016C  216A  0151 2019 (B)   6F          	.byte	^X3F,ut$disp                     
+0154 016D  216B  0152 2019 (B)   0C          	.byte   D_FF                           
+0155 016E  216C  0153 2019 (A)   49          	.asciz  "ILAT:%y"                      
+0156 016F  216D  0154 2019 (A)   4C          	.asciz  "ILAT:%y"                      
+0157 0170  216E  0155 2019 (A)   41          	.asciz  "ILAT:%y"                      
+0158 0171  216F  0156 2019 (A)   54          	.asciz  "ILAT:%y"                      
+0159 0172  2170  0157 2019 (A)   3A          	.asciz  "ILAT:%y"                      
+015A 0173  2171  0158 2019 (A)   25          	.asciz  "ILAT:%y"                      
+015B 0174  2172  0159 2019 (A)   79          	.asciz  "ILAT:%y"                      
+015C 0175  2173  015A 2019 (AL)  00          	.asciz  "ILAT:%y"                      
+015D 0176  2174  015B 2019 (B)   3F          	.byte	^X3F,kb$test                     
+015E 0177  2175  015C 2019 (B)   4B          	.byte	^X3F,kb$test                     
+015F 0178  2176  015D 2019 (5)   5D           	TSTB                                   
+0160 0179  2177  015E 2019 (0)   27 E5        	BEQ   latin                            
+0162 017B  2179  0160 2019 (B)   3F          	.byte	^X3F,kb$getk                     
+0163 017C  217A  0161 2019 (B)   48          	.byte	^X3F,kb$getk                     
+0164 017D  217B  0162 2019 (5)   0C           	CLC                                    
+0165 017E  217C  0163 2019 (5)   39           	RTS                                    
+0166 017F  217D  0164 2019 (1)   86 00        op00:	ldaa    #$00                      
+0168 0181  217F  0166 2019 (4)   BD 20 E9   * 	JSR     outpico                        
+016B 0184  2182  0169 2019 (5)   0C           	CLC                                    
+016C 0185  2183  016A 2019 (5)   39           	RTS                                    
+016D 0186  2184  016B 2019 (1)   86 FF        opff:	ldaa    #$FF                      
+016F 0188  2186  016D 2019 (4)   BD 20 E9   * 	JSR     outpico                        
+0172 018B  2189  0170 2019 (5)   0C           	CLC                                    
+0173 018C  218A  0171 2019 (5)   39           	RTS                                    
+0174 018D  218B  0172 2019 (L)               latcho:                                 
+0174 018D  218B  0172 2019 (5)   36           	PSHA			; Save data for later           
+0175 018E  218C  0173 2019 (5)   4F           	CLRA                                   
+0176 018F  218D  0174 2019 (1)   C6 03                LDAB    #PAKD                   
+0178 0191  218F  0176 2019 (B)   3F          	.byte	^X3F,pk$setp                     
+0179 0192  2190  0177 2019 (B)   62          	.byte	^X3F,pk$setp                     
+017A 0193  2191  0178 2019 (6)   72 40 17             OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+017D 0196  2194  017B 2019 (1)   86 FF                LDAA    #$FF	                   
+017F 0198  2196  017D 2019 (2)   97 01                STAA    POB_DDR2             ; make port 2 output
+0181 019A  2198  017F 2019 (5)   32                   PULA                          ; get data back
+0182 019B  2199  0180 2019 (2)   97 03                STAA    POB_PORT2            ; data on data bus
+0184 019D  219B  0182 2019 (6)   72 08 17             OIM     #OE,POB_PORT6           ; SET SOE_B HIGH
+0187 01A0  219E  0185 2019 (6)   72 02 17     	OIM     #MR,POB_PORT6           ; SMR HIGH
+018A 01A3  21A1  0188 2019 (6)   72 01 17     	OIM     #CLK,POB_PORT6		  ; SCLK HIGH (don't care)
+018D 01A6  21A4  018B 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6      ; SELECT THE SLOT AGAIN
+0190 01A9  21A7  018E 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6      ; SELECT THE SLOT AGAIN
+0193 01AC  21AA  0191 2019 (6)   71 BF 17             AIM     #^CCS3,POB_PORT6      ; SELECT THE SLOT AGAIN
+0196 01AF  21AD  0194 2019 (6)   72 40 17     	OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+0199 01B2  21B0  0197 2019 (6)   72 40 17     	OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT
+019C 01B5  21B3  019A 2019 (6)   72 40 17     	OIM     #CS3,POB_PORT6          ; DESELECT THE SLOT	
+019F 01B8  21B6  019D 2019 (4)   7F 00 01     	CLR     POB_DDR2                ; make port 2 inputs again
+01A2 01BB  21B9  01A0 2019 (6)   71 F7 17             AIM     #^COE,POB_PORT6       ; SET SOE_B LOW
+01A5 01BE  21BC  01A3 2019 (6)   72 40 17             OIM     #CS3,POB_PORT6        ; DESELECT THE SLOT AGAIN
+01A8 01C1  21BF  01A6 2019 (5)   39           	RTS                                    
+01A9 01C2  21C0  01A7 2019 (1)   86 AA        lataa:	ldaa    #$AA                     
+01AB 01C4  21C2  01A9 2019 (4)   BD 21 8B   * 	JSR     latcho                         
+01AE 01C7  21C5  01AC 2019 (5)   0C           	CLC                                    
+01AF 01C8  21C6  01AD 2019 (5)   39           	RTS                                    
+01B0 01C9  21C7  01AE 2019 (1)   86 00        lat00:	ldaa    #$00                     
+01B2 01CB  21C9  01B0 2019 (4)   BD 21 8B   * 	JSR     latcho                         
+01B5 01CE  21CC  01B3 2019 (5)   0C           	CLC                                    
+01B6 01CF  21CD  01B4 2019 (5)   39           	RTS                                    
+01B7 01D0  21CE  01B5 2019 (1)   86 FF        latff:	ldaa    #$FF                     
+01B9 01D2  21D0  01B7 2019 (4)   BD 21 8B   * 	JSR     latcho                         
+01BC 01D5  21D3  01BA 2019 (5)   0C           	CLC                                    
+01BD 01D6  21D4  01BB 2019 (5)   39           	RTS                                    
+01BE 01D7  21D5  01BC 2019 (B)   00          ebufc:	.byte	0                          
+01BF 01D8  21D6  01BD 2019 (W)   00 00        btext:	.word	0                          
+01C1 01DA  21D8  01BF 2019 (W)   00 00        etexty:	.word	0                         
+01C3 01DC  21DA  01C1 2019 (W)   00 00        wrd_c:	.word	0                          
+01C5 01DE  21DC  01C3 2019 (W)   00 00        twrd_c:	.word	0                         
+01C7 01E0  21DE  01C5 2019 (W)   00 00        decode:	.word	0                         
+01C9 01E2  21E0  01C7 2019 (W)   00 00        bind1:	.word	0                          
+01CB 01E4  21E2  01C9 2019 (W)   00 00        bind2:	.word	0                          
+01CD 01E6  21E4  01CB 2019 (W)   00 00        ends:	.word	0                           
+020F 0228  2226  020D 2019 (B)   0F          dbuf:	.byte	D_CB                        
+0357 0370  236E  0355 2019 (L)               loade:                                  
+0357 0370  236E  0355 2019 (OE)              	.eover                                 
+0357 0370  236E  0355 2019 (OSUM)  98 C2                                                
+0359 0372  2370  0357 2019 (NFX)  00 2A                                                
+035B 0374  2372  0359 2019 (FX)  00 06                                                
+035D 0376  2374  035B 2019 (FX)  00 08                                                
+035F 0378  2376  035D 2019 (FX)  00 0A                                                
+0361 037A  2378  035F 2019 (FX)  00 15                                                
+0363 037C  237A  0361 2019 (FX)  00 20                                                
+0365 037E  237C  0363 2019 (FX)  00 2B                                                
+0367 0380  237E  0365 2019 (FX)  00 33                                                
+0369 0382  2380  0367 2019 (FX)  00 3F                                                
+036B 0384  2382  0369 2019 (FX)  00 4B                                                
+036D 0386  2384  036B 2019 (FX)  00 57                                                
+036F 0388  2386  036D 2019 (FX)  00 60                                                
+0371 038A  2388  036F 2019 (FX)  00 63                                                
+0373 038C  238A  0371 2019 (FX)  00 66                                                
+0375 038E  238C  0373 2019 (FX)  00 69                                                
+0377 0390  238E  0375 2019 (FX)  00 6C                                                
+0379 0392  2390  0377 2019 (FX)  00 6F                                                
+037B 0394  2392  0379 2019 (FX)  00 72                                                
+037D 0396  2394  037B 2019 (FX)  00 75                                                
+037F 0398  2396  037D 2019 (FX)  00 78                                                
+0381 039A  2398  037F 2019 (FX)  00 7B                                                
+0383 039C  239A  0381 2019 (FX)  00 7E                                                
+0385 039E  239C  0383 2019 (FX)  00 81                                                
+0387 03A0  239E  0385 2019 (FX)  00 84                                                
+0389 03A2  23A0  0387 2019 (FX)  00 87                                                
+038B 03A4  23A2  0389 2019 (FX)  00 8A                                                
+038D 03A6  23A4  038B 2019 (FX)  00 8D                                                
+038F 03A8  23A6  038D 2019 (FX)  00 90                                                
+0391 03AA  23A8  038F 2019 (FX)  00 A5                                                
+0393 03AC  23AA  0391 2019 (FX)  00 AA                                                
+0395 03AE  23AC  0393 2019 (FX)  00 AF                                                
+0397 03B0  23AE  0395 2019 (FX)  00 B4                                                
+0399 03B2  23B0  0397 2019 (FX)  00 B9                                                
+039B 03B4  23B2  0399 2019 (FX)  00 BE                                                
+039D 03B6  23B4  039B 2019 (FX)  00 C3                                                
+039F 03B8  23B6  039D 2019 (FX)  00 C8                                                
+03A1 03BA  23B8  039F 2019 (FX)  01 08                                                
+03A3 03BC  23BA  03A1 2019 (FX)  01 4D                                                
+03A5 03BE  23BC  03A3 2019 (FX)  01 67                                                
+03A7 03C0  23BE  03A5 2019 (FX)  01 6E                                                
+03A9 03C2  23C0  03A7 2019 (FX)  01 AA                                                
+03AB 03C4  23C2  03A9 2019 (FX)  01 B1                                                
+03AD 03C6  23C4  03AB 2019 (FX)  01 B8                                                
+03AF 03C8  23C6  03AD 2019 (FCSUM)  19 75                                                
+0000 03CA  23C8  0000 23C8 (OVER)              	.over  prgend                          
+0000 03CA  23C8  0000 23C8 (OE)              	.eover                                 
+FFFFFFFFFFFFFC36 0           0000 23C8 (SUM) Label Sum: $252869                                         
+
