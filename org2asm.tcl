@@ -99,7 +99,7 @@
 #  device returns with a clear carry flag, then the appropriate vector is immediately
 #  called (registers A and B are already prepared for calling service DV$VECT, SWI $1B).
 
-# Fixups are necessary for any refernces to labels created with a colon, any labels
+# Fixups are necessary for any references to labels created with a colon, any labels
 # created with an EQU does not ned a fixup. Fixups are local to the current overlay
 # as they are used when an overlay is loaded
 
@@ -113,6 +113,7 @@ set ::EMBED_COMMENT_END   "// ASSEMBLER_EMBEDDED_CODE_END"
 
 
 set ::LIST_TEXT    ""
+set ::SHORT_LIST_TEXT    ""
 set ::LABELLIST    ""
 set ::MACROLIST    ""
 set ::OVER_LIST    ""
@@ -348,6 +349,13 @@ proc addlstline {packaddr addr type object line} {
     
     set f_line [format "%04X %-5s %-5s %04X %04X %-4s %-12s %-40s\n" [expr 0x$packaddr - $::OVER_ORG_PACK] $packaddr $addr $xaddr $::OVER_ORG $type $object  $line]
     append ::LIST_TEXT $f_line
+
+    if { ($::PASS == $::LAST_PASS) } {
+	if { [string first "(E)" $type] == -1} {
+	    append ::SHORT_LIST_TEXT $f_line
+	}
+    }
+	 
 }
 
 proc error {line msg} {
@@ -1910,18 +1918,24 @@ proc calc_label_sum {} {
     return $label_sum
 }
 
-proc write_lst_file {filename} {
+################################################################################
+#
+# Write a full list file
+#
+#
+
+proc write_lst_file {filename {short 0}} {
     
     set f [open $filename w]
     
     puts $f $::LIST_TEXT
-    
+
     foreach label $::LABELLIST {
 	set label_value [formatword $::LABEL($label)]
 	set label_pack_value [formatword $::LABEL_PACK_ADDR($label)]
 	
 	set f_name [format "%20s" $label]
-
+	
 	switch $::LABEL_TYPE($label) {
 	    COLON {
 		set ltype "FIX"
@@ -1961,6 +1975,15 @@ proc write_lst_file {filename} {
 	}
     }
     
+    close $f
+}
+
+proc write_short_lst_file {filename} {
+    
+    set f [open $filename w]
+    
+    puts $f $::SHORT_LIST_TEXT
+
     close $f
 }
 
@@ -2044,7 +2067,8 @@ for { set ::PASS 1 } {$::PASS <= $::NUMBER_OF_PASSES} {incr ::PASS 1} {
     close $f
 }
 
-write_lst_file   $lst_filename
+write_lst_file         $lst_filename
+write_short_lst_file   $lst_filename\.short
 
 write_hex_file   $hex_filename
 write_bin_file   $bin_filename
