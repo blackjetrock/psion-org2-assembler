@@ -7,7 +7,7 @@ Features:
 
 * Runs on Linux
 * Can output the Psion relocatable format needed when creating code designed to be loaded as a driver.
-* Assembles 6303 cod efor other platforms
+* Assembles 6303 code for other platforms
 * Uses Tcl so source code is always available (and changeable or fixable)
 * Uses Tcl expressions so you can use sin(), log() etc in the assembler.
 * Expressions can be used anywhere.
