@@ -67,6 +67,9 @@ Examples of the syntax of the assembler.
 topslot/break3.asm
 This is the code that I used to drive the top slot adapter PCB I made. Being able to assemble this code is the reason I wrote this assembler. This file uses the overlay mechanism that the organiser uses to effectively have position independent code. There's not a lot of information about the overly format so I had to reverse engineer some of it. The .lst file has a lot of information about overlays and the fixup records.
 
+swipack/swi_pack.asm
+This is a modified version of the swi_pack.asm example code from Psion. It has been modified to match the syntax that org2asm.tcl requires.
+
 Test Code
 =========
 
