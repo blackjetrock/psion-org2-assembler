@@ -628,6 +628,10 @@ proc sz {a b} {
 # ^Adxd    converted to ASCII code of 'x'
 # ^Adxyd   converted to ASCIi code of x and y as two bytes
 #
+# ^Bdnnd   convert to bit mask with bit number nn set
+#
+# NOTE: Only one ^ type expression is allowed in a line. This will hopefully be fixed in the future
+#
 # The type of the expression is COLON if any label used is
 # COLON, otherwise EQU
 # The type is used to work out if a fixup is needed.
@@ -758,11 +762,11 @@ proc evaluate_expression_core {exp} {
     dbg "EVALEXP:after labels = '$exp'"
     
     # Now handle the ASCII character expressions
-    if { [regexp -- "\\^(a|A)(.)(.+)(.)" $exp all code delim1 ascii delim2] } {
+    if { [regexp -- "\\^(a|A)(.?)(.{1,2})(\\2)" $exp all code delim1 ascii delim2] } {
 	dbg "code='$code' del1='$delim1' del2='$delim2' ascii='$ascii'"
 	# We have an ascii expression
 	# Get indices of expression
-	if { [regexp -indices -- "\\^(a|A)(.)(.+)(.)" $exp i_all i_code i_delim1 i_ascii i_delim2] } {
+	if { [regexp -indices -- "\\^(a|A)(.?)(.{1,2})(\\2.)" $exp i_all i_code i_delim1 i_ascii i_delim2] } {
 	    # Some checks
 	    dbg "i_all    $i_all"
 	    dbg "i_code   $i_code"

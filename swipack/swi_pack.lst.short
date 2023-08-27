@@ -1,0 +1,183 @@
+2402                         .ORG         $241b-25         
+2402               XX:                                     
+2402   6A                   .BYTE        $6A            ; DATAPACK BOOTABLE
+2403   02                   .BYTE        $02            ; 16K DATAPACK
+2404   00                   .BYTE        0               ; NO HARDWARE
+2405   02                   .BYTE        2               ; DEVICE NUMBER
+2406   10                   .BYTE        $10            ; VERSION NUMBER (1.0)
+2407   02                   .BYTE        2               ; PRIORITY
+2408   00 17                 .WORD        %ROOT-2         ; ROOT OVERLAY ADDRESS
+240A   FF                   .BYTE        $FF               
+240B   FF                   .BYTE        $FF               
+240C   09                   .BYTE        $09               
+240D   81                   .BYTE        $81               
+240E   4D                   .ASCII       "MAIN    "        
+240F   41                   .ASCII       "MAIN    "        
+2410   49                   .ASCII       "MAIN    "        
+2411   4E                   .ASCII       "MAIN    "        
+2412   20                   .ASCII       "MAIN    "        
+2413   20                   .ASCII       "MAIN    "        
+2414   20                   .ASCII       "MAIN    "        
+2415   20                   .ASCII       "MAIN    "        
+2416   90                   .BYTE        ^X90              
+2417   02                   .BYTE        ^X02              
+2418   80                   .BYTE        ^X80              
+2419   00 EC                 .WORD        %PRGEND-%ROOT+2 ; SIZE OF CODE
+241B                        .OVER        ROOT              
+241B 00 D8                 .OVER        ROOT              
+241B             CODELEN:                                
+241B 00 00                 .WORD        0000            ; SET BY DV$BOOT
+241B             BDEVICE:                                
+241B 00                   .BYTE        00              ; SET BY DV$BOOT
+241B             DEVNUM:                                 
+241B 02                   .BYTE        2               ; DEVICE NUMBER
+241B             VERNUM:                                 
+241B 10                   .BYTE        ^X10            ; VERSION 1.0
+241B             MAXVEC:                                 
+241B 04                   .BYTE        (ENDVEC-VECTABLE)/2 ; NUMBER OF VECTORS
+241B             VECTABLE:                               
+241B 24 29      *          .WORD        INSTALL         ; INSTALL VECTOR
+241B 24 2B      *          .WORD        REMOVE          ; REMOVE VECTOR
+241B 24 2D      *          .WORD        LANG            ; LANGUAGE VECTOR
+241B 24 49      *          .WORD        DO_SWI          ; HANDLE SWI%: VECTOR
+241B             ENDVEC:                                 
+241B             INSTALL:                                
+241B 0C                    CLC                  ; SIGNAL SUCCESS
+241B 39                    RTS                            
+241B             REMOVE:                                 
+241B 0C                    CLC                  ; SIGNAL SUCCESS
+241B 39                    RTS                            
+241B             LANG:                                   
+241B EC 00                 LDD  0,X                       
+241B 83 04 53              SUBD #(4*256)+^A'S'            
+241B 26 13                 BNE  NOT_SWI                   
+241B EC 02                 LDD  2,X                       
+241B 83 57 49              SUBD #$5749                    
+241B 26 0C                 BNE  NOT_SWI                   
+241B A6 04                 LDAA 4,X                       
+241B 81 25                 CMPA #^A'%'                    
+241B 26 06                 BNE  NOT_SWI                   
+241B 86 02                 LDAA #2            ; DEVICE 2  
+241B C6 03                 LDAB #3            ; DO_SWI VECTOR SERVICE NUMBER
+241B 0C                    CLC                  ; SIGNAL SUCCESS
+241B 39                    RTS                            
+241B             NOT_SWI:                                
+241B 0D                    SEC                  ; SIGNAL NOT PREPARED TO HANDLE
+241B 39                    RTS                  ; REQUEST 
+241B             DO_SWI:                                 
+241B DE A5                 LDX  RTA_SP         ; GET LANGUAGE STACK
+241B A6 00                 LDAA 0,X           ; GET NUMBER OF ARGUMENTS
+241B 4A                    DECA                 ; CHECK IF 1
+241B 27 04                 BEQ  ARG_OK          ; YES - SO CORRECT ARG COUNT
+241B C6 CD                 LDAB #ER_RT_NP     ; SIGNAL WRONG NUMBER OF ARGUMENTS
+241B             BAD_EXIT:                               
+241B 0D                    SEC                  ; SIGNAL BAD CALL
+241B 39                    RTS                            
+241B             ARG_OK:                                 
+241B A6 01                 LDAA 1,X           ; GET ARGUMENT TYPE
+241B 27 04                 BEQ  ARG_INT         ; ZERO - SO ARG IS INTEGER
+241B C6 E0                 LDAB #ER_EX_TV     ; SIGNAL TYPE VIOLATION
+241B 20 F6                 BRA  BAD_EXIT                  
+241B             ARG_INT:                                
+241B EC 02                 LDD  2,X             ; GET SWI FUNCTION TO DO
+241B 83 00 80              SUBD #^X80           ; MAXIMUM FUNCTION + 1
+241B 25 04                 BCS  FUNCTION_OK     ; GOOD FUNCTION RANGE 0-127
+241B C6 F7                 LDAB #ER_FN_BA     ; SIGNAL BAD FUNCTION ARGUMENT
+241B 20 EB                 BRA  BAD_EXIT                  
+241B             FUNCTION_OK:                            
+241B CB 80                 ADDB #^X80         ; GET BACK THE FUNCTION NUMBER
+241B F7 24 CF   *          STAB SWI_FUNC      ; PATCH THE CODE TO DO SWI FUNCTION
+241B CC 00 00              LDD  #0                        
+241B DD E0                 STD  D_ADDR         ; MARK D NOT FOUND
+241B DD E2                 STD  X_ADDR         ; MARK X NOT FOUND
+241B DE A7                 LDX  RTA_FP         ; GET THE FRAME POINTER
+241B 09                    DEX                            
+241B 09                    DEX                            
+241B DF 41                 STX  UTW_S0         ; SAVE END OF GLOBALS TABLE
+241B EE 00                 LDX  0,X             ; ADDRESS OF BASE OF GLOBALS TABLE
+241B             LOOP:                                   
+241B 9C 41                 CPX  UTW_S0         ; SEARCHED WHOLE TABLE YET
+241B 27 2D                 BEQ  TEST_OK         ; FINISHED
+241B EC 00                 LDD  0,X                       
+241B 83 02 44              SUBD #(2*256)+^A'D'  ; CHECK IF D%
+241B 26 0D                 BNE  CHECK_X         ; NO - SO CHECK X
+241B EC 02                 LDD  2,X                       
+241B 83 252 56             SUBD #(^A'%'*256)    ; CHECK IF D%
+241B 26 06                 BNE  CHECK_X         ; NO - SO CHECK X
+241B EC 04                 LDD  4,X             ; ADDRESS OF D
+241B DD E0                 STD  D_ADDR         ; SAVE IT AWAY
+241B 20 12                 BRA  NEXT_EXT        ; GO LOOK UP THE OTHERS
+241B             CHECK_X:                                
+241B EC 00                 LDD  0,X                       
+241B 83 02 58              SUBD #(2*256)+^A'X'  ; CHECK IF X%
+241B 26 0B                 BNE  NEXT_EXT        ; NO - SO CHECK NEXT
+241B EC 02                 LDD  2,X                       
+241B 83 252 56             SUBD #(^A'%'*256)    ; CHECK IF X%
+241B 26 04                 BNE  NEXT_EXT        ; NO - SO CHECK NEXT
+241B EC 04                 LDD  4,X             ; ADDRESS OF X%
+241B DD E2                 STD  X_ADDR         ; SAVE IT AWAY
+241B             NEXT_EXT:                               
+241B E6 00                 LDAB 0,X           ; GET LENGTH OF NAME
+241B CB 04                 ADDB #4            ; SKIP TO NEXT NAME
+241B 3A                    ABX                            
+241B 20 CF                 BRA  LOOP                      
+241B             TEST_OK:                                
+241B DE E2                 LDX  X_ADDR         ; GET X'S ADDRESS
+241B 26 10                 BNE  X_FOUND                   
+241B C6 58                 LDAB #^A'X'        ; SIGNAL X% NOT DECLARED
+241B             SET_MISS:                               
+241B 86 02                 LDAA #2                        
+241B FD 21 87              STD  RTB_BL                    
+241B 86 25                 LDAA #^A'%'                    
+241B B7 21 89              STAA RTB_BL+2      ; USED WHEN REPORTING MISSING EXTERNALS
+241B C6 CC                 LDAB #ER_RT_UE     ; SIGNAL UNDEFINED EXTERNALS
+241B 20 92                 BRA  BAD_EXIT                  
+241B             X_FOUND:                                
+241B DE E0                 LDX  D_ADDR          ; GET D'S ADDRESS
+241B 26 04                 BNE  D_FOUND                   
+241B C6 44                 LDAB #^A'D'        ; SIGNAL D% NOT DECLARED
+241B 20 EA                 BRA  SET_MISS                  
+241B             D_FOUND:                                
+241B EC 00                 LDD  0,X             ; GET VALUE FOR D
+241B DE E2                 LDX  X_ADDR                    
+241B EE 00                 LDX  0,X             ; GET VALUE FOR X
+241B 3F                    SWI                            
+241B             SWI_FUNC:                               
+241B 00                   .BYTE 0              ; PATCHED HIGHER UP
+241B 24 0A                 BCC  NO_ERR          ; ALL OK  
+241B 4F                    CLRA                           
+241B DE E0                 LDX  D_ADDR         ; GET D'S ADDRESS
+241B ED 00                 STD  0,X             ; SAVE ERROR IN D
+241B CC FF FF              LDD  #^XFFFF         ; SIGNAL FAILURE
+241B 20 0D                 BRA  EXIT            ; RETURN SWI%:'S VALUE
+241B             NO_ERR:                                 
+241B 3C                    PSHX                 ; SAVE X  
+241B DE E0                 LDX  D_ADDR         ; GET D'S ADDRESS
+241B ED 00                 STD  0,X             ; SAVE D'S VALUE
+241B DE E2                 LDX  X_ADDR         ; GET X'S ADDRESS
+241B 32                    PULA               ; GET BACK X IN D
+241B 33                    PULB                           
+241B ED 00                 STD  0,X             ; SAVE X'S VALUE
+241B 4F                    CLRA                           
+241B 5F                    CLRB               ; SIGNAL SUCCESS
+241B             EXIT:                                   
+241B DE A5                 LDX  RTA_SP         ; GET STACK ADDRESS
+241B 09                    DEX                            
+241B 09                    DEX                  ; LEAVE ROOM FOR INT RESULT
+241B ED 00                 STD  0,X                       
+241B DF A5                 STX  RTA_SP         ; UPDATE STACK POINTER
+241B 0C                    CLC                  ; SIGNAL SUCCESS
+241B 39                    RTS                            
+241B                      .EOVER                         
+241B   5A 1B                                                
+241B  00 05                                                
+241B 00 06                                                
+241B 00 08                                                
+241B 00 0A                                                
+241B 00 0C                                                
+241B 00 4F                                                
+241B )  00 73                                                
+2503                        .OVER        PRGEND  ; TO MARK END OF CODE
+2503                      .EOVER                         
+
+
