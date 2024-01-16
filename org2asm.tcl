@@ -418,8 +418,18 @@ proc proc_rel {len p1 p2} {
     # using REL addr mode are branches that is always 2
     set r [expr ($p1 - $::ADDR - 1)]
 
+    # Check the result is correct, i.e. fits in the range that one byte allows
+    # (between -126 and +129 bytes)
+    # Only check on last pass
+    if { $::PASS == $::LAST_PASS } {
+	if { ($r < -126) || ($r > 129) } {
+	    error $::CURRENT_LINE "Relative jump out of range '$r' not between -126 and +129"
+	}
+    }
+    
     # Convert to byte
     set r [expr $r & 0xff]
+
     
     emit $r
 }
