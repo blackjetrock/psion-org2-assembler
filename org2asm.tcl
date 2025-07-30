@@ -562,7 +562,7 @@ proc emitword {w} {
 	    add_fixup [expr $::ADDR-$::OVER_ORG]
 
 	    # Adjust word so it is fixed up corectly
-	    if { [info exists ::OVER_START(::CURRENT_OVER)] } {
+	    if { [info exists ::OVER_START($::CURRENT_OVER)] } {
 		set w [expr $w - $::OVER_START($::CURRENT_OVER)]
 	    }
 	    set ::FIXED "*"
